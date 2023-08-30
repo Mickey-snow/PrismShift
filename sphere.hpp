@@ -2,6 +2,7 @@
 #define SPHERE_H
 
 #include "objects.hpp"
+#include "renderer.hpp"
 #include "common/common.hpp"
 
 #include<cmath>
@@ -11,7 +12,12 @@ public:
   Sphere(const Point3& _center, const double& r) : center(_center), radius(r) {}
 
   virtual Color Ray_Color(const Ray& r, const Hit_record& rec) const override{
-    return 0.5*(rec.normal+Color(1,1,1)); 
+    // return 0.5*(rec.normal+Color(1,1,1));
+    Vector3 reflect_vec_center = rec.position + (rec.front_face ? rec.normal : -rec.normal);
+    Vector3 reflect_vec = reflect_vec_center + Vector3::Random_Unit();
+
+    if(reflect_vec.Near_Zero()) reflect_vec = reflect_vec_center;
+    return 0.64 * Renderer::Instance()->Ray_Color(Ray(rec.position, reflect_vec), rec.hit_counts);
   }
   
   virtual Hit_record Ray_Hit(const Ray& r, const Interval& time) const override{

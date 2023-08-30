@@ -3,5 +3,7 @@
 
 double random_uniform_01(void);
 
+double random_double(const double&, const double&);
+
 
 #endif

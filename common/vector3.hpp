@@ -28,6 +28,10 @@ public:
   double Length() const;
   double Length_squared() const;
 
+  bool Near_Zero() const;
+
+  static Vector3 Random_Unit();
+  
 protected:
   double e[3];
 };

@@ -27,7 +27,7 @@ signed main(void)
 
   
   Camera cam(Point3(0,0,0));
-  cam.Set_Width(1920);
+  cam.Set_Width(720);
 
   Renderer::Instance()->Set_Camera(&cam);
   Renderer::Instance()->Set_World(&world);

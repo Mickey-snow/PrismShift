@@ -8,3 +8,7 @@ double random_uniform_01(void){
   static std::mt19937 generator(time(0));
   return distribution(generator);
 }
+
+double random_double(const double& min, const double& max){
+  return min + (max-min)*random_uniform_01();
+}

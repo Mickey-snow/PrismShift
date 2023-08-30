@@ -2,6 +2,7 @@
 #include<cmath>
 
 #include "vector3.hpp"
+#include "random.hpp"
 using std::sqrt;
 
 Vector3::Vector3():e{0,0,0} {}
@@ -11,6 +12,11 @@ Vector3::Vector3(const double& e0,const double& e1,const double& e2):e{e0,e1,e2}
 double Vector3::x() const{ return e[0]; }
 double Vector3::y() const{ return e[1]; }
 double Vector3::z() const{ return e[2]; }
+
+bool Vector3::Near_Zero() const{
+  static double EPS = 1e-5;
+  return e[0]+e[1]+e[2] < EPS;
+}
 
 Vector3 Vector3::operator - () const{
   return Vector3(-e[0],-e[1],-e[2]);
@@ -62,4 +68,12 @@ Vector3 Cross(const Vector3 &u, const Vector3 &v) {
 
 Vector3 Unit_vector(const Vector3& v) {
   return v / v.Length();
+}
+
+Vector3 Vector3::Random_Unit(){
+  Vector3 rand_v;
+  do{
+    rand_v = Vector3(random_double(-1.0,1.0), random_double(-1.0,1.0), random_double(-1.0,1.0));
+  }while(not rand_v.Near_Zero());
+  return Unit_vector(rand_v);
 }

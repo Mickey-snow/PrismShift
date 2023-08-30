@@ -2,14 +2,14 @@
 source.cpp,30
 signed main(void)main21,420
 
-sphere.hpp,426
+sphere.hpp,427
 #define SPHERE_HSPHERE_H2,17
-class Sphere : public Visible{Sphere9,105
-  Sphere(const Point3& _center, const double& r) : center(_center), radius(r) {}Sphere11,144
-  virtual Color Ray_Color(const Ray& r, const Hit_record& rec) const override{Ray_Color13,226
-  virtual Hit_record Ray_Hit(const Ray& r, const Interval& time) const override{Ray_Hit17,355
-  Point3 center;center49,1285
-  double radius;radius50,1302
+class Sphere : public Visible{Sphere10,129
+  Sphere(const Point3& _center, const double& r) : center(_center), radius(r) {}Sphere12,168
+  virtual Color Ray_Color(const Ray& r, const Hit_record& rec) const override{Ray_Color14,250
+  virtual Hit_record Ray_Hit(const Ray& r, const Interval& time) const override{Ray_Hit23,711
+  Point3 center;center55,1641
+  double radius;radius56,1658
 
 renderer.cpp,311
 std::vector<Point3> Rand_Pixel_Samples(const Camera::View_Info& view, const int& row, const int&Rand_Pixel_Samples5,43
@@ -71,11 +71,11 @@ class Renderer{Renderer10,146
     __Renderer_facade(){}__Renderer_facade14,208
     void Set_Camera(Camera* cam_){ cam=cam_; }Set_Camera17,271
     void Set_World(Visible* world_){ world=world_; }Set_World18,318
-    Camera* cam;cam22,437
-    Visible* world;world23,454
-    int samples_per_frame = 15;samples_per_frame26,494
-    int max_recurrent_depth = 110;max_recurrent_depth27,526
-  static __Renderer_facade* Instance(void){Instance36,701
+    Camera* cam;cam24,505
+    Visible* world;world25,522
+    int samples_per_frame = 15;samples_per_frame28,562
+    int max_recurrent_depth = 110;max_recurrent_depth29,594
+  static __Renderer_facade* Instance(void){Instance36,705
 
 common/constant.hpp,172
 #define CONSTANT_HCONSTANT_H2,19
@@ -89,41 +89,44 @@ using Color = Vector3;Color7,76
 common/vector3.hpp,117
 #define VEC3_HVEC3_H2,15
 class Vector3{Vector36,51
-  double e[3];e32,717
-using Point3 = Vector3;Point334,735
+  double e[3];e36,779
+using Point3 = Vector3;Point338,797
 
 common/color.cpp,226
 inline double Linear2Gamma(const double& linear_component){Linear2Gamma7,82
 Color Format_Color(const Color& pixel_color){Format_Color11,183
 void Write_Color(std::ostream& out, const Color& pixel_color){Write_Color27,600
 
-common/vector3.cpp,1696
-Vector3::Vector3():e{0,0,0} {}Vector37,77
-Vector3::Vector3(const double& e0,const double& e1,const double& e2):e{e0,e1,e2} {}Vector38,108
-double Vector3::x() const{ return e[0]; }x11,255
-double Vector3::y() const{ return e[1]; }y12,297
-double Vector3::z() const{ return e[2]; }z13,339
-Vector3 Vector3::operator - () const{operator -15,382
-Vector3 Vector3::operator - (const Vector3& v) const{operator -18,459
-Vector3& Vector3::operator -= (const Vector3& v){ return *this = *this-v; }operator -=21,564
-Vector3 Vector3::operator + (const Vector3& v) const{operator +22,640
-Vector3& Vector3::operator += (const Vector3& v){ return *this = *this + v; }operator +=25,745
-Vector3 operator * (const Vector3& e, const double& t){operator *26,823
-Vector3 operator * (const double& t, const Vector3& e){ return e*t; }operator *29,923
-Vector3& Vector3::operator *= (const double& t){ return *this = *this * t; }operator *=30,993
-Vector3 Vector3::operator / (const double& t)const{operator /33,1072
-Vector3& Vector3::operator /= (const double& t){ return *this = *this / t; }operator /=36,1168
-double Vector3::operator [](const int& i) const{ return e[i]; }operator []38,1246
-double& Vector3::operator [](const int& i){ return e[i]; }operator []39,1310
-double Vector3::Length() const{ return sqrt(this->Length_squared()); }Length41,1370
-double Vector3::Length_squared() const{Length_squared42,1441
-std::ostream& operator <<(std::ostream& out, const Vector3& v){operator <<46,1528
-double Dot(const Vector3 &u, const Vector3 &v) {Dot51,1643
-Vector3 Cross(const Vector3 &u, const Vector3 &v) {Cross57,1753
-Vector3 Unit_vector(const Vector3& v) {Unit_vector63,1913
+common/vector3.cpp,1800
+Vector3::Vector3():e{0,0,0} {}Vector38,99
+Vector3::Vector3(const double& e0,const double& e1,const double& e2):e{e0,e1,e2} {}Vector39,130
+double Vector3::x() const{ return e[0]; }x12,277
+double Vector3::y() const{ return e[1]; }y13,319
+double Vector3::z() const{ return e[2]; }z14,361
+bool Vector3::Near_Zero() const{Near_Zero16,404
+Vector3 Vector3::operator - () const{operator -21,499
+Vector3 Vector3::operator - (const Vector3& v) const{operator -24,576
+Vector3& Vector3::operator -= (const Vector3& v){ return *this = *this-v; }operator -=27,681
+Vector3 Vector3::operator + (const Vector3& v) const{operator +28,757
+Vector3& Vector3::operator += (const Vector3& v){ return *this = *this + v; }operator +=31,862
+Vector3 operator * (const Vector3& e, const double& t){operator *32,940
+Vector3 operator * (const double& t, const Vector3& e){ return e*t; }operator *35,1040
+Vector3& Vector3::operator *= (const double& t){ return *this = *this * t; }operator *=36,1110
+Vector3 Vector3::operator / (const double& t)const{operator /39,1189
+Vector3& Vector3::operator /= (const double& t){ return *this = *this / t; }operator /=42,1285
+double Vector3::operator [](const int& i) const{ return e[i]; }operator []44,1363
+double& Vector3::operator [](const int& i){ return e[i]; }operator []45,1427
+double Vector3::Length() const{ return sqrt(this->Length_squared()); }Length47,1487
+double Vector3::Length_squared() const{Length_squared48,1558
+std::ostream& operator <<(std::ostream& out, const Vector3& v){operator <<52,1645
+double Dot(const Vector3 &u, const Vector3 &v) {Dot57,1760
+Vector3 Cross(const Vector3 &u, const Vector3 &v) {Cross63,1870
+Vector3 Unit_vector(const Vector3& v) {Unit_vector69,2030
+Vector3 Vector3::Random_Unit(){Random_Unit73,2098
 
-common/random.cpp,55
+common/random.cpp,136
 double random_uniform_01(void){random_uniform_016,57
+double random_double(const double& min, const double& max){random_double12,239
 
 common/common.hpp,98
 #define COMMON_HCOMMON_H2,17

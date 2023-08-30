@@ -18,6 +18,8 @@ private:
     void Set_World(Visible* world_){ world=world_; }
 
     void Render(std::ostream& out = std::cout) const;
+    Color Ray_Color(const Ray&,int current_recur_depth) const;
+    
   private:
     Camera* cam;
     Visible* world;
@@ -25,8 +27,6 @@ private:
     // Render info
     int samples_per_frame = 15;
     int max_recurrent_depth = 110;
-
-    Color Ray_Color(const Ray&,int current_recur_depth) const;
   };
 
 public:
