@@ -11,12 +11,14 @@ public:
 	 const int& width = 1920,
 	 const double& aspect_ratio_ = 16.0/9.0,
 	 const double& focal_length_ = 1.0,
-	 const double& viewpoint_height_ = 2.0) :
+	 const double& viewpoint_height_ = 2.0,
+	 const int& samples_per_frame_ = 10) :
     aspect_ratio(aspect_ratio_),
     image_width(width),
     camera_center(center_position),
     focal_length(focal_length_),
-    viewpoint_height(viewpoint_height_)
+    viewpoint_height(viewpoint_height_),
+    samples_per_frame(samples_per_frame_)
   {
     image_height = static_cast<int>(image_width / aspect_ratio);
     viewpoint_width = viewpoint_height * (static_cast<double>(image_width)/image_height);
@@ -45,6 +47,8 @@ private:
   double viewpoint_height, viewpoint_width;
   Point3 camera_center;
 
+  int samples_per_frame;
+
   // View info
   Vector3 viewport_u, viewport_v;
   Vector3 pixel_delta_u, pixel_delta_v;
@@ -54,6 +58,8 @@ private:
   void Initialize_view();
 
   Color Ray_Color(const Ray&, const Visible&) const;
+
+  Vector3 Pixel_Sample_Square() const;
 };
 
 

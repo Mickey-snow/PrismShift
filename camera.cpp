@@ -16,6 +16,11 @@ Color Camera::Ray_Color(const Ray& r, const Visible& world) const{
 
 }
 
+Vector3 Camera::Pixel_Sample_Square() const{
+  auto px = 0.5 - random_uniform_01();
+  auto py = 0.5 - random_uniform_01();
+  return px*pixel_delta_u + py*pixel_delta_v;
+}
 void Camera::Render(const Visible& world, std::ostream& out){
 
   this->Initialize_view();
@@ -23,12 +28,18 @@ void Camera::Render(const Visible& world, std::ostream& out){
   out<<"P3\n"<<image_width<<' '<<image_height<<"\n255\n";
 
   for(int j=0;j<image_height;++j){
+    std::clog<<"\r"<<j+1<<" out of "<<image_height<<" lines done."<<std::flush;
     for(int i=0;i<image_width;++i){
       auto pixel_center = pixel00_loc + (i*pixel_delta_u) + (j*pixel_delta_v);
-      auto ray_direction = pixel_center-camera_center;
-      Ray r(camera_center, ray_direction);
+      Color pixel_color = Color(0,0,0);
       
-      Color pixel_color = Ray_Color(r,world);
+      for(int sample_i=0;sample_i<samples_per_frame;++sample_i){
+	auto pixel_sample = pixel_center + Pixel_Sample_Square();
+	auto ray_direction = pixel_sample - camera_center;
+	Ray r(camera_center, ray_direction);
+	pixel_color += Ray_Color(r,world) / samples_per_frame;
+      }
+
       Write_Color(out, pixel_color);
     }
   }
