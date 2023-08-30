@@ -50,7 +50,7 @@ double Vector3::Length_squared() const{
 }
 
 std::ostream& operator <<(std::ostream& out, const Vector3& v){
-  return out<<'('<<v[0]<<','<<v[1]<<'('<<v[2];
+  return out<<'('<<v[0]<<','<<v[1]<<','<<v[2]<<')';
 }
 
 

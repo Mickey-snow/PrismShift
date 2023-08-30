@@ -17,10 +17,10 @@ public:
     Vector3 reflect_vec = reflect_vec_center + Vector3::Random_Unit();
 
     if(reflect_vec.Near_Zero()) reflect_vec = reflect_vec_center;
-    return 0.64 * Renderer::Instance()->Ray_Color(Ray(rec.position, reflect_vec), rec.hit_counts);
+    return 0.64 * Renderer::Instance()->Ray_Color(Ray(rec.position, reflect_vec), rec.hit_counts) + Color(0.23,0,0.11);
   }
   
-  virtual Hit_record Ray_Hit(const Ray& r, const Interval& time) const override{
+  virtual Hit_record Ray_Hit(const Ray& r, const Interval<double>& time) const override{
     Hit_record rec; rec.hits = false;
     
     Vector3 oc = r.Origin() - center;

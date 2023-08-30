@@ -1,7 +1,7 @@
 #ifndef CONSTANT_H
 #define CONSTANT_H
 
-#include<climits>
+#include<limits>
 
 // Constants
 constexpr double infinity = std::numeric_limits<double>::infinity();

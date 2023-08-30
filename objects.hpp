@@ -32,7 +32,7 @@ public:
   // An alternative Hit method
   // Accepts Ray r and Interval time as parameters
   // Returns a Hit_record encapuslates the first object Ray r hits.
-  virtual Hit_record Ray_Hit(const Ray& r, const Interval& time) const = 0;
+  virtual Hit_record Ray_Hit(const Ray& r, const Interval<double>& time) const = 0;
 
   // Return the color of the Ray r that hits an object
   virtual Color Ray_Color(const Ray& R, const Hit_record& rec) const = 0;

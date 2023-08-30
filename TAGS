@@ -2,21 +2,21 @@
 source.cpp,30
 signed main(void)main14,192
 
-sphere.hpp,427
+sphere.hpp,435
 #define SPHERE_HSPHERE_H2,17
 class Sphere : public Visible{Sphere10,129
   Sphere(const Point3& _center, const double& r) : center(_center), radius(r) {}Sphere12,168
   virtual Color Ray_Color(const Ray& r, const Hit_record& rec) const override{Ray_Color14,250
-  virtual Hit_record Ray_Hit(const Ray& r, const Interval& time) const override{Ray_Hit23,711
-  Point3 center;center55,1641
-  double radius;radius56,1658
+  virtual Hit_record Ray_Hit(const Ray& r, const Interval<double>& time) const override{Ray_Hit23,732
+  Point3 center;center55,1670
+  double radius;radius56,1687
 
 renderer.cpp,516
 std::vector<Point3> Rand_Pixel_Samples(const Camera::View_Info& view, const int& row, const int&Rand_Pixel_Samples8,114
-void Write_Color(Mat& canvas, const int& i,const int &j, Color pixel_color){Write_Color23,802
-Mat Renderer::__Renderer_facade::Render() const{Render29,1134
-void _render_sub_process(Mat canvas, Interval row, Interval col, const Camera::View_Info& view, _render_sub_process44,1788
-Color Renderer::__Renderer_facade::Ray_Color(const Ray& r, int current_recur_depth) const{Ray_Color60,2369
+void Write_Color(Mat& canvas, const int& i,const int &j, Color pixel_color){Write_Color23,812
+Mat Renderer::__Renderer_facade::Render() const{Render29,1144
+void _render_sub_process(Mat canvas, Interval<int> row, Interval<int> col, const Camera::View_In_render_sub_process44,1798
+Color Renderer::__Renderer_facade::Ray_Color(const Ray& r, int current_recur_depth) const{Ray_Color61,2457
 
 CMakeLists.txt,179
 project(DisplayImage)DisplayImage2,36
@@ -84,8 +84,8 @@ class Renderer{Renderer10,146
 
 common/constant.hpp,172
 #define CONSTANT_HCONSTANT_H2,19
-constexpr double infinity = std::numeric_limits<double>::infinity();infinity7,71
-constexpr double pi = 3.1415926535897932385;pi8,140
+constexpr double infinity = std::numeric_limits<double>::infinity();infinity7,70
+constexpr double pi = 3.1415926535897932385;pi8,139
 
 common/color.hpp,63
 #define COLOR_HCOLOR_H2,16
@@ -124,10 +124,13 @@ double& Vector3::operator [](const int& i){ return e[i]; }operator []45,1465
 double Vector3::Length() const{ return sqrt(this->Length_squared()); }Length47,1525
 double Vector3::Length_squared() const{Length_squared48,1596
 std::ostream& operator <<(std::ostream& out, const Vector3& v){operator <<52,1683
-double Dot(const Vector3 &u, const Vector3 &v) {Dot57,1798
-Vector3 Cross(const Vector3 &u, const Vector3 &v) {Cross63,1908
-Vector3 Unit_vector(const Vector3& v) {Unit_vector69,2068
-Vector3 Vector3::Random_Unit(){Random_Unit73,2136
+double Dot(const Vector3 &u, const Vector3 &v) {Dot57,1803
+Vector3 Cross(const Vector3 &u, const Vector3 &v) {Cross63,1913
+Vector3 Unit_vector(const Vector3& v) {Unit_vector69,2073
+Vector3 Vector3::Random_Unit(){Random_Unit73,2141
+
+common/interval.cpp,88
+std::ostream& operator << (std::ostream& out, const Interval<T>& seq){operator <<5,64
 
 common/random.cpp,136
 double random_uniform_01(void){random_uniform_016,57
@@ -153,20 +156,23 @@ Point3 Ray::At(const double& time) const{At4,43
 common/random.hpp,31
 #define RANDOM_HRANDOM_H2,17
 
-common/interval.hpp,815
+common/interval.hpp,1072
 #define INTERVAL_HINTERVAL_H2,19
-class Interval{Interval6,64
-  Interval():begin(+infinity),end(-infinity) {} // default interval is emptyInterval8,88
-  Interval(const double& _min, const double& _max) : begin(_min), end(_max) {}Interval9,165
-  bool Contains(const double& x) const{Contains12,272
-  bool Surrounds(const double& x) const{Surrounds15,348
-  double Clamp(const double& x) const{Clamp19,424
-  static const Interval Empty_Interval, Universe_Interval;Empty_Interval24,540
-  static const Interval Empty_Interval, Universe_Interval;Universe_Interval24,540
-  double begin,end;begin26,600
-  double begin,end;end26,600
-const static Interval Empty_Interval(+infinity, -infinity);Empty_Interval29,624
-const static Interval Universe_Interval(-infinity, +infinity);Universe_Interval30,684
+class Interval{Interval7,78
+  const T Positive_Inf = std::numeric_limits<T>::max();Positive_Inf9,103
+  const T Negative_Inf = std::numeric_limits<T>::min();Negative_Inf10,159
+  T begin,end;begin13,226
+  T begin,end;end13,226
+  Interval():begin(Positive_Inf),end(Negative_Inf) {} // default interval is emptyInterval15,244
+  Interval(const T& _min, const T& _max) : begin(_min), end(_max) {}Interval16,327
+  bool isEmpty(void) const{ return begin>end; }isEmpty19,422
+  bool In(const Interval& a) const{ return a.begin<=begin and end<=a.end; }In20,470
+  bool Contains(const T& x) const{Contains22,549
+  bool Surrounds(const T& x) const{Surrounds25,620
+  T Clamp(const T& x) const{Clamp29,691
+  friend std::ostream& operator << (std::ostream& out, const Interval<T>& seq){operator <<34,795
+  static Interval<T> Empty(){ return Interval<T>(std::numeric_limits<T>::max(), std::numeric_limEmpty38,931
+  static Interval<T> Universe(){ return Interval<T>(std::numeric_limits<T>::min(), std::numeric_Universe39,1045
 
 common/mat.hpp,25
 #define MAT_HMAT_H2,14
@@ -174,7 +180,7 @@ common/mat.hpp,25
 camera.cpp,83
 Camera::View_Info Camera::Get_Initialize_View() const{Get_Initialize_View48,1394
 
-scene.hpp,648
+scene.hpp,656
 #define SCENE_HSCENE_H2,16
 class Scene: public Visible{Scene9,92
   Scene(){}Scene11,129
@@ -182,6 +188,6 @@ class Scene: public Visible{Scene9,92
   Scene(std::initializer_list<std::shared_ptr<Visible>>&& li):objects{std::move(li)} {}Scene13,197
   void Clear(){ objects.clear(); }Clear16,310
   void Add(std::shared_ptr<Visible> obj){ objects.push_back(obj); }Add17,345
-  virtual Hit_record Ray_Hit(const Ray& r, const Interval& time) const override{Ray_Hit21,574
-  virtual Color Ray_Color(const Ray& r, const Hit_record& rec) const override{Ray_Color36,953
-  std::vector<std::shared_ptr<Visible>> objects;objects41,1095
+  virtual Hit_record Ray_Hit(const Ray& r, const Interval<double>& time) const override{Ray_Hit21,574
+  virtual Color Ray_Color(const Ray& r, const Hit_record& rec) const override{Ray_Color36,961
+  std::vector<std::shared_ptr<Visible>> objects;objects41,1103

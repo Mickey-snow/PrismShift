@@ -19,7 +19,7 @@ std::vector<Point3> Rand_Pixel_Samples(const Camera::View_Info& view, const int&
   return samples;
 }
 
-void _render_sub_process(Mat canvas, Interval row, Interval col, const Camera::View_Info& view, const Vector3& cam_position, const int& samples_per_frame);
+void _render_sub_process(Mat canvas, Interval<int> row, Interval<int> col, const Camera::View_Info& view, const Vector3& cam_position, const int& samples_per_frame);
 void Write_Color(Mat& canvas, const int& i,const int &j, Color pixel_color){
   pixel_color = Format_Color(pixel_color);
   canvas.at<cv::Vec3b>(i,j)[0] = static_cast<uchar>(pixel_color.z());
@@ -41,7 +41,7 @@ Mat Renderer::__Renderer_facade::Render() const{
 
   return canvas;
 }
-void _render_sub_process(Mat canvas, Interval row, Interval col, const Camera::View_Info& view, const Vector3& cam_position, const int& samples_per_frame){
+void _render_sub_process(Mat canvas, Interval<int> row, Interval<int> col, const Camera::View_Info& view, const Vector3& cam_position, const int& samples_per_frame){
   for(int j=row.begin;j<row.end;++j){
     for(int i=col.begin;i<col.end;++i){
       Color pixel_color = Color(0,0,0);
@@ -55,13 +55,14 @@ void _render_sub_process(Mat canvas, Interval row, Interval col, const Camera::V
       Write_Color(canvas, j,i, pixel_color);
     }
   }
+  std::clog<<"\rline "<<row<<" column "<<col<<" Done."<<std::flush;
 }
 
 Color Renderer::__Renderer_facade::Ray_Color(const Ray& r, int current_recur_depth) const{
   if(current_recur_depth > max_recurrent_depth) return Color(0,0,0);
   
   Hit_record rec; 
-  rec = world->Ray_Hit(r, Interval{0,infinity});
+  rec = world->Ray_Hit(r, Interval{1e-8,infinity});
   if(rec.hits){ 		// hits visible object
     rec.hit_counts = current_recur_depth + 1;
     return rec.hitted_obj->Ray_Color(r, rec);

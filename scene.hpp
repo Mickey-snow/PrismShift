@@ -18,7 +18,7 @@ public:
 
   // returns true iff Ray r hits any object in the scene
   // Hit_record rec perscribes the first object Ray r hits, i.e., with the smallest time t>=time.begin
-  virtual Hit_record Ray_Hit(const Ray& r, const Interval& time) const override{
+  virtual Hit_record Ray_Hit(const Ray& r, const Interval<double>& time) const override{
     Hit_record temp_rec,rec;
     double closest_hit_time = time.end;
 

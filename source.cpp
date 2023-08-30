@@ -32,7 +32,7 @@ signed main(void)
 
   const auto time_end = std::chrono::high_resolution_clock::now();
   const std::chrono::duration<double> time_elapsed = time_end - time_start;
-  std::cout<<"Execution time: "<<time_elapsed.count()<<'s'<<std::endl;
+  std::cout<<"\nExecution time: "<<time_elapsed.count()<<'s'<<std::endl;
   
   return 0;
 }
