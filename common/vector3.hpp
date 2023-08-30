@@ -18,6 +18,8 @@ public:
   Vector3& operator += (const Vector3&);
   Vector3 operator -(const Vector3&) const;
   Vector3& operator -= (const Vector3&);
+  Vector3 operator *(const Vector3&) const;
+  Vector3& operator *=(const Vector3&);
   Vector3& operator *=(const double&);
   Vector3 operator /(const double&) const;
   Vector3& operator /=(const double&);

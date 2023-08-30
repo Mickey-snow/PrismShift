@@ -34,7 +34,10 @@ Vector3 operator * (const Vector3& e, const double& t){
 }
 Vector3 operator * (const double& t, const Vector3& e){ return e*t; }
 Vector3& Vector3::operator *= (const double& t){ return *this = *this * t; }
-
+Vector3 Vector3::operator * (const Vector3& v)const {
+  return Vector3(e[0]*v[0], e[1]*v[1], e[2]*v[2]);
+}
+Vector3& Vector3::operator *= (const Vector3& v){ return *this = *this * v; }
 
 Vector3 Vector3::operator / (const double& t)const{
   return Vector3(e[0]/t, e[1]/t, e[2]/t);

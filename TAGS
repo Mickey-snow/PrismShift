@@ -1,15 +1,17 @@
 
 source.cpp,30
-signed main(void)main14,192
+signed main(void)main14,231
 
-sphere.hpp,435
+sphere.hpp,601
 #define SPHERE_HSPHERE_H2,17
-class Sphere : public Visible{Sphere10,129
-  Sphere(const Point3& _center, const double& r) : center(_center), radius(r) {}Sphere12,168
-  virtual Color Ray_Color(const Ray& r, const Hit_record& rec) const override{Ray_Color14,250
-  virtual Hit_record Ray_Hit(const Ray& r, const Interval<double>& time) const override{Ray_Hit23,732
-  Point3 center;center55,1670
-  double radius;radius56,1687
+class Sphere : public Visible{Sphere11,153
+  Sphere(const Point3& _center, const double& r) : center(_center), radius(r),material(nullptr) Sphere13,192
+  Sphere(const Point3& _center, const double& r, Material* _material) : center(_center), radius(Sphere14,291
+  virtual Color Ray_Color(const Ray& r, const Hit_record& rec) const override{Ray_Color16,415
+  virtual Hit_record Ray_Hit(const Ray& r, const Interval<double>& time) const override{Ray_Hit23,827
+  Point3 center;center55,1765
+  double radius;radius56,1782
+  Material* material;material57,1799
 
 renderer.cpp,516
 std::vector<Point3> Rand_Pixel_Samples(const Camera::View_Info& view, const int& row, const int&Rand_Pixel_Samples8,114
@@ -48,8 +50,18 @@ class Camera{Camera10,124
   Point3 camera_center;camera_center58,1533
   int samples_per_frame;samples_per_frame60,1558
 
-material.hpp,35
+material.hpp,634
 #define MATERIAL_HMATERIAL_H2,19
+class Material{Material8,116
+class Lambertian : public Material{Lambertian15,238
+  Lambertian(const Color& col) : attenuation(col) {}Lambertian17,282
+  virtual Color Ray_Color(const Ray& r,const Hit_record& rec) const override{Ray_Color19,336
+  Color attenuation;attenuation25,647
+class Metal : public Material{Metal28,672
+  Metal(const Color& col, const double& f=0) : attenuation(col),fuzz(fabs(f)<1?f:1) {}Metal30,711
+  virtual Color Ray_Color(const Ray& r,const Hit_record& rec) const override{Ray_Color32,799
+  Color attenuation;attenuation38,1199
+  double fuzz;fuzz39,1220
 
 objects.hpp,606
 #define OBJECTS_HOBJECTS_H2,18
@@ -94,15 +106,15 @@ using Color = Vector3;Color7,76
 common/vector3.hpp,117
 #define VEC3_HVEC3_H2,15
 class Vector3{Vector36,51
-  double e[3];e36,779
-using Point3 = Vector3;Point338,797
+  double e[3];e38,863
+using Point3 = Vector3;Point340,881
 
 common/color.cpp,226
 inline double Linear2Gamma(const double& linear_component){Linear2Gamma7,82
 Color Format_Color(const Color& pixel_color){Format_Color11,183
 void Write_Color(std::ostream& out, const Color& pixel_color){Write_Color27,600
 
-common/vector3.cpp,1800
+common/vector3.cpp,1971
 Vector3::Vector3():e{0,0,0} {}Vector38,99
 Vector3::Vector3(const double& e0,const double& e1,const double& e2):e{e0,e1,e2} {}Vector39,130
 double Vector3::x() const{ return e[0]; }x12,277
@@ -117,20 +129,19 @@ Vector3& Vector3::operator += (const Vector3& v){ return *this = *this + v; }op
 Vector3 operator * (const Vector3& e, const double& t){operator *32,978
 Vector3 operator * (const double& t, const Vector3& e){ return e*t; }operator *35,1078
 Vector3& Vector3::operator *= (const double& t){ return *this = *this * t; }operator *=36,1148
-Vector3 Vector3::operator / (const double& t)const{operator /39,1227
-Vector3& Vector3::operator /= (const double& t){ return *this = *this / t; }operator /=42,1323
-double Vector3::operator [](const int& i) const{ return e[i]; }operator []44,1401
-double& Vector3::operator [](const int& i){ return e[i]; }operator []45,1465
-double Vector3::Length() const{ return sqrt(this->Length_squared()); }Length47,1525
-double Vector3::Length_squared() const{Length_squared48,1596
-std::ostream& operator <<(std::ostream& out, const Vector3& v){operator <<52,1683
-double Dot(const Vector3 &u, const Vector3 &v) {Dot57,1803
-Vector3 Cross(const Vector3 &u, const Vector3 &v) {Cross63,1913
-Vector3 Unit_vector(const Vector3& v) {Unit_vector69,2073
-Vector3 Vector3::Random_Unit(){Random_Unit73,2141
-
-common/interval.cpp,88
-std::ostream& operator << (std::ostream& out, const Interval<T>& seq){operator <<5,64
+Vector3 Vector3::operator * (const Vector3& v)const {operator *37,1225
+Vector3& Vector3::operator *= (const Vector3& v){ return *this = *this * v; }operator *=40,1332
+Vector3 Vector3::operator / (const double& t)const{operator /42,1411
+Vector3& Vector3::operator /= (const double& t){ return *this = *this / t; }operator /=45,1507
+double Vector3::operator [](const int& i) const{ return e[i]; }operator []47,1585
+double& Vector3::operator [](const int& i){ return e[i]; }operator []48,1649
+double Vector3::Length() const{ return sqrt(this->Length_squared()); }Length50,1709
+double Vector3::Length_squared() const{Length_squared51,1780
+std::ostream& operator <<(std::ostream& out, const Vector3& v){operator <<55,1867
+double Dot(const Vector3 &u, const Vector3 &v) {Dot60,1987
+Vector3 Cross(const Vector3 &u, const Vector3 &v) {Cross66,2097
+Vector3 Unit_vector(const Vector3& v) {Unit_vector72,2257
+Vector3 Vector3::Random_Unit(){Random_Unit76,2325
 
 common/random.cpp,136
 double random_uniform_01(void){random_uniform_016,57
@@ -147,11 +158,13 @@ class Ray{Ray6,53
   Ray(const Point3& origin_, const Vector3& direction_) : origin(origin_), direction(direction_)Ray9,82
   Point3 Origin() const{ return origin; }Origin11,183
   Vector3 Direction() const{ return direction; }Direction12,225
-  Point3 origin;origin17,321
-  Vector3 direction;direction18,338
+  Point3 origin;origin19,466
+  Vector3 direction;direction20,483
 
-common/ray.cpp,50
+common/ray.cpp,238
 Point3 Ray::At(const double& time) const{At4,43
+Vector3 Ray::Scatter_Direction(const Vector3& normal){Scatter_Direction8,122
+Vector3 Ray::Reflect_Direction(const Vector3& in_direction, const Vector3& normal){Reflect_Direction13,288
 
 common/random.hpp,31
 #define RANDOM_HRANDOM_H2,17

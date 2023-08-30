@@ -1,6 +1,7 @@
 #ifndef SPHERE_H
 #define SPHERE_H
 
+#include "material.hpp"
 #include "objects.hpp"
 #include "renderer.hpp"
 #include "common/common.hpp"
@@ -9,15 +10,14 @@
 
 class Sphere : public Visible{
 public:
-  Sphere(const Point3& _center, const double& r) : center(_center), radius(r) {}
+  Sphere(const Point3& _center, const double& r) : center(_center), radius(r),material(nullptr) {}
+  Sphere(const Point3& _center, const double& r, Material* _material) : center(_center), radius(r), material(_material) {}
 
   virtual Color Ray_Color(const Ray& r, const Hit_record& rec) const override{
-    // return 0.5*(rec.normal+Color(1,1,1));
-    Vector3 reflect_vec_center = rec.position + (rec.front_face ? rec.normal : -rec.normal);
-    Vector3 reflect_vec = reflect_vec_center + Vector3::Random_Unit();
-
-    if(reflect_vec.Near_Zero()) reflect_vec = reflect_vec_center;
-    return 0.64 * Renderer::Instance()->Ray_Color(Ray(rec.position, reflect_vec), rec.hit_counts) + Color(0.23,0,0.11);
+    if(material == nullptr){	// No material attatched, use default scatter
+      Vector3 scatter_direction = Ray::Scatter_Direction(rec.front_face?rec.normal:-rec.normal);
+      return 0.64 * Renderer::Instance()->Ray_Color(Ray(rec.position, scatter_direction), rec.hit_counts);
+    } else return material->Ray_Color(r,rec); 
   }
   
   virtual Hit_record Ray_Hit(const Ray& r, const Interval<double>& time) const override{
@@ -54,6 +54,7 @@ public:
 private:
   Point3 center;
   double radius;
+  Material* material;
 };
 
 #endif
