@@ -5,6 +5,8 @@
 #include "objects.hpp"
 #include<iostream>
 
+class Renderer;
+
 class Camera{
 public:
   Camera(const Point3& center_position = Point3(0,0,0),
@@ -24,14 +26,13 @@ public:
     viewpoint_width = viewpoint_height * (static_cast<double>(image_width)/image_height);
   }
   
-  void Render(const Visible& world,std::ostream& out=std::cout);
-
   void Set_Position(const Vector3& position){
     camera_center = position;
   }
   void Adjust_Position(const Vector3& translate){
     camera_center += translate;
   }
+  Vector3 Position(void) const{ return camera_center; }
 
   void Set_Width(const int& _width){
     image_width = _width;
@@ -39,6 +40,15 @@ public:
     assert(image_width>=1 and image_height>=1);
   }
 
+  struct View_Info{
+    Vector3 viewport_u, viewport_v;
+    Vector3 pixel_delta_u, pixel_delta_v;
+    Point3 viewport_upper_left;
+    Point3 pixel00_loc;
+  };
+
+  View_Info Get_Initialize_View() const;
+  
 private:
   // Image and Camera config
   double aspect_ratio;
@@ -49,17 +59,7 @@ private:
 
   int samples_per_frame;
 
-  // View info
-  Vector3 viewport_u, viewport_v;
-  Vector3 pixel_delta_u, pixel_delta_v;
-  Point3 viewport_upper_left;
-  Point3 pixel00_loc;
-
-  void Initialize_view();
-
-  Color Ray_Color(const Ray&, const Visible&) const;
-
-  Vector3 Pixel_Sample_Square() const;
+  friend Renderer;
 };
 
 

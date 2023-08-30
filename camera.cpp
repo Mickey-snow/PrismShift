@@ -1,6 +1,6 @@
 #include "camera.hpp"
 #include "common/common.hpp"
-
+/*
 Color Camera::Ray_Color(const Ray& r, const Visible& world) const{
   Hit_record rec;
 
@@ -44,18 +44,20 @@ void Camera::Render(const Visible& world, std::ostream& out){
     }
   }
 }
-
-void Camera::Initialize_view(){
+*/
+Camera::View_Info Camera::Get_Initialize_View() const{
+  Camera::View_Info view;
   // Vectors across the horizontal and down the vertical viewport edges
-  viewport_u = Vector3(viewpoint_width,0,0);
-  viewport_v = Vector3(0, -viewpoint_height, 0);
+  view.viewport_u = Vector3(viewpoint_width,0,0);
+  view.viewport_v = Vector3(0, -viewpoint_height, 0);
 
   // The horizontal and vertical delta vectors from pixel to pixel
-  pixel_delta_u = viewport_u / image_width;
-  pixel_delta_v = viewport_v / image_height;
+  view.pixel_delta_u = view.viewport_u / image_width;
+  view.pixel_delta_v = view.viewport_v / image_height;
 
   // Location of the upper left pixel
-  viewport_upper_left = camera_center - Vector3(0,0,focal_length) - viewport_u/2 - viewport_v/2;
-  pixel00_loc = viewport_upper_left + 0.5*(pixel_delta_u+pixel_delta_v);
+  view.viewport_upper_left = camera_center - Vector3(0,0,focal_length) - view.viewport_u/2 - view.viewport_v/2;
+  view.pixel00_loc = view.viewport_upper_left + 0.5*(view.pixel_delta_u+view.pixel_delta_v);
 
+  return view;
 }

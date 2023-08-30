@@ -8,6 +8,7 @@ class Visible;
 class Hit_record{
 public:
   bool hits;
+  int hit_counts;
   std::shared_ptr<Visible> hitted_obj;
   
   Point3 position;	        // hit position
@@ -15,7 +16,7 @@ public:
   double time;			// time
   bool front_face;		// is this the front face of the hitted obj?
 
-  Hit_record():hits(false) {}
+  Hit_record():hits(false),hit_counts(0) {}
 
   void Set_Face_Normal(const Ray& r, const Vector3& outward_normal){
     front_face = Dot(r.Direction(), outward_normal) < 0;

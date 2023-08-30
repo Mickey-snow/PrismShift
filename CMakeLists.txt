@@ -5,7 +5,9 @@ file(GLOB COMMON_LIB_SOURCES "common/*.cpp")
 add_library(common STATIC ${COMMON_LIB_SOURCES})
 		   
 add_library(lib STATIC
-			camera.cpp)
+			camera.cpp
+			renderer.cpp
+			)
 
 find_package(OpenCV REQUIRED)
 

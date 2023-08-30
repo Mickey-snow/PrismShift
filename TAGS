@@ -1,60 +1,81 @@
 
-source.cpp,122
-void Concurrent_body(Camera cam, Scene world, std::string filename){Concurrent_body12,183
-signed main(void)main19,389
+source.cpp,30
+signed main(void)main21,420
 
 sphere.hpp,426
 #define SPHERE_HSPHERE_H2,17
 class Sphere : public Visible{Sphere9,105
   Sphere(const Point3& _center, const double& r) : center(_center), radius(r) {}Sphere11,144
   virtual Color Ray_Color(const Ray& r, const Hit_record& rec) const override{Ray_Color13,226
-  virtual Hit_record Ray_Hit(const Ray& r, const Interval& time) const override{Ray_Hit17,354
-  Point3 center;center49,1284
-  double radius;radius50,1301
+  virtual Hit_record Ray_Hit(const Ray& r, const Interval& time) const override{Ray_Hit17,355
+  Point3 center;center49,1285
+  double radius;radius50,1302
+
+renderer.cpp,311
+std::vector<Point3> Rand_Pixel_Samples(const Camera::View_Info& view, const int& row, const int&Rand_Pixel_Samples5,43
+void Renderer::__Renderer_facade::Render(std::ostream& out) const{Render19,575
+Color Renderer::__Renderer_facade::Ray_Color(const Ray& r, int current_recur_depth) const{Ray_Color40,1256
 
 CMakeLists.txt,179
 project(DisplayImage)DisplayImage2,36
 add_library(common STATIC ${COMMON_LIB_SOURCES})common5,104
 add_library(lib STATIClib7,159
-add_executable(main source.cpp)main13,273
+add_executable(main source.cpp)main15,293
 
-camera.hpp,1029
+camera.hpp,1203
 #define CAMERA_HCAMERA_H2,17
-class Camera{Camera8,107
-  Camera(const Point3& center_position = Point3(0,0,0),Camera10,129
-  void Set_Position(const Vector3& position){Set_Position27,732
-  void Adjust_Position(const Vector3& translate){Adjust_Position30,812
-  void Set_Width(const int& _width){Set_Width34,899
-  double aspect_ratio;aspect_ratio42,1118
-  int image_width, image_height;image_width43,1141
-  int image_width, image_height;image_height43,1141
-  double focal_length;focal_length44,1174
-  double viewpoint_height, viewpoint_width;viewpoint_height45,1197
-  double viewpoint_height, viewpoint_width;viewpoint_width45,1197
-  Point3 camera_center;camera_center46,1241
-  Vector3 viewport_u, viewport_v;viewport_u49,1281
-  Vector3 viewport_u, viewport_v;viewport_v49,1281
-  Vector3 pixel_delta_u, pixel_delta_v;pixel_delta_u50,1315
-  Vector3 pixel_delta_u, pixel_delta_v;pixel_delta_v50,1315
-  Point3 viewport_upper_left;viewport_upper_left51,1355
-  Point3 pixel00_loc;pixel00_loc52,1385
+class Camera{Camera10,124
+  Camera(const Point3& center_position = Point3(0,0,0),Camera12,146
+  void Set_Position(const Vector3& position){Set_Position29,764
+  void Adjust_Position(const Vector3& translate){Adjust_Position32,844
+  Vector3 Position(void) const{ return camera_center; }Position35,930
+  void Set_Width(const int& _width){Set_Width37,987
+  struct View_Info{View_Info43,1168
+    Vector3 viewport_u, viewport_v;viewport_u44,1188
+    Vector3 viewport_u, viewport_v;viewport_v44,1188
+    Vector3 pixel_delta_u, pixel_delta_v;pixel_delta_u45,1224
+    Vector3 pixel_delta_u, pixel_delta_v;pixel_delta_v45,1224
+    Point3 viewport_upper_left;viewport_upper_left46,1266
+    Point3 pixel00_loc;pixel00_loc47,1298
+  double aspect_ratio;aspect_ratio54,1410
+  int image_width, image_height;image_width55,1433
+  int image_width, image_height;image_height55,1433
+  double focal_length;focal_length56,1466
+  double viewpoint_height, viewpoint_width;viewpoint_height57,1489
+  double viewpoint_height, viewpoint_width;viewpoint_width57,1489
+  Point3 camera_center;camera_center58,1533
+  int samples_per_frame;samples_per_frame60,1558
 
-objects.hpp,556
+objects.hpp,606
 #define OBJECTS_HOBJECTS_H2,18
 class Hit_record{Hit_record8,83
   bool hits;hits10,109
-  std::shared_ptr<Visible> hitted_obj;hitted_obj11,122
-  Point3 position;	        // hit positionposition13,164
-  Vector3 normal;		// outward normal vectornormal14,207
-  double time;			// timetime15,251
-  bool front_face;		// is this the front face of the hitted obj?front_face16,276
-  Hit_record():hits(false) {}Hit_record18,342
-  void Set_Face_Normal(const Ray& r, const Vector3& outward_normal){Set_Face_Normal20,373
-class Visible{Visible27,568
+  int hit_counts;hit_counts11,122
+  std::shared_ptr<Visible> hitted_obj;hitted_obj12,140
+  Point3 position;	        // hit positionposition14,182
+  Vector3 normal;		// outward normal vectornormal15,225
+  double time;			// timetime16,269
+  bool front_face;		// is this the front face of the hitted obj?front_face17,294
+  Hit_record():hits(false),hit_counts(0) {}Hit_record19,360
+  void Set_Face_Normal(const Ray& r, const Vector3& outward_normal){Set_Face_Normal21,405
+class Visible{Visible28,600
 
 make.sh,0
 
 TAGS,0
+
+renderer.hpp,557
+#define RENDERER_PANEL_HRENDERER_PANEL_H2,25
+class Renderer{Renderer10,146
+  class __Renderer_facade{__Renderer_facade12,171
+    __Renderer_facade(){}__Renderer_facade14,208
+    void Set_Camera(Camera* cam_){ cam=cam_; }Set_Camera17,271
+    void Set_World(Visible* world_){ world=world_; }Set_World18,318
+    Camera* cam;cam22,437
+    Visible* world;world23,454
+    int samples_per_frame = 15;samples_per_frame26,494
+    int max_recurrent_depth = 110;max_recurrent_depth27,526
+  static __Renderer_facade* Instance(void){Instance36,701
 
 common/constant.hpp,172
 #define CONSTANT_HCONSTANT_H2,19
@@ -101,9 +122,12 @@ double Dot(const Vector3 &u, const Vector3 &v) {Dot51,1643
 Vector3 Cross(const Vector3 &u, const Vector3 &v) {Cross57,1753
 Vector3 Unit_vector(const Vector3& v) {Unit_vector63,1913
 
+common/random.cpp,55
+double random_uniform_01(void){random_uniform_016,57
+
 common/common.hpp,98
 #define COMMON_HCOMMON_H2,17
-inline double Degree2Rad(const double& degrees){Degree2Rad16,231
+inline double Degree2Rad(const double& degrees){Degree2Rad17,253
 
 common/ray.hpp,361
 #define RAY_HRAY_H2,14
@@ -117,6 +141,9 @@ class Ray{Ray6,53
 
 common/ray.cpp,50
 Point3 Ray::At(const double& time) const{At4,43
+
+common/random.hpp,31
+#define RANDOM_HRANDOM_H2,17
 
 common/interval.hpp,815
 #define INTERVAL_HINTERVAL_H2,19
@@ -133,10 +160,8 @@ class Interval{Interval6,64
 const static Interval Empty_Interval(+infinity, -infinity);Empty_Interval29,624
 const static Interval Universe_Interval(-infinity, +infinity);Universe_Interval30,684
 
-camera.cpp,213
-Color Camera::Ray_Color(const Ray& r, const Visible& world) const{Ray_Color4,52
-void Camera::Render(const Visible& world, std::ostream& out){Render19,463
-void Camera::Initialize_view(){Initialize_view37,964
+camera.cpp,83
+Camera::View_Info Camera::Get_Initialize_View() const{Get_Initialize_View48,1394
 
 scene.hpp,648
 #define SCENE_HSCENE_H2,16

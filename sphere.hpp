@@ -11,7 +11,7 @@ public:
   Sphere(const Point3& _center, const double& r) : center(_center), radius(r) {}
 
   virtual Color Ray_Color(const Ray& r, const Hit_record& rec) const override{
-    return 0.5*(rec.normal+Color(1,1,1));
+    return 0.5*(rec.normal+Color(1,1,1)); 
   }
   
   virtual Hit_record Ray_Hit(const Ray& r, const Interval& time) const override{

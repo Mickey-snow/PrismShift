@@ -8,13 +8,15 @@
 #include "scene.hpp"
 #include "sphere.hpp"
 #include "camera.hpp"
+#include "renderer.hpp"
 
+/*
 void Concurrent_body(Camera cam, Scene world, std::string filename){
   std::ofstream MyFile((filename).c_str());
   cam.Render(world,MyFile);
   MyFile.close();
   std::cout<<filename<<" Done."<<std::endl;
-}
+  }*/
 
 signed main(void)
 {
@@ -26,9 +28,15 @@ signed main(void)
   
   Camera cam(Point3(0,0,0));
   cam.Set_Width(1920);
-  cam.Render(world, std::cout);
-  return 0;
+
+  Renderer::Instance()->Set_Camera(&cam);
+  Renderer::Instance()->Set_World(&world);
+
+  Renderer::Instance()->Render();
   
+  return 0;
+
+  /*
   cam.Set_Position(Point3(-1,0,0));
   double video_len = 3.0;
   double frame_rate = 60;
@@ -51,6 +59,7 @@ signed main(void)
     }
 
     cam.Adjust_Position(translate_per_frame);
-  }
+    }*/
+  
   return 0;
 }
