@@ -1,6 +1,6 @@
 
 source.cpp,30
-signed main(void)main23,454
+signed main(void)main14,192
 
 sphere.hpp,427
 #define SPHERE_HSPHERE_H2,17
@@ -11,11 +11,12 @@ class Sphere : public Visible{Sphere10,129
   Point3 center;center55,1641
   double radius;radius56,1658
 
-renderer.cpp,389
-std::vector<Point3> Rand_Pixel_Samples(const Camera::View_Info& view, const int& row, const int&Rand_Pixel_Samples7,97
-void Write_Color(Mat& canvas, const int& i,const int &j, Color pixel_color){Write_Color21,629
-Mat Renderer::__Renderer_facade::Render() const{Render27,961
-Color Renderer::__Renderer_facade::Ray_Color(const Ray& r, int current_recur_depth) const{Ray_Color49,1641
+renderer.cpp,516
+std::vector<Point3> Rand_Pixel_Samples(const Camera::View_Info& view, const int& row, const int&Rand_Pixel_Samples8,114
+void Write_Color(Mat& canvas, const int& i,const int &j, Color pixel_color){Write_Color23,802
+Mat Renderer::__Renderer_facade::Render() const{Render29,1134
+void _render_sub_process(Mat canvas, Interval row, Interval col, const Camera::View_Info& view, _render_sub_process44,1788
+Color Renderer::__Renderer_facade::Ray_Color(const Ray& r, int current_recur_depth) const{Ray_Color60,2369
 
 CMakeLists.txt,179
 project(DisplayImage)DisplayImage2,36
