@@ -2,12 +2,12 @@
 #include "color.hpp"
 #include "ray.hpp"
 
-Color Camera::Ray_color(const Ray& r, const Visible& world) const{
+Color Camera::Ray_Color(const Ray& r, const Visible& world) const{
   Hit_record rec;
 
   rec = world.Ray_Hit(r, Interval{0,infinity});
   if(rec.hits){ 		// hits an visible object
-    return rec.hitted_obj->Ray_color(r, rec);
+    return rec.hitted_obj->Ray_Color(r, rec);
   }
 
   // background
@@ -24,17 +24,15 @@ void Camera::Render(const Visible& world, std::ostream& out){
   out<<"P3\n"<<image_width<<' '<<image_height<<"\n255\n";
 
   for(int j=0;j<image_height;++j){
-    //std::clog << "\rScanlines remaining: " << (image_height - j) << ' ' << std::flush;
     for(int i=0;i<image_width;++i){
       auto pixel_center = pixel00_loc + (i*pixel_delta_u) + (j*pixel_delta_v);
       auto ray_direction = pixel_center-camera_center;
       Ray r(camera_center, ray_direction);
       
-      Color pixel_color = Ray_color(r,world);
+      Color pixel_color = Ray_Color(r,world);
       Write_Color(out, pixel_color);
     }
   }
-  //std::clog << "\rDone.              \n";
 }
 
 void Camera::Initialize_view(){

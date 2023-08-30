@@ -53,7 +53,7 @@ private:
 
   void Initialize_view();
 
-  Color Ray_color(const Ray&, const Visible&) const;
+  Color Ray_Color(const Ray&, const Visible&) const;
 };
 
 

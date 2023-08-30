@@ -12,11 +12,11 @@ class Sphere : public Visible{
 public:
   Sphere(const Point3& _center, const double& r) : center(_center), radius(r) {}
 
-  virtual Color Ray_color(const Ray& r, const Hit_record& rec) const override{
+  virtual Color Ray_Color(const Ray& r, const Hit_record& rec) const override{
     return 0.5*(rec.normal+Color(1,1,1));
   }
   
-  virtual Hit_record Ray_Hit(const Ray& r, Interval time) const override{
+  virtual Hit_record Ray_Hit(const Ray& r, const Interval& time) const override{
     Hit_record rec; rec.hits = false;
     
     Vector3 oc = r.Origin() - center;
@@ -36,9 +36,12 @@ public:
 	return rec;
     }
 
-    rec.t = root;
-    rec.p = r.At(rec.t);
-    Vector3 outward_normal = (rec.p - center) / radius;
+    rec.hits = true;
+    rec.hitted_obj = std::make_shared<Sphere>(*this);
+    
+    rec.time = root;
+    rec.position = r.At(rec.time);
+    Vector3 outward_normal = (rec.position - center) / radius;
     rec.Set_Face_Normal(r, outward_normal);
     
     return rec;

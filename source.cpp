@@ -25,7 +25,7 @@ signed main(void)
 
   
   Camera cam(Point3(0,0,0));
-  cam.Set_Width(420);
+  cam.Set_Width(1920);
   cam.Render(world, std::cout);
   return 0;
   
