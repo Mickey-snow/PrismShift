@@ -1,10 +1,7 @@
 #ifndef OBJECTS_H
 #define OBJECTS_H
 
-#include "vector3.hpp"
-#include "ray.hpp"
-#include "interval.hpp"
-#include "color.hpp"
+#include "common/common.hpp"
 
 class Visible;
 

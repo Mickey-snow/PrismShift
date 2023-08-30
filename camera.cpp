@@ -1,6 +1,5 @@
 #include "camera.hpp"
-#include "color.hpp"
-#include "ray.hpp"
+#include "common/common.hpp"
 
 Color Camera::Ray_Color(const Ray& r, const Visible& world) const{
   Hit_record rec;

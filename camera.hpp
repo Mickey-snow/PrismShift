@@ -1,8 +1,8 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
-#include "common.hpp"
-
+#include "common/common.hpp"
+#include "objects.hpp"
 #include<iostream>
 
 class Camera{

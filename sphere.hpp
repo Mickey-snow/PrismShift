@@ -2,9 +2,7 @@
 #define SPHERE_H
 
 #include "objects.hpp"
-#include "vector3.hpp"
-#include "interval.hpp"
-#include "color.hpp"
+#include "common/common.hpp"
 
 #include<cmath>
 

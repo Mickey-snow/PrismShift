@@ -1,7 +1,7 @@
 #ifndef INTERVAL_H
 #define INTERVAL_H
 
-#define __INFINITY__ (std::numeric_limits<double>::infinity())
+#include "constant.hpp"
 
 class Interval{
 public:

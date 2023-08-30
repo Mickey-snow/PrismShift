@@ -4,7 +4,7 @@
 #include<queue>
 #include<future>
 
-#include "common.hpp"
+#include "common/common.hpp"
 #include "scene.hpp"
 #include "sphere.hpp"
 #include "camera.hpp"

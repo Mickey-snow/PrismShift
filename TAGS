@@ -1,39 +1,82 @@
 
-constant.hpp,0
-
 source.cpp,122
-void Concurrent_body(Camera cam, Scene world, std::string filename){Concurrent_body12,176
-signed main(void)main19,382
+void Concurrent_body(Camera cam, Scene world, std::string filename){Concurrent_body12,183
+signed main(void)main19,389
 
-color.hpp,63
+sphere.hpp,426
+#define SPHERE_HSPHERE_H2,17
+class Sphere : public Visible{Sphere9,105
+  Sphere(const Point3& _center, const double& r) : center(_center), radius(r) {}Sphere11,144
+  virtual Color Ray_Color(const Ray& r, const Hit_record& rec) const override{Ray_Color13,226
+  virtual Hit_record Ray_Hit(const Ray& r, const Interval& time) const override{Ray_Hit17,354
+  Point3 center;center49,1284
+  double radius;radius50,1301
+
+CMakeLists.txt,179
+project(DisplayImage)DisplayImage2,36
+add_library(common STATIC ${COMMON_LIB_SOURCES})common5,104
+add_library(lib STATIClib7,159
+add_executable(main source.cpp)main13,273
+
+camera.hpp,1029
+#define CAMERA_HCAMERA_H2,17
+class Camera{Camera8,107
+  Camera(const Point3& center_position = Point3(0,0,0),Camera10,129
+  void Set_Position(const Vector3& position){Set_Position27,732
+  void Adjust_Position(const Vector3& translate){Adjust_Position30,812
+  void Set_Width(const int& _width){Set_Width34,899
+  double aspect_ratio;aspect_ratio42,1118
+  int image_width, image_height;image_width43,1141
+  int image_width, image_height;image_height43,1141
+  double focal_length;focal_length44,1174
+  double viewpoint_height, viewpoint_width;viewpoint_height45,1197
+  double viewpoint_height, viewpoint_width;viewpoint_width45,1197
+  Point3 camera_center;camera_center46,1241
+  Vector3 viewport_u, viewport_v;viewport_u49,1281
+  Vector3 viewport_u, viewport_v;viewport_v49,1281
+  Vector3 pixel_delta_u, pixel_delta_v;pixel_delta_u50,1315
+  Vector3 pixel_delta_u, pixel_delta_v;pixel_delta_v50,1315
+  Point3 viewport_upper_left;viewport_upper_left51,1355
+  Point3 pixel00_loc;pixel00_loc52,1385
+
+objects.hpp,556
+#define OBJECTS_HOBJECTS_H2,18
+class Hit_record{Hit_record8,83
+  bool hits;hits10,109
+  std::shared_ptr<Visible> hitted_obj;hitted_obj11,122
+  Point3 position;	        // hit positionposition13,164
+  Vector3 normal;		// outward normal vectornormal14,207
+  double time;			// timetime15,251
+  bool front_face;		// is this the front face of the hitted obj?front_face16,276
+  Hit_record():hits(false) {}Hit_record18,342
+  void Set_Face_Normal(const Ray& r, const Vector3& outward_normal){Set_Face_Normal20,373
+class Visible{Visible27,568
+
+make.sh,0
+
+TAGS,0
+
+common/constant.hpp,172
+#define CONSTANT_HCONSTANT_H2,19
+constexpr double infinity = std::numeric_limits<double>::infinity();infinity7,71
+constexpr double pi = 3.1415926535897932385;pi8,140
+
+common/color.hpp,63
 #define COLOR_HCOLOR_H2,16
 using Color = Vector3;Color7,76
 
-sphere.hpp,420
-#define SPHERE_HSPHERE_H2,17
-class Sphere : public Visible{Sphere11,144
-  Sphere(const Point3& _center, const double& r) : center(_center), radius(r) {}Sphere13,183
-  virtual Color Ray_color(const Ray& r, const Hit_record& rec) const override{Ray_color15,265
-  virtual Hit_record Ray_Hit(const Ray& r, Interval time) const override{Ray_Hit19,393
-  Point3 center;center48,1216
-  double radius;radius49,1233
-
-vector3.hpp,117
+common/vector3.hpp,117
 #define VEC3_HVEC3_H2,15
 class Vector3{Vector36,51
   double e[3];e32,717
 using Point3 = Vector3;Point334,735
 
-CMakeLists.txt,122
-project(DisplayImage)DisplayImage2,36
-add_library(common STATICcommon4,59
-add_executable(main source.cpp)main14,234
-
-color.cpp,160
+common/color.cpp,226
 inline double Linear2Gamma(const double& linear_component){Linear2Gamma7,82
-void Write_Color(std::ostream& out, const Color& pixel_color){Write_Color12,186
+Color Format_Color(const Color& pixel_color){Format_Color11,183
+void Write_Color(std::ostream& out, const Color& pixel_color){Write_Color27,600
 
-vector3.cpp,1696
+common/vector3.cpp,1696
 Vector3::Vector3():e{0,0,0} {}Vector37,77
 Vector3::Vector3(const double& e0,const double& e1,const double& e2):e{e0,e1,e2} {}Vector38,108
 double Vector3::x() const{ return e[0]; }x11,255
@@ -58,55 +101,11 @@ double Dot(const Vector3 &u, const Vector3 &v) {Dot51,1643
 Vector3 Cross(const Vector3 &u, const Vector3 &v) {Cross57,1753
 Vector3 Unit_vector(const Vector3& v) {Unit_vector63,1913
 
-camera.hpp,1028
-#define CAMERA_HCAMERA_H2,17
-class Camera{Camera8,78
-  Camera(const Point3& center_position = Point3(0,0,0),Camera10,100
-  void Set_Position(const Vector3& position){Set_Position27,703
-  void Adjust_Position(const Vector3& translate){Adjust_Position30,783
-  void Set_Width(const int& _width){Set_Width34,870
-  double aspect_ratio;aspect_ratio42,1089
-  int image_width, image_height;image_width43,1112
-  int image_width, image_height;image_height43,1112
-  double focal_length;focal_length44,1145
-  double viewpoint_height, viewpoint_width;viewpoint_height45,1168
-  double viewpoint_height, viewpoint_width;viewpoint_width45,1168
-  Point3 camera_center;camera_center46,1212
-  Vector3 viewport_u, viewport_v;viewport_u49,1252
-  Vector3 viewport_u, viewport_v;viewport_v49,1252
-  Vector3 pixel_delta_u, pixel_delta_v;pixel_delta_u50,1286
-  Vector3 pixel_delta_u, pixel_delta_v;pixel_delta_v50,1286
-  Point3 viewport_upper_left;viewport_upper_left51,1326
-  Point3 pixel00_loc;pixel00_loc52,1356
-
-objects.hpp,495
-#define OBJECTS_HOBJECTS_H2,18
-struct Hit_record{Hit_record11,141
-  bool hits;hits12,160
-  Visible* hitted_obj;hitted_obj13,173
-  Point3 position;	        // hit positionposition15,199
-  Vector3 normal;		// outward normal vectornormal16,242
-  double time;			// timetime17,286
-  bool front_face;		// is this the front face of the hitted obj?front_face18,311
-  void Set_Face_Normal(const Ray& r, const Vector3& outward_normal){Set_Face_Normal20,377
-class Visible{Visible27,572
-
-make.sh,0
-
-TAGS,0
-
-common.hpp,238
+common/common.hpp,98
 #define COMMON_HCOMMON_H2,17
-constexpr double infinity = std::numeric_limits<double>::infinity();infinity10,118
-constexpr double pi = 3.1415926535897932385;pi11,187
-inline double Degree2Rad(const double& degrees){Degree2Rad14,254
+inline double Degree2Rad(const double& degrees){Degree2Rad16,231
 
-camera.cpp,214
-Color Camera::Ray_color(const Ray& r, const Visible& world) const{Ray_color5,63
-void Camera::Render(const Visible& world, std::ostream& out){Render20,474
-void Camera::Initialize_view(){Initialize_view40,1108
-
-ray.hpp,361
+common/ray.hpp,361
 #define RAY_HRAY_H2,14
 class Ray{Ray6,53
   Ray(){}Ray8,72
@@ -116,10 +115,30 @@ class Ray{Ray6,53
   Point3 origin;origin17,321
   Vector3 direction;direction18,338
 
-ray.cpp,50
+common/ray.cpp,50
 Point3 Ray::At(const double& time) const{At4,43
 
-scene.hpp,641
+common/interval.hpp,815
+#define INTERVAL_HINTERVAL_H2,19
+class Interval{Interval6,64
+  Interval():begin(+infinity),end(-infinity) {} // default interval is emptyInterval8,88
+  Interval(const double& _min, const double& _max) : begin(_min), end(_max) {}Interval9,165
+  bool Contains(const double& x) const{Contains12,272
+  bool Surrounds(const double& x) const{Surrounds15,348
+  double Clamp(const double& x) const{Clamp19,424
+  static const Interval Empty_Interval, Universe_Interval;Empty_Interval24,540
+  static const Interval Empty_Interval, Universe_Interval;Universe_Interval24,540
+  double begin,end;begin26,600
+  double begin,end;end26,600
+const static Interval Empty_Interval(+infinity, -infinity);Empty_Interval29,624
+const static Interval Universe_Interval(-infinity, +infinity);Universe_Interval30,684
+
+camera.cpp,213
+Color Camera::Ray_Color(const Ray& r, const Visible& world) const{Ray_Color4,52
+void Camera::Render(const Visible& world, std::ostream& out){Render19,463
+void Camera::Initialize_view(){Initialize_view37,964
+
+scene.hpp,648
 #define SCENE_HSCENE_H2,16
 class Scene: public Visible{Scene9,92
   Scene(){}Scene11,129
@@ -127,22 +146,6 @@ class Scene: public Visible{Scene9,92
   Scene(std::initializer_list<std::shared_ptr<Visible>>&& li):objects{std::move(li)} {}Scene13,197
   void Clear(){ objects.clear(); }Clear16,310
   void Add(std::shared_ptr<Visible> obj){ objects.push_back(obj); }Add17,345
-  virtual Hit_record Ray_Hit(const Ray& r, Interval time) const override{Ray_Hit21,574
-  virtual Color Ray_color(const Ray& r, const Hit_record& rec) const override{Ray_color36,968
-  std::vector<std::shared_ptr<Visible>> objects;objects41,1110
-
-interval.hpp,881
-#define INTERVAL_HINTERVAL_H2,19
-#define __INFINITY__ __INFINITY__4,39
-class Interval{Interval6,103
-  Interval():begin(+__INFINITY__),end(-__INFINITY__) {} // default interval is emptyInterval8,127
-  Interval(const double& _min, const double& _max) : begin(_min), end(_max) {}Interval9,212
-  bool Contains(const double& x) const{Contains12,319
-  bool Surrounds(const double& x) const{Surrounds15,395
-  double Clamp(const double& x) const{Clamp19,471
-  static const Interval Empty_Interval, Universe_Interval;Empty_Interval24,587
-  static const Interval Empty_Interval, Universe_Interval;Universe_Interval24,587
-  double begin,end;begin26,647
-  double begin,end;end26,647
-const static Interval Empty_Interval(+__INFINITY__, -__INFINITY__);Empty_Interval29,671
-const static Interval Universe_Interval(-__INFINITY__, +__INFINITY__);Universe_Interval30,739
+  virtual Hit_record Ray_Hit(const Ray& r, const Interval& time) const override{Ray_Hit21,574
+  virtual Color Ray_Color(const Ray& r, const Hit_record& rec) const override{Ray_Color36,953
+  std::vector<std::shared_ptr<Visible>> objects;objects41,1095
