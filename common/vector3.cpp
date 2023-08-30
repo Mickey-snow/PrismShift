@@ -14,8 +14,8 @@ double Vector3::y() const{ return e[1]; }
 double Vector3::z() const{ return e[2]; }
 
 bool Vector3::Near_Zero() const{
-  static double EPS = 1e-5;
-  return e[0]+e[1]+e[2] < EPS;
+  static double EPS = 1e-8;
+  return (fabs(e[0])<EPS) and (fabs(e[1])<EPS) and (fabs(e[2])<EPS);
 }
 
 Vector3 Vector3::operator - () const{
@@ -74,6 +74,6 @@ Vector3 Vector3::Random_Unit(){
   Vector3 rand_v;
   do{
     rand_v = Vector3(random_double(-1.0,1.0), random_double(-1.0,1.0), random_double(-1.0,1.0));
-  }while(not rand_v.Near_Zero());
+  }while(false);
   return Unit_vector(rand_v);
 }

@@ -1,4 +1,6 @@
 #include "renderer.hpp"
+#include "common/mat.hpp"
+#include "common/color.hpp"
 
 #include<vector>
 
@@ -16,13 +18,18 @@ std::vector<Point3> Rand_Pixel_Samples(const Camera::View_Info& view, const int&
   return samples;
 }
 
-void Renderer::__Renderer_facade::Render(std::ostream& out) const{
+void Write_Color(Mat& canvas, const int& i,const int &j, Color pixel_color){
+  pixel_color = Format_Color(pixel_color);
+  canvas.at<cv::Vec3b>(i,j)[0] = static_cast<uchar>(pixel_color.z());
+  canvas.at<cv::Vec3b>(i,j)[1] = static_cast<uchar>(pixel_color.y());
+  canvas.at<cv::Vec3b>(i,j)[2] = static_cast<uchar>(pixel_color.x());
+}
+Mat Renderer::__Renderer_facade::Render() const{
   Camera::View_Info view = cam->Get_Initialize_View();
-
-  out<<"P3\n"<<cam->image_width<<' '<<cam->image_height<<"\n255\n";
+  Mat canvas(cam->image_height, cam->image_width, CV_8UC3);
 
   for(int j=0;j<cam->image_height;++j){
-    std::clog<<"\r"<<j+1<<" out of "<<cam->image_height<<" lines done."<<std::flush;
+    std::clog<<'\r'<<j+1<<" lines out of "<<cam->image_height<<" Done."<<std::flush;
     for(int i=0;i<cam->image_width;++i){
       Color pixel_color = Color(0,0,0);
 
@@ -32,14 +39,17 @@ void Renderer::__Renderer_facade::Render(std::ostream& out) const{
 	pixel_color += Ray_Color(r,0) / samples_per_frame;
       }
 
-      Write_Color(out, pixel_color);
+      Write_Color(canvas, j,i, pixel_color);
     }
   }
+
+  return canvas;
 }
 
 Color Renderer::__Renderer_facade::Ray_Color(const Ray& r, int current_recur_depth) const{
+  if(current_recur_depth > max_recurrent_depth) return Color(0,0,0);
+  
   Hit_record rec; 
-
   rec = world->Ray_Hit(r, Interval{0,infinity});
   if(rec.hits){ 		// hits visible object
     rec.hit_counts = current_recur_depth + 1;

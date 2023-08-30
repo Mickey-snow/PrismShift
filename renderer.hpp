@@ -17,7 +17,7 @@ private:
     void Set_Camera(Camera* cam_){ cam=cam_; }
     void Set_World(Visible* world_){ world=world_; }
 
-    void Render(std::ostream& out = std::cout) const;
+    Mat Render() const;
     Color Ray_Color(const Ray&,int current_recur_depth) const;
     
   private:

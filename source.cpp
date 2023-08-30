@@ -1,3 +1,5 @@
+#include <opencv2/imgcodecs.hpp>
+
 #include<string>
 #include<fstream>
 #include<iostream>
@@ -32,8 +34,8 @@ signed main(void)
   Renderer::Instance()->Set_Camera(&cam);
   Renderer::Instance()->Set_World(&world);
 
-  Renderer::Instance()->Render();
-  
+  auto canvas = Renderer::Instance()->Render();
+  cv::imwrite("img.png", canvas);
   return 0;
 
   /*

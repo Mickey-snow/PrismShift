@@ -12,6 +12,7 @@
 #include "interval.hpp"
 #include "constant.hpp"
 #include "random.hpp"
+#include "mat.hpp"
 
 // Utility Functions
 inline double Degree2Rad(const double& degrees){
