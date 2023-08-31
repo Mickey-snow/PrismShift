@@ -10,20 +10,17 @@ class Renderer;
 class Camera{
 public:
   Camera(const Point3& center_position = Point3(0,0,0),
-	 const int& width = 1920,
+	 const Point3& looking_at = Point3(0,0,0),
+	 const int& image_height_ = 1080,
 	 const double& aspect_ratio_ = 16.0/9.0,
-	 const double& focal_length_ = 1.0,
-	 const double& viewpoint_height_ = 2.0,
-	 const int& samples_per_frame_ = 10) :
-    aspect_ratio(aspect_ratio_),
-    image_width(width),
+	 const double& view_angle_vertical_ = 65):
     camera_center(center_position),
-    focal_length(focal_length_),
-    viewpoint_height(viewpoint_height_),
-    samples_per_frame(samples_per_frame_)
+    aspect_ratio(aspect_ratio_),
+    image_height(image_height_),
+    view_angle_vertical(view_angle_vertical_)
   {
-    image_height = static_cast<int>(image_width / aspect_ratio);
-    viewpoint_width = viewpoint_height * (static_cast<double>(image_width)/image_height);
+    up_direction = Vector3(0,1,0);
+    image_width = static_cast<int>(image_height * aspect_ratio);
   }
   
   void Set_Position(const Vector3& position){
@@ -33,14 +30,26 @@ public:
     camera_center += translate;
   }
   Vector3 Position(void) const{ return camera_center; }
+  void Set_Looking_point(const Point3& _looking_at){ looking_at = _looking_at; }
 
-  void Set_Width(const int& _width){
+  void Set_Aspect_ratio(const double& _aspect_ratio){ aspect_ratio = _aspect_ratio; }
+
+  void Set_View_angle_vertical(const double& angle){ view_angle_vertical = angle; }
+    
+  void Set_Image_Width(const int& _width){
     image_width = _width;
     image_height = static_cast<int>(image_width / aspect_ratio);
     assert(image_width>=1 and image_height>=1);
   }
+  void Set_Image_Height(const int& _height){
+    image_height = _height;
+    image_width = static_cast<int>(image_height * aspect_ratio);
+    assert(image_width>=1 and image_height>=1);
+  }
 
   struct View_Info{
+    double focal_length;
+    double viewport_height, viewport_width;
     Vector3 viewport_u, viewport_v;
     Vector3 pixel_delta_u, pixel_delta_v;
     Point3 viewport_upper_left;
@@ -52,12 +61,12 @@ public:
 private:
   // Image and Camera config
   double aspect_ratio;
-  int image_width, image_height;
-  double focal_length;
-  double viewpoint_height, viewpoint_width;
+  int image_height, image_width;
   Point3 camera_center;
+  Vector3 up_direction;
+  Point3 looking_at;
 
-  int samples_per_frame;
+  double view_angle_vertical;
 
   friend Renderer;
 };

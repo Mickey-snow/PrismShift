@@ -28,6 +28,8 @@ void Write_Color(Mat& canvas, const int& i,const int &j, Color pixel_color){
   canvas.at<cv::Vec3b>(i,j)[2] = static_cast<uchar>(pixel_color.x());
 }
 Mat Renderer::__Renderer_facade::Render() const{
+  std::clog<<"\rStart rendering"<<std::flush;
+
   Camera::View_Info view = cam->Get_Initialize_View();
   Mat canvas(cam->image_height, cam->image_width, CV_8UC3);
 
@@ -61,7 +63,7 @@ void _render_sub_process(Mat canvas, Interval<int> row, Interval<int> col, const
     }
   }
   std::clog<<"\rline "<<row<<" column "<<col<<" Done. ("
-	   <<_finished_render_sub_process_count<<" out of "<<_total_render_sub_process_count
+	   <<++_finished_render_sub_process_count<<" out of "<<_total_render_sub_process_count
 	   <<")    "<<std::flush;
 }
 

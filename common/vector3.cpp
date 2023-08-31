@@ -85,3 +85,6 @@ Vector3 Vector3::Random_Unit(){
   }while(false);
   return Unit_vector(rand_v);
 }
+Vector3 Vector3::Random(const double& min,const double& max){
+  return Vector3(random_double(-1.0,1.0), random_double(-1.0,1.0), random_double(-1.0,1.0));
+}

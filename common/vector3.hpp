@@ -35,6 +35,7 @@ public:
   bool Near_Zero() const;
 
   static Vector3 Random_Unit();
+  static Vector3 Random(const double& min=-1.0, const double& max=1.0);
   
 protected:
   double e[3];
