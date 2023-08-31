@@ -30,6 +30,7 @@ private:
     // Render info
     int samples_per_pixel = 50;
     int max_recurrent_depth = 110;
+    bool show_preview_window = true;
   };
 
 public:

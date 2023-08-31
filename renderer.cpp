@@ -2,7 +2,9 @@
 #include "common/mat.hpp"
 #include "common/color.hpp"
 
-#include<vector>
+#include "opencv2/highgui.hpp"
+
+#include<queue>
 #include<future>
 
 std::vector<Point3> Rand_Pixel_Samples(const Camera::View_Info& view, const int& row, const int& column, const int& total_samples){
@@ -19,8 +21,11 @@ std::vector<Point3> Rand_Pixel_Samples(const Camera::View_Info& view, const int&
   return samples;
 }
 
+void _update_preview_window(Mat canvas);
 void _render_sub_process(Mat canvas, Interval<int> row, Interval<int> col, const Camera::View_Info& view, const Vector3& cam_position, const int& samples_per_pixel);
+
 int _finished_render_sub_process_count,_total_render_sub_process_count;
+bool _show_preview_window;
 void Write_Color(Mat& canvas, const int& i,const int &j, Color pixel_color){
   pixel_color = Format_Color(pixel_color);
   canvas.at<cv::Vec3b>(i,j)[0] = static_cast<uchar>(pixel_color.z());
@@ -30,21 +35,27 @@ void Write_Color(Mat& canvas, const int& i,const int &j, Color pixel_color){
 Mat Renderer::__Renderer_facade::Render() const{
   std::clog<<"\rStart rendering"<<std::flush;
 
+  _show_preview_window = show_preview_window;
+  if(show_preview_window) cv::namedWindow("Preview", cv::WINDOW_AUTOSIZE);
+  
   Camera::View_Info view = cam->Get_Initialize_View();
   Mat canvas(cam->image_height, cam->image_width, CV_8UC3);
 
-  static const int _pixel_block_size = 128;
+  static const int _pixel_block_size = 16;
+  static const int _max_subprocess_count = 23;
 
-  _total_render_sub_process_count = _finished_render_sub_process_count = 0;
-  std::vector<std::future<void>> futures;
+  _finished_render_sub_process_count = 0;
+  _total_render_sub_process_count = ((cam->image_height-1)/_pixel_block_size+1) * ((cam->image_width-1)/_pixel_block_size+1);
+  std::queue<std::future<void>> futures;
   for(int j=0;j<cam->image_height;j+=_pixel_block_size)
     for(int i=0;i<cam->image_width;i+=_pixel_block_size){
-      ++_total_render_sub_process_count;
-      futures.push_back(std::async(_render_sub_process, canvas, Interval{j,std::min(j+_pixel_block_size,cam->image_height)}, Interval{i,std::min(i+_pixel_block_size,cam->image_width)}, view, cam->Position(), samples_per_pixel));
+      while(futures.size() >= _max_subprocess_count){ futures.front().wait(); futures.pop(); }
+      futures.push(std::async(_render_sub_process, canvas, Interval{j,std::min(j+_pixel_block_size,cam->image_height)}, Interval{i,std::min(i+_pixel_block_size,cam->image_width)}, view, cam->Position(), samples_per_pixel));
     }
   
-  for(auto& fut : futures) fut.wait();
+  while(!futures.empty()){ futures.front().wait(); futures.pop(); }
 
+  cv::destroyAllWindows();
   return canvas;
 }
 
@@ -65,7 +76,15 @@ void _render_sub_process(Mat canvas, Interval<int> row, Interval<int> col, const
   std::clog<<"\rline "<<row<<" column "<<col<<" Done. ("
 	   <<++_finished_render_sub_process_count<<" out of "<<_total_render_sub_process_count
 	   <<")    "<<std::flush;
+  _update_preview_window(canvas);
 }
+
+void _update_preview_window(Mat canvas){
+  if(not _show_preview_window) return;
+  imshow("Preview", canvas);
+  cv::waitKey(1);
+}
+
 
 Color Renderer::__Renderer_facade::Ray_Color(const Ray& r, int current_recur_depth) const{
   if(current_recur_depth > max_recurrent_depth) return Color(0,0,0);

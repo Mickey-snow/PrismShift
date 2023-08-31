@@ -33,7 +33,7 @@ signed main(void)
 	if(choose_mat < 0.8){
 	  sphere_material = new Lambertian(Color::Random() * Color::Random());
 	} else if(choose_mat < 0.95){
-	  sphere_material = new Metal(Color::Random(0.5,1), random_double(0, 0.5));
+	  sphere_material = new Metal(Color::Random(0.5,0.8), random_double(0, 0.5));
 	} else{
 	  sphere_material = new Dielectric(1.5);
 	}
@@ -57,7 +57,7 @@ signed main(void)
 
   // Render config
   Renderer::Instance()->Set_Samples_per_pixel(500);
-  Renderer::Instance()->Set_Max_recurrent_depth(80);
+  Renderer::Instance()->Set_Max_recurrent_depth(50);
 
   // Render
   auto canvas = Renderer::Instance()->Render();
