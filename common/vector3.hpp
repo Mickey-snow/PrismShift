@@ -30,6 +30,8 @@ public:
   double Length() const;
   double Length_squared() const;
 
+  Vector3 Unit() const;
+
   bool Near_Zero() const;
 
   static Vector3 Random_Unit();

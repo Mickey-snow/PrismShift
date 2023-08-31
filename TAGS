@@ -13,12 +13,14 @@ class Sphere : public Visible{Sphere11,153
   double radius;radius56,1782
   Material* material;material57,1799
 
-renderer.cpp,516
+renderer.cpp,741
 std::vector<Point3> Rand_Pixel_Samples(const Camera::View_Info& view, const int& row, const int&Rand_Pixel_Samples8,114
-void Write_Color(Mat& canvas, const int& i,const int &j, Color pixel_color){Write_Color23,812
-Mat Renderer::__Renderer_facade::Render() const{Render29,1144
-void _render_sub_process(Mat canvas, Interval<int> row, Interval<int> col, const Camera::View_In_render_sub_process44,1798
-Color Renderer::__Renderer_facade::Ray_Color(const Ray& r, int current_recur_depth) const{Ray_Color61,2457
+int _finished_render_sub_process_count,_total_render_sub_process_count;_finished_render_sub_process_count23,812
+int _finished_render_sub_process_count,_total_render_sub_process_count;_total_render_sub_process_count23,812
+void Write_Color(Mat& canvas, const int& i,const int &j, Color pixel_color){Write_Color24,884
+Mat Renderer::__Renderer_facade::Render() const{Render30,1216
+void _render_sub_process(Mat canvas, Interval<int> row, Interval<int> col, const Camera::View_In_render_sub_process49,1997
+Color Renderer::__Renderer_facade::Ray_Color(const Ray& r, int current_recur_depth) const{Ray_Color68,2758
 
 CMakeLists.txt,179
 project(DisplayImage)DisplayImage2,36
@@ -50,7 +52,7 @@ class Camera{Camera10,124
   Point3 camera_center;camera_center58,1533
   int samples_per_frame;samples_per_frame60,1558
 
-material.hpp,634
+material.hpp,1003
 #define MATERIAL_HMATERIAL_H2,19
 class Material{Material8,116
 class Lambertian : public Material{Lambertian15,238
@@ -60,8 +62,13 @@ class Lambertian : public Material{Lambertian15,238
 class Metal : public Material{Metal28,672
   Metal(const Color& col, const double& f=0) : attenuation(col),fuzz(fabs(f)<1?f:1) {}Metal30,711
   virtual Color Ray_Color(const Ray& r,const Hit_record& rec) const override{Ray_Color32,799
-  Color attenuation;attenuation38,1199
-  double fuzz;fuzz39,1220
+  Color attenuation;attenuation38,1198
+  double fuzz;fuzz39,1219
+class Dielectric : public Material{Dielectric42,1238
+  Dielectric(const double& index_of_refraction) : eta(index_of_refraction) {}Dielectric44,1282
+  virtual Color Ray_Color(const Ray& r, const Hit_record& rec) const override{Ray_Color46,1361
+  double eta;eta64,2239
+  static double Reflectance(const double& cosine, const double& ref_idx){Reflectance66,2254
 
 objects.hpp,606
 #define OBJECTS_HOBJECTS_H2,18
@@ -81,18 +88,20 @@ make.sh,0
 
 TAGS,0
 
-renderer.hpp,557
+renderer.hpp,791
 #define RENDERER_PANEL_HRENDERER_PANEL_H2,25
 class Renderer{Renderer10,146
   class __Renderer_facade{__Renderer_facade12,171
     __Renderer_facade(){}__Renderer_facade14,208
     void Set_Camera(Camera* cam_){ cam=cam_; }Set_Camera17,271
     void Set_World(Visible* world_){ world=world_; }Set_World18,318
-    Camera* cam;cam24,475
-    Visible* world;world25,492
-    int samples_per_frame = 15;samples_per_frame28,532
-    int max_recurrent_depth = 110;max_recurrent_depth29,564
-  static __Renderer_facade* Instance(void){Instance36,675
+    void Set_Samples_per_pixel(const int& samples){ samples_per_pixel = samples; }Set_Samples_per_pixel23,460
+    void Set_Max_recurrent_depth(const int& max_recur){ max_recurrent_depth = max_recur; }Set_Max_recurrent_depth24,543
+    Camera* cam;cam27,650
+    Visible* world;world28,667
+    int samples_per_pixel = 50;samples_per_pixel31,707
+    int max_recurrent_depth = 110;max_recurrent_depth32,739
+  static __Renderer_facade* Instance(void){Instance39,850
 
 common/constant.hpp,172
 #define CONSTANT_HCONSTANT_H2,19
@@ -106,15 +115,15 @@ using Color = Vector3;Color7,76
 common/vector3.hpp,117
 #define VEC3_HVEC3_H2,15
 class Vector3{Vector36,51
-  double e[3];e38,863
-using Point3 = Vector3;Point340,881
+  double e[3];e40,888
+using Point3 = Vector3;Point342,906
 
 common/color.cpp,226
 inline double Linear2Gamma(const double& linear_component){Linear2Gamma7,82
 Color Format_Color(const Color& pixel_color){Format_Color11,183
 void Write_Color(std::ostream& out, const Color& pixel_color){Write_Color27,600
 
-common/vector3.cpp,1971
+common/vector3.cpp,2015
 Vector3::Vector3():e{0,0,0} {}Vector38,99
 Vector3::Vector3(const double& e0,const double& e1,const double& e2):e{e0,e1,e2} {}Vector39,130
 double Vector3::x() const{ return e[0]; }x12,277
@@ -137,11 +146,12 @@ double Vector3::operator [](const int& i) const{ return e[i]; }operator []47,1
 double& Vector3::operator [](const int& i){ return e[i]; }operator []48,1649
 double Vector3::Length() const{ return sqrt(this->Length_squared()); }Length50,1709
 double Vector3::Length_squared() const{Length_squared51,1780
-std::ostream& operator <<(std::ostream& out, const Vector3& v){operator <<55,1867
-double Dot(const Vector3 &u, const Vector3 &v) {Dot60,1987
-Vector3 Cross(const Vector3 &u, const Vector3 &v) {Cross66,2097
-Vector3 Unit_vector(const Vector3& v) {Unit_vector72,2257
-Vector3 Vector3::Random_Unit(){Random_Unit76,2325
+Vector3 Vector3::Unit() const{Unit55,1867
+std::ostream& operator <<(std::ostream& out, const Vector3& v){operator <<60,1931
+double Dot(const Vector3 &u, const Vector3 &v) {Dot65,2051
+Vector3 Cross(const Vector3 &u, const Vector3 &v) {Cross71,2161
+Vector3 Unit_vector(const Vector3& v) {Unit_vector77,2321
+Vector3 Vector3::Random_Unit(){Random_Unit81,2389
 
 common/random.cpp,136
 double random_uniform_01(void){random_uniform_016,57
@@ -158,13 +168,14 @@ class Ray{Ray6,53
   Ray(const Point3& origin_, const Vector3& direction_) : origin(origin_), direction(direction_)Ray9,82
   Point3 Origin() const{ return origin; }Origin11,183
   Vector3 Direction() const{ return direction; }Direction12,225
-  Point3 origin;origin19,466
-  Vector3 direction;direction20,483
+  Point3 origin;origin20,592
+  Vector3 direction;direction21,609
 
-common/ray.cpp,238
-Point3 Ray::At(const double& time) const{At4,43
-Vector3 Ray::Scatter_Direction(const Vector3& normal){Scatter_Direction8,122
-Vector3 Ray::Reflect_Direction(const Vector3& in_direction, const Vector3& normal){Reflect_Direction13,288
+common/ray.cpp,361
+Point3 Ray::At(const double& time) const{At6,60
+Vector3 Ray::Scatter_Direction(const Vector3& normal){Scatter_Direction10,139
+Vector3 Ray::Reflect_Direction(const Vector3& in_direction, const Vector3& normal){Reflect_Direction15,305
+Vector3 Ray::Refract_Direction(const Vector3& in_direction, const Vector3& normal, const double&Refract_Direction20,498
 
 common/random.hpp,31
 #define RANDOM_HRANDOM_H2,17
@@ -202,5 +213,5 @@ class Scene: public Visible{Scene9,92
   void Clear(){ objects.clear(); }Clear16,310
   void Add(std::shared_ptr<Visible> obj){ objects.push_back(obj); }Add17,345
   virtual Hit_record Ray_Hit(const Ray& r, const Interval<double>& time) const override{Ray_Hit21,574
-  virtual Color Ray_Color(const Ray& r, const Hit_record& rec) const override{Ray_Color36,961
-  std::vector<std::shared_ptr<Visible>> objects;objects41,1103
+  virtual Color Ray_Color(const Ray& r, const Hit_record& rec) const override{Ray_Color36,962
+  std::vector<std::shared_ptr<Visible>> objects;objects41,1104

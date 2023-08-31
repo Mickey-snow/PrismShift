@@ -19,13 +19,16 @@ private:
 
     Mat Render() const;
     Color Ray_Color(const Ray&,int current_recur_depth) const;
+
+    void Set_Samples_per_pixel(const int& samples){ samples_per_pixel = samples; }
+    void Set_Max_recurrent_depth(const int& max_recur){ max_recurrent_depth = max_recur; }
     
   private:
     Camera* cam;
     Visible* world;
 
     // Render info
-    int samples_per_frame = 15;
+    int samples_per_pixel = 50;
     int max_recurrent_depth = 110;
   };
 

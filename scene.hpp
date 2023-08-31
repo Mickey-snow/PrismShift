@@ -23,7 +23,7 @@ public:
     double closest_hit_time = time.end;
 
     for(const auto& obj : objects){
-      temp_rec = obj->Ray_Hit(r, Interval{time.begin+1e-6, closest_hit_time});
+      temp_rec = obj->Ray_Hit(r, Interval{time.begin+0.001, closest_hit_time});
       if(temp_rec.hits){
 	rec = temp_rec;
 	closest_hit_time = temp_rec.time;

@@ -52,6 +52,11 @@ double Vector3::Length_squared() const{
   return e[0]*e[0] + e[1]*e[1] + e[2]*e[2];
 }
 
+Vector3 Vector3::Unit() const{
+  return (*this) / Length();
+}
+
+
 std::ostream& operator <<(std::ostream& out, const Vector3& v){
   return out<<'('<<v[0]<<','<<v[1]<<','<<v[2]<<')';
 }
