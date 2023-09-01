@@ -4,7 +4,7 @@
 #include<iostream>
 
 #include "common/common.hpp"
-#include "objects.hpp"
+#include "scene.hpp"
 #include "camera.hpp"
 
 class Renderer{
@@ -15,7 +15,7 @@ private:
     ~__Renderer_facade() = default;
 
     void Set_Camera(Camera* cam_){ cam=cam_; }
-    void Set_World(Visible* world_){ world=world_; }
+    void Set_World(Scene* world_){ world=world_; }
 
     Mat Render() const;
     Color Ray_Color(const Ray&,int current_recur_depth) const;
@@ -25,10 +25,10 @@ private:
     
   private:
     Camera* cam;
-    Visible* world;
+    Scene* world;
 
     // Render info
-    int samples_per_pixel = 50;
+    int samples_per_pixel = 15;
     int max_recurrent_depth = 110;
     bool show_preview_window = true;
   };

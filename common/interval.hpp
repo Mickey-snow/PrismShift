@@ -5,18 +5,29 @@
 
 template<typename T>
 class Interval{
-private:
-  const T Positive_Inf = std::numeric_limits<T>::max();
-  const T Negative_Inf = std::numeric_limits<T>::min();
-  
 public:
   T begin,end;
   
-  Interval():begin(Positive_Inf),end(Negative_Inf) {} // default interval is empty
+  Interval():begin(std::numeric_limits<T>::max()),end(std::numeric_limits<T>::min()) {} // default interval is empty
   Interval(const T& _min, const T& _max) : begin(_min), end(_max) {}
+  Interval(const Interval& a, const Interval& b){
+    begin = a.begin < b.begin ? a.begin : b.begin;
+    end = a.end > b.end ? a.end : b.end;
+  }
   ~Interval() = default;
 
-  bool isEmpty(void) const{ return begin>end; }
+  Interval(const Interval& cp):begin(cp.begin), end(cp.end) {}
+  Interval& operator = (const Interval& cp){
+    begin = cp.begin; end = cp.end;
+    return *this;
+  }
+
+  Interval Expand(const double& x) const{
+    return Interval(begin-x, end+x);
+  }
+
+  T Size(void) const{ return end-begin; }
+  bool isEmpty(void) const{ return Size()<=0; }
   bool In(const Interval& a) const{ return a.begin<=begin and end<=a.end; }
   
   bool Contains(const T& x) const{
@@ -36,7 +47,7 @@ public:
   }
 
   static Interval<T> Empty(){ return Interval<T>(std::numeric_limits<T>::max(), std::numeric_limits<T>::min()); }
-  static Interval<T> Universe(){ return Interval<T>(std::numeric_limits<T>::min(), std::numeric_limits<T>::max()); }
+  static Interval<T> Positive(){ return Interval<T>(std::numeric_limits<T>::min(), std::numeric_limits<T>::max()); }
 };
 
 

@@ -27,26 +27,28 @@ void _render_sub_process(Mat canvas, Interval<int> row, Interval<int> col, const
 int _finished_render_sub_process_count,_total_render_sub_process_count;
 bool _show_preview_window;
 void Write_Color(Mat& canvas, const int& i,const int &j, Color pixel_color){
-  pixel_color = Format_Color(pixel_color);
-  canvas.at<cv::Vec3b>(i,j)[0] = static_cast<uchar>(pixel_color.z());
-  canvas.at<cv::Vec3b>(i,j)[1] = static_cast<uchar>(pixel_color.y());
-  canvas.at<cv::Vec3b>(i,j)[2] = static_cast<uchar>(pixel_color.x());
+  pixel_color = Format_Color(pixel_color, 1.0);
+  canvas.at<cv::Vec3d>(i,j)[0] = pixel_color.z();
+  canvas.at<cv::Vec3d>(i,j)[1] = pixel_color.y();
+  canvas.at<cv::Vec3d>(i,j)[2] = pixel_color.x();
 }
 Mat Renderer::__Renderer_facade::Render() const{
-  std::clog<<"\rStart rendering"<<std::flush;
-
+  world->Build_BVH();
+  
   _show_preview_window = show_preview_window;
   if(show_preview_window) cv::namedWindow("Preview", cv::WINDOW_AUTOSIZE);
   
   Camera::View_Info view = cam->Get_Initialize_View();
-  Mat canvas(cam->image_height, cam->image_width, CV_8UC3);
+  Mat canvas(cam->image_height, cam->image_width, CV_64FC3);
 
   static const int _pixel_block_size = 16;
-  static const int _max_subprocess_count = 23;
+  static const int _max_subprocess_count = 30;
 
   _finished_render_sub_process_count = 0;
   _total_render_sub_process_count = ((cam->image_height-1)/_pixel_block_size+1) * ((cam->image_width-1)/_pixel_block_size+1);
   std::queue<std::future<void>> futures;
+
+  std::clog<<"\rStart rendering"<<std::flush;
   for(int j=0;j<cam->image_height;j+=_pixel_block_size)
     for(int i=0;i<cam->image_width;i+=_pixel_block_size){
       while(futures.size() >= _max_subprocess_count){ futures.front().wait(); futures.pop(); }
@@ -72,11 +74,12 @@ void _render_sub_process(Mat canvas, Interval<int> row, Interval<int> col, const
 
       Write_Color(canvas, j,i, pixel_color);
     }
+    _update_preview_window(canvas);
   }
   std::clog<<"\rline "<<row<<" column "<<col<<" Done. ("
 	   <<++_finished_render_sub_process_count<<" out of "<<_total_render_sub_process_count
 	   <<")    "<<std::flush;
-  _update_preview_window(canvas);
+
 }
 
 void _update_preview_window(Mat canvas){

@@ -8,7 +8,7 @@ inline double Linear2Gamma(const double& linear_component){
   return std::sqrt(linear_component);
 }
 
-Color Format_Color(const Color& pixel_color){
+Color Format_Color(const Color& pixel_color, const double& scale){
   auto r = pixel_color.x();
   auto g = pixel_color.y();
   auto b = pixel_color.z();
@@ -19,9 +19,9 @@ Color Format_Color(const Color& pixel_color){
   b = Linear2Gamma(b);
 
   static const Interval intensity(0.000,0.999);
-  return Color(256 * intensity.Clamp(r),
-               256 * intensity.Clamp(g),
-               256 * intensity.Clamp(b));
+  return Color(scale * intensity.Clamp(r),
+               scale * intensity.Clamp(g),
+               scale * intensity.Clamp(b));
 }
 
 void Write_Color(std::ostream& out, const Color& pixel_color){

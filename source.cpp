@@ -22,8 +22,8 @@ signed main(void)
   auto ground_material = new Lambertian(Color(0.5,0.5,0.5));
   world.Add(std::make_shared<Sphere>(Point3(0,-1000,0), 1000, ground_material));
 
-  for(int a=-15;a<=15;++a)
-    for(int b=-15;b<=15;++b){
+  for(int a=-15;a<=15;a++)
+    for(int b=-15;b<=15;b++){
       auto choose_mat = random_uniform_01();
       Point3 center(a+0.9*random_uniform_01(),0.2,b+0.9*random_uniform_01());
 
@@ -53,15 +53,17 @@ signed main(void)
   Camera cam(Point3(13,2,3),Point3(0,0,0));
   Renderer::Instance()->Set_Camera(&cam);
   cam.Set_View_angle_vertical(20);
-  cam.Set_Image_Height(1080);
+  cam.Set_Image_Height(420);
 
   // Render config
-  Renderer::Instance()->Set_Samples_per_pixel(500);
+  Renderer::Instance()->Set_Samples_per_pixel(20);
   Renderer::Instance()->Set_Max_recurrent_depth(50);
 
   // Render
   auto canvas = Renderer::Instance()->Render();
-  cv::imwrite("img.png", canvas);
+  Mat output;
+  canvas.convertTo(output, CV_8UC3, 256);
+  cv::imwrite("img.png", output);
 
   const auto time_end = std::chrono::high_resolution_clock::now();
   const std::chrono::duration<double> time_elapsed = time_end - time_start;

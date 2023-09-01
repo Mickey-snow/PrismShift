@@ -10,8 +10,14 @@
 
 class Sphere : public Visible{
 public:
-  Sphere(const Point3& _center, const double& r) : center(_center), radius(r),material(nullptr) {}
-  Sphere(const Point3& _center, const double& r, Material* _material) : center(_center), radius(r), material(_material) {}
+  Sphere(const Point3& _center, const double& r):Sphere(_center,r,nullptr) {}
+  Sphere(const Point3& _center, const double& r, Material* _material) : center(_center), radius(r), material(_material) {
+    double r_abs = fabs(r);
+    Vector3 r_vec(r_abs,r_abs,r_abs);
+    bbox = AABB(_center + r_vec, _center - r_vec);
+  }
+
+  AABB Get_Bounding_box(void) const override{ return bbox; }
 
   virtual Color Ray_Color(const Ray& r, const Hit_record& rec) const override{
     if(material == nullptr){	// No material attatched, use default scatter
@@ -55,6 +61,8 @@ private:
   Point3 center;
   double radius;
   Material* material;
+
+  AABB bbox;
 };
 
 #endif

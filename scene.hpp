@@ -2,43 +2,63 @@
 #define SCENE_H
 
 #include "objects.hpp"
+#include "bvh.hpp"
 
+#include<iostream>
 #include<memory>
 #include<vector>
 
 class Scene: public Visible{
 public:
   Scene(){}
-  Scene(std::shared_ptr<Visible> obj) : objects{obj} {}
-  Scene(std::initializer_list<std::shared_ptr<Visible>>&& li):objects{std::move(li)} {}
+  Scene(std::shared_ptr<Visible> obj) : objects{obj} {
+    bbox = obj->Get_Bounding_box();
+  }
   ~Scene() = default;
   
-  void Clear(){ objects.clear(); }
-  void Add(std::shared_ptr<Visible> obj){ objects.push_back(obj); }
+  void Clear(){ objects.clear(); bbox=AABB(); bv_tree=nullptr; }
+  void Add(std::shared_ptr<Visible> obj){
+    objects.push_back(obj);
+    bbox = AABB(bbox, obj->Get_Bounding_box());
+    bv_tree = nullptr;
+  }
+
+  void Build_BVH(void){
+    std::clog<<"\rBuilding BVH"<<std::endl;
+    bv_tree = std::make_shared<bvh_node>(objects);
+  }
 
   // returns true iff Ray r hits any object in the scene
   // Hit_record rec perscribes the first object Ray r hits, i.e., with the smallest time t>=time.begin
   virtual Hit_record Ray_Hit(const Ray& r, const Interval<double>& time) const override{
-    Hit_record temp_rec,rec;
-    double closest_hit_time = time.end;
+    if(bv_tree != nullptr) return bv_tree->Ray_Hit(r,time);
 
-    for(const auto& obj : objects){
-      temp_rec = obj->Ray_Hit(r, Interval{time.begin+0.001, closest_hit_time});
-      if(temp_rec.hits){
-	rec = temp_rec;
-	closest_hit_time = temp_rec.time;
+    else{
+      Hit_record temp_rec,rec;
+      double closest_hit_time = time.end;
+
+      for(const auto& obj : objects){
+	temp_rec = obj->Ray_Hit(r, Interval{time.begin, closest_hit_time});
+	if(temp_rec.hits){
+	  rec = temp_rec;
+	  closest_hit_time = temp_rec.time;
+	}
       }
-    }
 
-    return rec;
+      return rec;
+    }
   }
 
   virtual Color Ray_Color(const Ray& r, const Hit_record& rec) const override{
     return rec.hitted_obj->Ray_Color(r,rec);
   }
-  
+
+  virtual AABB Get_Bounding_box(void) const override{ return bbox; }
 protected:
   std::vector<std::shared_ptr<Visible>> objects;
+
+  AABB bbox;
+  std::shared_ptr<bvh_node> bv_tree;
 };
 
 

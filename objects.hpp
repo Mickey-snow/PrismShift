@@ -24,7 +24,7 @@ public:
   }
 };
 
-
+class AABB;
 class Visible{
 public:
   virtual ~Visible() = default;
@@ -36,6 +36,8 @@ public:
 
   // Return the color of the Ray r that hits an object
   virtual Color Ray_Color(const Ray& R, const Hit_record& rec) const = 0;
+
+  virtual AABB Get_Bounding_box(void) const = 0;
 };
   
 #endif

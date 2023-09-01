@@ -12,3 +12,7 @@ double random_uniform_01(void){
 double random_double(const double& min, const double& max){
   return min + (max-min)*random_uniform_01();
 }
+
+int random_int(const int& min, const int& max){
+  return static_cast<int>(random_double(min, max+0.999));
+}
