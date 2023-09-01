@@ -41,8 +41,8 @@ Mat Renderer::__Renderer_facade::Render() const{
   Camera::View_Info view = cam->Get_Initialize_View();
   Mat canvas(cam->image_height, cam->image_width, CV_64FC3);
 
-  static const int _pixel_block_size = 16;
-  static const int _max_subprocess_count = 30;
+  static const int _pixel_block_size = 64;
+  static const int _max_subprocess_count = 32;
 
   _finished_render_sub_process_count = 0;
   _total_render_sub_process_count = ((cam->image_height-1)/_pixel_block_size+1) * ((cam->image_width-1)/_pixel_block_size+1);

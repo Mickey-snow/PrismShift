@@ -1,6 +1,6 @@
 #include<gtest/gtest.h>
 
-#include "../common/interval.hpp"
+#include <common/interval.hpp>
 
 constexpr double EPS = 1e-8;
 

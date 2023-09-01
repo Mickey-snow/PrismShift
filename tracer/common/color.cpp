@@ -23,11 +23,3 @@ Color Format_Color(const Color& pixel_color, const double& scale){
                scale * intensity.Clamp(g),
                scale * intensity.Clamp(b));
 }
-
-void Write_Color(std::ostream& out, const Color& pixel_color){
-  auto formatted_pixel_color = Format_Color(pixel_color);
-
-  out << static_cast<int>(formatted_pixel_color.x()) << ' '
-      << static_cast<int>(formatted_pixel_color.y()) << ' '
-      << static_cast<int>(formatted_pixel_color.z()) << '\n';
-}

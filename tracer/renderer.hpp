@@ -28,7 +28,7 @@ private:
     Scene* world;
 
     // Render info
-    int samples_per_pixel = 15;
+    int samples_per_pixel = 25;
     int max_recurrent_depth = 110;
     bool show_preview_window = true;
   };

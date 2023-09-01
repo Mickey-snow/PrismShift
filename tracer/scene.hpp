@@ -14,6 +14,9 @@ public:
   Scene(std::shared_ptr<Visible> obj) : objects{obj} {
     bbox = obj->Get_Bounding_box();
   }
+  Scene(const std::vector<std::shared_ptr<Visible>>& obj_src){
+    for(auto obj : obj_src) Add(obj);
+  }
   ~Scene() = default;
   
   void Clear(){ objects.clear(); bbox=AABB(); bv_tree=nullptr; }

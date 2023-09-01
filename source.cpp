@@ -4,12 +4,12 @@
 #include<string>
 #include<chrono>
 
-#include "common/common.hpp"
-#include "scene.hpp"
-#include "material.hpp"
-#include "sphere.hpp"
-#include "camera.hpp"
-#include "renderer.hpp"
+#include "tracer/common/common.hpp"
+#include "tracer/scene.hpp"
+#include "tracer/material.hpp"
+#include "tracer/sphere.hpp"
+#include "tracer/camera.hpp"
+#include "tracer/renderer.hpp"
 
 signed main(void)
 {
@@ -53,11 +53,11 @@ signed main(void)
   Camera cam(Point3(13,2,3),Point3(0,0,0));
   Renderer::Instance()->Set_Camera(&cam);
   cam.Set_View_angle_vertical(20);
-  cam.Set_Image_Height(420);
+  cam.Set_Image_Height(580);
 
   // Render config
-  Renderer::Instance()->Set_Samples_per_pixel(20);
-  Renderer::Instance()->Set_Max_recurrent_depth(50);
+  Renderer::Instance()->Set_Samples_per_pixel(35);
+  Renderer::Instance()->Set_Max_recurrent_depth(110);
 
   // Render
   auto canvas = Renderer::Instance()->Render();
