@@ -57,6 +57,10 @@ public:
   }
 
   virtual AABB Get_Bounding_box(void) const override{ return bbox; }
+
+  std::string Get_Name(void) const override{ return std::string{"object_list"}; }
+  void Set_material(std::shared_ptr<Material>) override{ std::cerr<<"Cannot set material to a scene"<<std::endl<<std::flush; }
+  
 protected:
   std::vector<std::shared_ptr<Visible>> objects;
 

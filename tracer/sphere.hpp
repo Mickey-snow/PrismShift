@@ -14,8 +14,10 @@
 
 class Sphere : public Visible{
 public:
+  static constexpr std::string name{"sphere"};
+
   Sphere(const Point3& _center, const double& r):Sphere(_center,r,nullptr) {}
-  Sphere(const Point3& _center, const double& r, Material* _material) : center(_center), radius(r), material(_material) {
+  Sphere(const Point3& _center, const double& r, std::shared_ptr<Material> _material) : center(_center), radius(r), material(_material) {
     double r_abs = fabs(r);
     Vector3 r_vec(r_abs,r_abs,r_abs);
     bbox = AABB(_center + r_vec, _center - r_vec);
@@ -27,10 +29,12 @@ public:
   
   virtual Hit_record Ray_Hit(const Ray& r, const Interval<double>& time) const override;
   
+  std::string Get_Name(void) const override{ return name; }
+  void Set_material(std::shared_ptr<Material> mat) override{ material = mat; }
 private:
   Point3 center;
   double radius;
-  Material* material;
+  std::shared_ptr<Material> material;
 
   AABB bbox;
 };
@@ -45,9 +49,9 @@ namespace{			// anonymous
     return std::make_shared<Sphere>(Vector3(x,y,z), r);
   }
 
-  constexpr std::string Sphere_ShapeID("sphere");
+  constexpr std::string Sphere_ShapeID = Sphere::name;
 
-  const bool registered = ShapeFactory::Instance()->RegisterVisible(Sphere_ShapeID, CreateSphere);
+  const bool registered = ShapeFactory::Instance()->Register(Sphere_ShapeID, CreateSphere);
   
 }
 

@@ -2,6 +2,10 @@
 #define OBJECTS_H
 
 #include "util/util.hpp"
+#include "material.hpp"
+
+#include<memory>
+#include<string>
 
 class Visible;
 
@@ -29,6 +33,9 @@ class Visible{
 public:
   virtual ~Visible() = default;
 
+  virtual std::string Get_Name(void) const = 0;
+  virtual void Set_material(std::shared_ptr<Material>) = 0;
+  
   // An alternative Hit method
   // Accepts Ray r and Interval time as parameters
   // Returns a Hit_record encapuslates the first object Ray r hits.

@@ -1,6 +1,6 @@
 
 source.cpp,45
-int main(int argc, char* argv[])main11,145
+int main(int argc, char* argv[])main12,162
 
 CMakeLists.txt,784
 project(Raytracer)Raytracer2,36
@@ -109,20 +109,35 @@ const std::string sphere_shapeid("sphere");sphere_shapeid9,129
 TEST(sphere, registerfactory){TEST11,174
 TEST(sphere, instantiateUsingFactory){TEST16,280
 
-tracer/sphere.hpp,814
+tracer/arch.hpp,576
+#define ARCH_HARCH_H2,15
+class Importer{Importer13,169
+  Importer(){}Importer15,193
+  Importer(std::string filename){Importer16,208
+  std::shared_ptr<Camera> Get_camera(){ return cam; }Get_camera25,430
+  std::vector<std::shared_ptr<Visible>> Get_objects(){ return objects; }Get_objects26,484
+  std::vector<std::shared_ptr<Material>> Get_material(){ return materials; }Get_material27,557
+  std::shared_ptr<Camera> cam;cam30,648
+  std::vector<std::shared_ptr<Visible>> objects;objects31,679
+  std::vector<std::shared_ptr<Material>> materials;materials32,728
+
+tracer/sphere.hpp,1070
 #define SPHERE_HSPHERE_H2,17
 class Sphere : public Visible{Sphere15,229
-  Sphere(const Point3& _center, const double& r):Sphere(_center,r,nullptr) {}Sphere17,268
-  Sphere(const Point3& _center, const double& r, Material* _material) : center(_center), radius(Sphere18,346
-  AABB Get_Bounding_box(void) const override{ return bbox; }Get_Bounding_box24,590
-  Point3 center;center31,835
-  double radius;radius32,852
-  Material* material;material33,869
-  AABB bbox;bbox35,892
-namespace{			// anonymous__anon043efcd2011138,909
-  std::shared_ptr<Visible> CreateSphere(std::stringstream& ss){CreateSphere40,936
-  constexpr std::string Sphere_ShapeID("sphere");Sphere_ShapeID48,1114
-  const bool registered = ShapeFactory::Instance()->RegisterVisible(Sphere_ShapeID, CreateSphereregistered50,1165
+  static constexpr std::string name{"sphere"};name17,268
+  Sphere(const Point3& _center, const double& r):Sphere(_center,r,nullptr) {}Sphere19,316
+  Sphere(const Point3& _center, const double& r, std::shared_ptr<Material> _material) : center(_Sphere20,394
+  AABB Get_Bounding_box(void) const override{ return bbox; }Get_Bounding_box26,654
+  std::string Get_Name(void) const override{ return name; }Get_Name32,890
+  void Set_material(std::shared_ptr<Material> mat) override{ material = mat; }Set_material33,950
+  Point3 center;center35,1038
+  double radius;radius36,1055
+  std::shared_ptr<Material> material;material37,1072
+  AABB bbox;bbox39,1111
+namespace{			// anonymous__anon043efcd2011142,1128
+  std::shared_ptr<Visible> CreateSphere(std::stringstream& ss){CreateSphere44,1155
+  constexpr std::string Sphere_ShapeID = Sphere::name;Sphere_ShapeID52,1333
+  const bool registered = ShapeFactory::Instance()->Register(Sphere_ShapeID, CreateSphere);registered54,1389
 
 tracer/renderer.cpp,864
 std::vector<Point3> Rand_Pixel_Samples(const Camera::View_Info& view, const int& row, const int&Rand_Pixel_Samples11,169
@@ -131,30 +146,59 @@ int _finished_render_sub_process_count,_total_render_sub_process_count;_total_r
 bool _show_preview_window;_show_preview_window29,981
 void Write_Color(Mat& canvas, const int& i,const int &j, Color pixel_color){Write_Color30,1008
 Mat Renderer::__Renderer_facade::Render(){Render36,1285
-void _render_sub_process(Mat canvas, Interval<int> row, Interval<int> col, const Camera::View_In_render_sub_process68,2701
-void _update_preview_window(Mat canvas){_update_preview_window89,3501
-Color Renderer::__Renderer_facade::Ray_Color(const Ray& r, int current_recur_depth) const{Ray_Color96,3632
+void _render_sub_process(Mat canvas, Interval<int> row, Interval<int> col, const Camera::View_In_render_sub_process68,2700
+void _update_preview_window(Mat canvas){_update_preview_window89,3500
+Color Renderer::__Renderer_facade::Ray_Color(const Ray& r, int current_recur_depth) const{Ray_Color96,3631
 
-tracer/bvh.hpp,1169
+tracer/basic_material.hpp,1746
+class Lambertian : public Material{Lambertian11,155
+  static constexpr std::string name{"lambertian"};name13,199
+  Lambertian(const Color& col) : attenuation(col) {}Lambertian15,253
+  Color attenuation;attenuation20,399
+class Metal : public Material{Metal25,426
+  static constexpr std::string name{"metal"};name27,465
+  Metal(const Color& col, const double& f=0) : attenuation(col),fuzz(fabs(f)<1?f:1) {}Metal29,514
+  Color attenuation;attenuation34,694
+  double fuzz;fuzz35,715
+class Dielectric : public Material{Dielectric40,736
+  static constexpr std::string name{"dielectric"};name42,780
+  Dielectric(const double& index_of_refraction) : eta(index_of_refraction) {}Dielectric44,834
+  double eta;eta49,1004
+namespace{__anoneaddcfdb011154,1024
+  std::shared_ptr<Material> CreateDielectric(std::stringstream& ss){CreateDielectric55,1035
+  constexpr std::string Dielectric_MaterialID = Dielectric::name;Dielectric_MaterialID59,1179
+  const bool registered1 = MaterialFactory::Instance()->Register(Dielectric_MaterialID, CreateDiregistered160,1245
+namespace{__anoneaddcfdb021162,1354
+  std::shared_ptr<Material> CreateLambertian(std::stringstream& ss){CreateLambertian63,1365
+  constexpr std::string Lambertian_MaterialID = Lambertian::name;Lambertian_MaterialID67,1524
+  const bool registered2 = MaterialFactory::Instance()->Register(Lambertian_MaterialID, CreateLaregistered268,1590
+namespace{__anoneaddcfdb031170,1699
+  std::shared_ptr<Material> CreateMetal(std::stringstream& ss){CreateMetal71,1710
+  constexpr std::string Metal_MaterialID = Metal::name;Metal_MaterialID75,1876
+  const bool registered3 = MaterialFactory::Instance()->Register(Metal_MaterialID, CreateMetal);registered376,1932
+
+tracer/bvh.hpp,1383
 #define BVF_HBVF_H2,14
-class AABB{AABB10,118
-  AABB():x_interval(Interval<double>::Empty()), y_interval(Interval<double>::Empty()), z_intervaAABB14,233
-  AABB(const Point3& a, const Point3& b){AABB15,361
-  AABB(const AABB& a,const AABB& b):AABB20,602
-  bool operator == (const AABB& rhs) const{operator ==25,801
-  class Componentbased_Comparer{Componentbased_Comparer35,1077
-    Componentbased_Comparer(const int& _component) : component(_component) {}Componentbased_Comparer37,1120
-    bool operator () (const AABB& a, const AABB& b) const{operator () 38,1198
-    int component;component42,1338
-  Interval<double> x_interval,y_interval,z_interval;x_interval45,1371
-  Interval<double> x_interval,y_interval,z_interval;y_interval45,1371
-  Interval<double> x_interval,y_interval,z_interval;z_interval45,1371
-class bvh_node : public Visible{bvh_node48,1428
-  bvh_node(const std::vector<std::shared_ptr<Visible>>& src){bvh_node53,1656
-  AABB Get_Bounding_box(void) const override{ return bbox; }Get_Bounding_box68,2449
-  std::shared_ptr<Visible> lch,rch;lch70,2519
-  std::shared_ptr<Visible> lch,rch;rch70,2519
-  AABB bbox;bbox71,2555
+class AABB{AABB11,137
+  AABB():x_interval(Interval<double>::Empty()), y_interval(Interval<double>::Empty()), z_intervaAABB15,252
+  AABB(const Point3& a, const Point3& b){AABB16,380
+  AABB(const AABB& a,const AABB& b):AABB21,621
+  bool operator == (const AABB& rhs) const{operator ==26,820
+  class Componentbased_Comparer{Componentbased_Comparer36,1096
+    Componentbased_Comparer(const int& _component) : component(_component) {}Componentbased_Comparer38,1139
+    bool operator () (const AABB& a, const AABB& b) const{operator () 39,1217
+    int component;component43,1357
+  Interval<double> x_interval,y_interval,z_interval;x_interval46,1390
+  Interval<double> x_interval,y_interval,z_interval;y_interval46,1390
+  Interval<double> x_interval,y_interval,z_interval;z_interval46,1390
+class bvh_node : public Visible{bvh_node49,1447
+  bvh_node(const std::vector<std::shared_ptr<Visible>>& src){bvh_node54,1675
+  AABB Get_Bounding_box(void) const override{ return bbox; }Get_Bounding_box69,2468
+  std::string Get_Name(void) const override{ return std::string{"bvh_node"}; }Get_Name71,2530
+  void Set_material(std::shared_ptr<Material>) override{ std::cerr<<"Cannot set material to a bvSet_material72,2609
+  std::shared_ptr<Visible> lch,rch;lch74,2748
+  std::shared_ptr<Visible> lch,rch;rch74,2748
+  AABB bbox;bbox75,2784
 
 tracer/camera.hpp,1710
 #define CAMERA_HCAMERA_H2,17
@@ -186,74 +230,75 @@ class Camera{Camera10,125
   Point3 looking_at;looking_at67,1899
   double view_angle_vertical;view_angle_vertical69,1921
 
-tracer/material.hpp,1003
+tracer/material.hpp,65
 #define MATERIAL_HMATERIAL_H2,19
-class Material{Material8,117
-class Lambertian : public Material{Lambertian15,239
-  Lambertian(const Color& col) : attenuation(col) {}Lambertian17,283
-  virtual Color Ray_Color(const Ray& r,const Hit_record& rec) const override{Ray_Color19,337
-  Color attenuation;attenuation25,648
-class Metal : public Material{Metal28,673
-  Metal(const Color& col, const double& f=0) : attenuation(col),fuzz(fabs(f)<1?f:1) {}Metal30,712
-  virtual Color Ray_Color(const Ray& r,const Hit_record& rec) const override{Ray_Color32,800
-  Color attenuation;attenuation38,1199
-  double fuzz;fuzz39,1220
-class Dielectric : public Material{Dielectric42,1239
-  Dielectric(const double& index_of_refraction) : eta(index_of_refraction) {}Dielectric44,1283
-  virtual Color Ray_Color(const Ray& r, const Hit_record& rec) const override{Ray_Color46,1362
-  double eta;eta64,2240
-  static double Reflectance(const double& cosine, const double& ref_idx){Reflectance66,2255
+class Material{Material7,83
 
-tracer/factory.hpp,709
+tracer/factory.hpp,919
 #define VISUAL_SHAPE_FACTORY_HVISUAL_SHAPE_FACTORY_H2,31
-class _Factory{_Factory13,224
-  typedef productType (*Create_Callback)(std::stringstream&);Create_Callback15,248
-  using CallbackMap = std::map<idtype, Create_Callback>;CallbackMap17,319
-  CallbackMap _callbacks;_callbacks18,376
-  bool RegisterVisible(idtype id, Create_Callback CreateFn){RegisterVisible22,488
-  bool isRegistered(idtype id) const{isRegistered26,616
-  Create_Callback GetCreateFn(idtype shapeid){GetCreateFn30,711
-class ShapeFactory{ShapeFactory39,939
-  class ShapeFactory_ins : public _Factory<std::string, std::shared_ptr<Visible>>{};ShapeFactory_ins41,968
-  static ShapeFactory_ins* Instance(){Instance47,1134
+class _Factory{_Factory14,248
+  typedef productType (*Create_Callback)(std::stringstream&);Create_Callback16,272
+  using CallbackMap = std::map<idtype, Create_Callback>;CallbackMap18,343
+  CallbackMap _callbacks;_callbacks19,400
+  bool Register(idtype id, Create_Callback CreateFn){Register23,512
+  bool isRegistered(idtype id) const{isRegistered27,633
+  Create_Callback GetCreateFn(idtype shapeid){GetCreateFn31,728
+class ShapeFactory{ShapeFactory40,956
+  class ShapeFactory_ins : public _Factory<std::string, std::shared_ptr<Visible>>{};ShapeFactory_ins42,985
+  static ShapeFactory_ins* Instance(){Instance48,1151
+class MaterialFactory{MaterialFactory55,1257
+  class MaterialFactory_ins : public _Factory<std::string, std::shared_ptr<Material>> {};MaterialFactory_ins57,1289
+  static MaterialFactory_ins* Instance(){Instance63,1465
 
-tracer/renderer.hpp,833
+tracer/renderer.hpp,897
 #define RENDERER_PANEL_HRENDERER_PANEL_H2,25
-class Renderer{Renderer10,140
-  class __Renderer_facade{__Renderer_facade12,165
-    __Renderer_facade(){}__Renderer_facade14,202
-    void Set_Camera(Camera* cam_){ cam=cam_; }Set_Camera17,265
-    void Set_World(Scene* world_){ world=world_; }Set_World18,312
-    void Set_Samples_per_pixel(const int& samples){ samples_per_pixel = samples; }Set_Samples_per_pixel23,446
-    void Set_Max_recurrent_depth(const int& max_recur){ max_recurrent_depth = max_recur; }Set_Max_recurrent_depth24,529
-    Camera* cam;cam27,636
-    Scene* world;world28,653
-    int samples_per_pixel;samples_per_pixel31,691
-    int max_recurrent_depth;max_recurrent_depth32,718
-    bool show_preview_window;show_preview_window33,747
-  static __Renderer_facade* Instance(void){Instance40,853
+class Renderer{Renderer11,157
+  class __Renderer_facade{__Renderer_facade13,182
+    __Renderer_facade(){}__Renderer_facade15,219
+    void Set_Camera(std::shared_ptr<Camera> cam_){ cam=cam_; }Set_Camera18,282
+    void Set_World(std::shared_ptr<Scene> world_){ world=world_; }Set_World19,345
+    void Set_Samples_per_pixel(const int& samples){ samples_per_pixel = samples; }Set_Samples_per_pixel24,495
+    void Set_Max_recurrent_depth(const int& max_recur){ max_recurrent_depth = max_recur; }Set_Max_recurrent_depth25,578
+    std::shared_ptr<Camera> cam;cam28,685
+    std::shared_ptr<Scene> world;world29,718
+    int samples_per_pixel;samples_per_pixel32,772
+    int max_recurrent_depth;max_recurrent_depth33,799
+    bool show_preview_window;show_preview_window34,828
+  static __Renderer_facade* Instance(void){Instance41,934
 
 tracer/camera.cpp,80
 Camera::View_Info Camera::Get_Initialize_View() const{Get_Initialize_View5,49
 
+tracer/arch.cpp,312
+void Importer::Import(std::stringstream& ss){Import13,302
+std::shared_ptr<Camera> Import_cam(std::stringstream& ss){Import_cam32,779
+std::shared_ptr<Visible> Import_object(std::stringstream& ss){Import_object47,1197
+std::shared_ptr<Material> Import_material(std::stringstream& ss){Import_material52,1347
+
+tracer/basic_material.cpp,347
+Color Lambertian::Ray_Color(const Ray& r,const Hit_record& rec) const {Ray_Color9,144
+Color Metal::Ray_Color(const Ray& r,const Hit_record& rec) const {Ray_Color15,431
+double Reflectance(const double& cosine, const double& ref_idx){Reflectance22,802
+Color Dielectric::Ray_Color(const Ray& r, const Hit_record& rec) const {Ray_Color28,1011
+
 tracer/core.hpp,41
 #define TRACER_CORE_HTRACER_CORE_H2,22
 
-tracer/visual_shape.hpp,606
+tracer/visual_shape.hpp,608
 #define OBJECTS_HOBJECTS_H2,18
-class Hit_record{Hit_record8,79
-  bool hits;hits10,105
-  int hit_counts;hit_counts11,118
-  std::shared_ptr<Visible> hitted_obj;hitted_obj12,136
-  Point3 position;	        // hit positionposition14,178
-  Vector3 normal;		// outward normal vectornormal15,221
-  double time;			// timetime16,265
-  bool front_face;		// is this the front face of the hitted obj?front_face17,290
-  Hit_record():hits(false),hit_counts(0) {}Hit_record19,356
-  void Set_Face_Normal(const Ray& r, const Vector3& outward_normal){Set_Face_Normal21,401
-class Visible{Visible28,607
+class Hit_record{Hit_record12,138
+  bool hits;hits14,164
+  int hit_counts;hit_counts15,177
+  std::shared_ptr<Visible> hitted_obj;hitted_obj16,195
+  Point3 position;	        // hit positionposition18,237
+  Vector3 normal;		// outward normal vectornormal19,280
+  double time;			// timetime20,324
+  bool front_face;		// is this the front face of the hitted obj?front_face21,349
+  Hit_record():hits(false),hit_counts(0) {}Hit_record23,415
+  void Set_Face_Normal(const Ray& r, const Vector3& outward_normal){Set_Face_Normal25,460
+class Visible{Visible32,666
 
-tracer/scene.hpp,851
+tracer/scene.hpp,1068
 #define SCENE_HSCENE_H2,16
 class Scene: public Visible{Scene11,135
   Scene(){}Scene13,172
@@ -265,9 +310,11 @@ class Scene: public Visible{Scene11,135
   virtual Hit_record Ray_Hit(const Ray& r, const Interval<double>& time) const override{Ray_Hit36,904
   virtual Color Ray_Color(const Ray& r, const Hit_record& rec) const override{Ray_Color55,1362
   virtual AABB Get_Bounding_box(void) const override{ return bbox; }Get_Bounding_box59,1491
-  std::vector<std::shared_ptr<Visible>> objects;objects61,1571
-  AABB bbox;bbox63,1621
-  std::shared_ptr<bvh_node> bv_tree;bv_tree64,1634
+  std::string Get_Name(void) const override{ return std::string{"object_list"}; }Get_Name61,1561
+  void Set_material(std::shared_ptr<Material>) override{ std::cerr<<"Cannot set material to a scSet_material62,1643
+  std::vector<std::shared_ptr<Visible>> objects;objects65,1784
+  AABB bbox;bbox67,1834
+  std::shared_ptr<bvh_node> bv_tree;bv_tree68,1847
 
 tracer/sphere.cpp,178
 Color Sphere::Ray_Color(const Ray& r, const Hit_record& rec) const{Ray_Color10,138
@@ -390,6 +437,8 @@ Hit_record bvh_node::Ray_Hit(const Ray& r, const Interval<double>& time) const{
 images/metal-glass-balls.png,0
 
 images/metal-glass-balls_draft_10sp.png,0
+
+test.in,0
 
 make.sh,0
 

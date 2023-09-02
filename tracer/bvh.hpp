@@ -6,6 +6,7 @@
 
 #include<vector>
 #include<memory>
+#include<iostream>
 
 class AABB{
   // Approximate an visible object to a cube
@@ -66,6 +67,9 @@ public:
   Color Ray_Color(const Ray&, const Hit_record&) const override;
 
   AABB Get_Bounding_box(void) const override{ return bbox; }
+
+  std::string Get_Name(void) const override{ return std::string{"bvh_node"}; }
+  void Set_material(std::shared_ptr<Material>) override{ std::cerr<<"Cannot set material to a bvh node"<<std::endl<<std::flush; }
 private:
   std::shared_ptr<Visible> lch,rch;
   AABB bbox;

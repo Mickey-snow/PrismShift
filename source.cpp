@@ -2,6 +2,7 @@
 
 #include<iostream>
 #include<string>
+#include<memory>
 #include<chrono>
 
 #include "tracer/core.hpp"
@@ -10,15 +11,21 @@
 
 int main(int argc, char* argv[])
 {
+
   const auto time_start = std::chrono::high_resolution_clock::now();
 
   _Global::Instance()->Set_config(argc, argv);
 
+  Importer ifs("test.in");
+  
   // Add objects to the scene
-  Scene world;
-  Renderer::Instance()->Set_World(&world);
+  std::shared_ptr<Scene> world = std::make_shared<Scene>(ifs.Get_objects());
+  Renderer::Instance()->Set_World(world);
 
-  auto ground_material = new Lambertian(Color(0.5,0.5,0.5));
+  std::shared_ptr<Camera> cam = ifs.Get_camera();
+  Renderer::Instance()->Set_Camera(cam);
+  /*
+  auto ground_material = std::make_shared<Lambertian>(Color(0.5,0.5,0.5));
   world.Add(std::make_shared<Sphere>(Point3(0,-1000,0), 1000, ground_material));
 
   for(int a=-15;a<=15;a++)
@@ -27,22 +34,22 @@ int main(int argc, char* argv[])
       Point3 center(a+0.9*random_uniform_01(),0.2,b+0.9*random_uniform_01());
 
       if((center-Point3(4,0.2,0)).Length() > 0.9){
-	Material* sphere_material;
+	std::shared_ptr<Material> sphere_material;
 
 	if(choose_mat < 0.8){
-	  sphere_material = new Lambertian(Color::Random() * Color::Random());
+	  sphere_material = std::make_shared<Lambertian>(Color::Random() * Color::Random());
 	} else if(choose_mat < 0.95){
-	  sphere_material = new Metal(Color::Random(0.5,0.8), random_double(0, 0.5));
+	  sphere_material = std::make_shared<Metal>(Color::Random(0.5,0.8), random_double(0, 0.5));
 	} else{
-	  sphere_material = new Dielectric(1.5);
+	  sphere_material = std::make_shared<Dielectric>(1.5);
 	}
 	
 	world.Add(std::make_shared<Sphere>(center, 0.2, sphere_material));
       }
     }
-  auto mat1 = new Dielectric(1.5);
-  auto mat2 = new Lambertian(Color(0.4,0.2,0.1));
-  auto mat3 = new Metal(Color(0.7,0.6,0.5), 0.0);
+  auto mat1 = std::make_shared<Dielectric>(1.5);
+  auto mat2 = std::make_shared<Lambertian>(Color(0.4,0.2,0.1));
+  auto mat3 = std::make_shared<Metal>(Color(0.7,0.6,0.5), 0.0);
   world.Add(std::make_shared<Sphere>(Point3(0,1,0),1.0, mat1));
   world.Add(std::make_shared<Sphere>(Point3(-4,1,0), 1.0, mat2));
   world.Add(std::make_shared<Sphere>(Point3(4,1,0), 1.0, mat3));
@@ -53,7 +60,8 @@ int main(int argc, char* argv[])
   Renderer::Instance()->Set_Camera(&cam);
   cam.Set_View_angle_vertical(20);
   cam.Set_Image_Height(_Global::Instance()->image_height);
-
+  */
+  
   // Render
   auto canvas = Renderer::Instance()->Render();
   Mat output;

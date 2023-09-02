@@ -2,6 +2,7 @@
 #define VISUAL_SHAPE_FACTORY_H
 
 #include "visual_shape.hpp"
+#include "material.hpp"
 
 #include<sstream>
 #include<memory>
@@ -19,7 +20,7 @@ private:
     
 public:
   // Returns true iff suffessfully register creating function to factory
-  bool RegisterVisible(idtype id, Create_Callback CreateFn){
+  bool Register(idtype id, Create_Callback CreateFn){
     return _callbacks.insert(std::pair{id, CreateFn}).second;
   }
 
@@ -46,6 +47,21 @@ public:
     
   static ShapeFactory_ins* Instance(){
     static ShapeFactory_ins factory;
+    return &factory;
+  }
+};
+
+
+class MaterialFactory{
+private:
+  class MaterialFactory_ins : public _Factory<std::string, std::shared_ptr<Material>> {};
+
+public:
+  MaterialFactory() = delete;
+  MaterialFactory(MaterialFactory&) = delete;
+
+  static MaterialFactory_ins* Instance(){
+    static MaterialFactory_ins factory;
     return &factory;
   }
 };

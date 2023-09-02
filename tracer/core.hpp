@@ -7,9 +7,11 @@
 #include "bvh.hpp"
 #include "camera.hpp"
 #include "material.hpp"
+#include "basic_material.hpp"
 #include "factory.hpp"
 #include "renderer.hpp"
 #include "scene.hpp"
 #include "sphere.hpp"
+#include "arch.hpp"
 
 #endif
