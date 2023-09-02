@@ -3,7 +3,6 @@
 
 #include "util/util.hpp"
 
-class Hit_record;
 class Material{
 public:
   ~Material() = default;

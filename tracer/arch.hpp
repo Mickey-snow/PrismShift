@@ -1,7 +1,7 @@
 #ifndef ARCH_H
 #define ARCH_H
 
-#include "visual_shape.hpp"
+#include "shape.hpp"
 #include "camera.hpp"
 
 #include<sstream>
@@ -23,12 +23,12 @@ public:
   void Import(std::stringstream&);
 
   std::shared_ptr<Camera> Get_camera(){ return cam; }
-  std::vector<std::shared_ptr<Visible>> Get_objects(){ return objects; }
+  std::vector<std::shared_ptr<Shape>> Get_objects(){ return objects; }
   std::vector<std::shared_ptr<Material>> Get_material(){ return materials; }
     
 private:
   std::shared_ptr<Camera> cam;
-  std::vector<std::shared_ptr<Visible>> objects;
+  std::vector<std::shared_ptr<Shape>> objects;
   std::vector<std::shared_ptr<Material>> materials;
 };
 

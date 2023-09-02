@@ -1,18 +1,17 @@
 #ifndef SPHERE_H
 #define SPHERE_H
 
-#include "material.hpp"
-#include "visual_shape.hpp"
-#include "renderer.hpp"
-#include "util/util.hpp"
-#include "factory.hpp"
+#include<material.hpp>
+#include<shape.hpp>
+#include<util/util.hpp>
+#include<factory.hpp>
 
 #include<cmath>
 #include<memory>
 #include<sstream>
 #include<string>
 
-class Sphere : public Visible{
+class Sphere : public Shape{
 public:
   static constexpr std::string name{"sphere"};
 
@@ -39,9 +38,8 @@ private:
   AABB bbox;
 };
 
-namespace{			// anonymous
-
-  std::shared_ptr<Visible> CreateSphere(std::stringstream& ss){
+namespace{
+  std::shared_ptr<Shape> CreateSphere(std::stringstream& ss){
     double x,y,z;
     double r;
     ss>>x>>y>>z>>r;
@@ -50,9 +48,7 @@ namespace{			// anonymous
   }
 
   constexpr std::string Sphere_ShapeID = Sphere::name;
-
   const bool registered = ShapeFactory::Instance()->Register(Sphere_ShapeID, CreateSphere);
-  
 }
 
 #endif

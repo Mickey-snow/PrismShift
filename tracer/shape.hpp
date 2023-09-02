@@ -7,31 +7,11 @@
 #include<memory>
 #include<string>
 
-class Visible;
-
-class Hit_record{
-public:
-  bool hits;
-  int hit_counts;
-  std::shared_ptr<Visible> hitted_obj;
-  
-  Point3 position;	        // hit position
-  Vector3 normal;		// outward normal vector
-  double time;			// time
-  bool front_face;		// is this the front face of the hitted obj?
-
-  Hit_record():hits(false),hit_counts(0) {}
-
-  void Set_Face_Normal(const Ray& r, const Vector3& outward_normal){
-    front_face = Dot(r.Direction(), outward_normal) < 0;
-    normal = front_face ? outward_normal : -outward_normal;
-  }
-};
 
 class AABB;
-class Visible{
+class Shape{
 public:
-  virtual ~Visible() = default;
+  virtual ~Shape() = default;
 
   virtual std::string Get_Name(void) const = 0;
   virtual void Set_material(std::shared_ptr<Material>) = 0;

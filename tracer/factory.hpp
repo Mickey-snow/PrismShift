@@ -1,9 +1,6 @@
 #ifndef VISUAL_SHAPE_FACTORY_H
 #define VISUAL_SHAPE_FACTORY_H
 
-#include "visual_shape.hpp"
-#include "material.hpp"
-
 #include<sstream>
 #include<memory>
 #include<map>
@@ -37,9 +34,10 @@ public:
 };
 
 
+class Shape;
 class ShapeFactory{
 private:
-  class ShapeFactory_ins : public _Factory<std::string, std::shared_ptr<Visible>>{};
+  class ShapeFactory_ins : public _Factory<std::string, std::shared_ptr<Shape>>{};
 
 public:
   ShapeFactory() = delete;
@@ -52,6 +50,7 @@ public:
 };
 
 
+class Material;
 class MaterialFactory{
 private:
   class MaterialFactory_ins : public _Factory<std::string, std::shared_ptr<Material>> {};

@@ -3,6 +3,8 @@
 
 #include "vector3.hpp"
 
+#include<memory>
+
 class Ray{
 public:
   Ray(){}
@@ -19,6 +21,27 @@ public:
 private:
   Point3 origin;
   Vector3 direction;
+};
+
+
+class Shape;
+class Hit_record{		// Records with a ray hits a visible Shape object
+public:
+  bool hits;
+  int hit_counts;
+  std::shared_ptr<Shape> hitted_obj;
+  
+  Point3 position;	        // hit position
+  Vector3 normal;		// outward normal vector
+  double time;			// time
+  bool front_face;		// is this the front face of the hitted obj?
+
+  Hit_record():hits(false),hit_counts(0) {}
+
+  void Set_Face_Normal(const Ray& r, const Vector3& outward_normal){
+    front_face = Dot(r.Direction(), outward_normal) < 0;
+    normal = front_face ? outward_normal : -outward_normal;
+  }
 };
 
 #endif

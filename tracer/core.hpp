@@ -3,15 +3,16 @@
 
 #include "util/util.hpp"
 
-#include "visual_shape.hpp"
+#include "shape.hpp"
 #include "bvh.hpp"
 #include "camera.hpp"
 #include "material.hpp"
-#include "basic_material.hpp"
 #include "factory.hpp"
 #include "renderer.hpp"
 #include "scene.hpp"
-#include "sphere.hpp"
 #include "arch.hpp"
+
+#include "materials/material.hpp"
+#include "shapes/shape.hpp"
 
 #endif

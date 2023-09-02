@@ -1,22 +1,8 @@
-#include "material.hpp"
-#include "basic_material.hpp"
-#include "renderer.hpp"
-#include "util/util.hpp"
-#include "factory.hpp"
+#include "dielectric.hpp"
+#include<util/util.hpp>
+#include<renderer.hpp>
 
 #include<cmath>
-
-Color Lambertian::Ray_Color(const Ray& r,const Hit_record& rec) const {
-  Vector3 scattered_direction = Ray::Scatter_Direction(rec.front_face ? rec.normal : -rec.normal);
-  return attenuation * Renderer::Instance()->Ray_Color(Ray(rec.position, scattered_direction), rec.hit_counts);
-}
-
-
-Color Metal::Ray_Color(const Ray& r,const Hit_record& rec) const {
-  Vector3 reflected_direction = Ray::Reflect_Direction(r.Direction(), rec.front_face ? rec.normal : rec.normal);
-  reflected_direction = reflected_direction + fuzz*Vector3::Random_Unit();
-  return attenuation * Renderer::Instance()->Ray_Color(Ray(rec.position, reflected_direction), rec.hit_counts);
-}
 
 
 double Reflectance(const double& cosine, const double& ref_idx){

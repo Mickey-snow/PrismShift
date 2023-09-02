@@ -6,7 +6,7 @@
 #include <bvh.hpp>
 #include <util/util.hpp>
 #include <scene.hpp>
-#include <sphere.hpp>
+#include <shapes/sphere.hpp>
 
 constexpr double EPS = 1e-6;
 
@@ -119,7 +119,7 @@ protected:
   void TearDown() override{
   }
 
-  std::vector<std::shared_ptr<Visible>> spheres;
+  std::vector<std::shared_ptr<Shape>> spheres;
 };
 
 testing::AssertionResult HITRECORD_SAME(Hit_record expect, Hit_record actual){

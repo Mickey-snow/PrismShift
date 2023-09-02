@@ -1,36 +1,9 @@
 #include "bvh.hpp"
 
+#include<util/util.hpp>
 #include<stdexcept>
 #include<format>
 #include<memory>
-
-const Interval<double>& AABB::Axis(const int& n) const{
-    if(n == 0) return x_interval;
-    if(n == 1) return y_interval;
-    if(n == 2) return z_interval;
-    throw std::range_error(std::format("Range Error: AABB::Axis(n) accepts n=0,1,2 for x,y,z interval components. given n={}", n));
-}
-
-bool AABB::Is_Hit_in_Interval(const Ray& r, Interval<double> ray_t)const {
-  for(int a=0;a<3;++a){
-    auto invD = 1 / r.Direction()[a];
-    auto orig = r.Origin()[a];
-
-    auto t0 = (Axis(a).begin - orig) * invD;
-    auto t1 = (Axis(a).end - orig) * invD;
-
-    if(invD < 0) std::swap(t0,t1);
-
-    // Overlap the (a) component's interval [t0,t1]
-    // Let ray_t be the new effective time interval
-    if(t0 > ray_t.begin) ray_t.begin = t0;
-    if(t1 < ray_t.end) ray_t.end = t1;
-
-    if(ray_t.end <= ray_t.begin) return false;
-  }
-  return true;
-}
-
 
 
 Color bvh_node::Ray_Color(const Ray& r, const Hit_record& rec) const{
@@ -39,11 +12,11 @@ Color bvh_node::Ray_Color(const Ray& r, const Hit_record& rec) const{
 }
 
 // Construct a bvh tree
-bvh_node::bvh_node(std::vector<std::shared_ptr<Visible>>& src_obj, size_t start, size_t end, int axis){
+bvh_node::bvh_node(std::vector<std::shared_ptr<Shape>>& src_obj, size_t start, size_t end, int axis){
   class __final_comparer{
   public:
     __final_comparer(const AABB::Componentbased_Comparer& cp) : component_comparer(cp) {}
-    bool operator () (std::shared_ptr<Visible> a, std::shared_ptr<Visible> b){
+    bool operator () (std::shared_ptr<Shape> a, std::shared_ptr<Shape> b){
       return component_comparer(a->Get_Bounding_box(), b->Get_Bounding_box());
     }
   private:

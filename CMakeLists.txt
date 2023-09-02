@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.7)
-project(Raytracer)
+project(Raytracer CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -15,12 +15,12 @@ add_library(global_include STATIC ${GLOBAL_INCLUDE_LIB_SOURCES})
 
 
 set(TRACER_LIB_DIR "tracer")
-file(GLOB COMMON_LIB_SOURCE "${TRACER_LIB_DIR}/util/*.cpp")
-file(GLOB RAYTRACER_LIB_SOURCE "${TRACER_LIB_DIR}/*.cpp")		   
+file(GLOB_RECURSE RAYTRACER_LIB_SOURCE "${TRACER_LIB_DIR}/*.cpp")
+list(FILTER RAYTRACER_LIB_SOURCE EXCLUDE REGEX "${TRACER_LIB_DIR}/test/*")
 add_library(raylib STATIC
-			${COMMON_LIB_SOURCE}
 			${RAYTRACER_LIB_SOURCE}
 			)
+target_include_directories(raylib PUBLIC ${TRACER_LIB_DIR})
 target_link_libraries(raylib
 			${OpenCV_LIBS}
 			global_include
@@ -41,11 +41,11 @@ target_link_libraries(main
 enable_testing()
 
 set(TRACER_TEST_DIR "${TRACER_LIB_DIR}/test/")
-file(GLOB TRACER_TEST_SOURCE "${TRACER_TEST_DIR}/*.cpp")
+file(GLOB_RECURSE TRACER_TEST_SOURCE "${TRACER_TEST_DIR}/*.cpp")
 add_executable(tracer_test ${TRACER_TEST_SOURCE})
 
 set(GLOBAL_INCLUDE_LIB_TEST_DIR "${GLOBAL_INCLUDE_LIB_DIR}/test/")
-file(GLOB GLOBAL_INCLUDE_LIB_TEST_SOURCE "${GLOBAL_INCLUDE_LIB_TEST_DIR}/*.cpp")
+file(GLOB_RECURSE GLOBAL_INCLUDE_LIB_TEST_SOURCE "${GLOBAL_INCLUDE_LIB_TEST_DIR}/*.cpp")
 add_executable(global_include_test ${GLOBAL_INCLUDE_LIB_TEST_SOURCE})
 
 include(FetchContent)

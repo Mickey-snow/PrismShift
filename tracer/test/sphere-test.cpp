@@ -1,4 +1,4 @@
-#include<sphere.hpp>
+#include<shapes/sphere.hpp>
 #include<factory.hpp>
 #include<util/util.hpp>
 #include<bvh.hpp>
@@ -15,7 +15,7 @@ TEST(sphere, registerfactory){
 
 TEST(sphere, instantiateUsingFactory){
   std::stringstream ss("0 0 0 1");
-  std::shared_ptr<Visible> ball = (ShapeFactory::Instance()->GetCreateFn(sphere_shapeid))(ss);
+  std::shared_ptr<Shape> ball = (ShapeFactory::Instance()->GetCreateFn(sphere_shapeid))(ss);
 
   EXPECT_EQ(ball->Get_Bounding_box(), AABB(Point3(1,1,1), Point3(-1,-1,-1)));
 }

@@ -7,7 +7,7 @@
 #include<memory>
 
 std::shared_ptr<Camera> Import_cam(std::stringstream&);
-std::shared_ptr<Visible> Import_object(std::stringstream&);
+std::shared_ptr<Shape> Import_object(std::stringstream&);
 std::shared_ptr<Material> Import_material(std::stringstream&);
 
 void Importer::Import(std::stringstream& ss){
@@ -44,7 +44,7 @@ std::shared_ptr<Camera> Import_cam(std::stringstream& ss){
   return std::make_shared<Camera>(center_position,looking_at, image_height, aspect_ratio, view_angle_vertical);
 }
 
-std::shared_ptr<Visible> Import_object(std::stringstream& ss){
+std::shared_ptr<Shape> Import_object(std::stringstream& ss){
   std::string id; ss>>id;
   return (ShapeFactory::Instance()->GetCreateFn(id))(ss);
 }

@@ -1,7 +1,8 @@
 #include "sphere.hpp"
-#include "visual_shape.hpp"
-#include "material.hpp"
-#include "util/vector3.hpp"
+#include<material.hpp>
+#include<shape.hpp>
+#include<util/util.hpp>
+#include<renderer.hpp>
 
 #include<cmath>
 #include<memory>

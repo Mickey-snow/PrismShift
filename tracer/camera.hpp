@@ -2,7 +2,7 @@
 #define CAMERA_H
 
 #include "util/util.hpp"
-#include "visual_shape.hpp"
+#include "shape.hpp"
 #include<iostream>
 
 class Renderer;

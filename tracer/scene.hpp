@@ -1,26 +1,26 @@
 #ifndef SCENE_H
 #define SCENE_H
 
-#include "visual_shape.hpp"
+#include "shape.hpp"
 #include "bvh.hpp"
 
 #include<iostream>
 #include<memory>
 #include<vector>
 
-class Scene: public Visible{
+class Scene: public Shape{
 public:
   Scene(){}
-  Scene(std::shared_ptr<Visible> obj) : objects{obj} {
+  Scene(std::shared_ptr<Shape> obj) : objects{obj} {
     bbox = obj->Get_Bounding_box();
   }
-  Scene(const std::vector<std::shared_ptr<Visible>>& obj_src){
+  Scene(const std::vector<std::shared_ptr<Shape>>& obj_src){
     for(auto obj : obj_src) Add(obj);
   }
   ~Scene() = default;
   
   void Clear(){ objects.clear(); bbox=AABB(); bv_tree=nullptr; }
-  void Add(std::shared_ptr<Visible> obj){
+  void Add(std::shared_ptr<Shape> obj){
     objects.push_back(obj);
     bbox = AABB(bbox, obj->Get_Bounding_box());
     bv_tree = nullptr;
@@ -62,7 +62,7 @@ public:
   void Set_material(std::shared_ptr<Material>) override{ std::cerr<<"Cannot set material to a scene"<<std::endl<<std::flush; }
   
 protected:
-  std::vector<std::shared_ptr<Visible>> objects;
+  std::vector<std::shared_ptr<Shape>> objects;
 
   AABB bbox;
   std::shared_ptr<bvh_node> bv_tree;
