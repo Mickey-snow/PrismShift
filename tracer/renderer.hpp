@@ -4,9 +4,10 @@
 #include<iostream>
 #include<memory>
 
-#include "util/util.hpp"
-#include "scene.hpp"
-#include "camera.hpp"
+#include<util/util.hpp>
+#include<scene.hpp>
+#include<camera.hpp>
+#include<material.hpp>
 
 class Renderer{
 private:
@@ -23,11 +24,13 @@ private:
 
     void Set_Samples_per_pixel(const int& samples){ samples_per_pixel = samples; }
     void Set_Max_recurrent_depth(const int& max_recur){ max_recurrent_depth = max_recur; }
-    
+
+    void Set_global_illumin(std::shared_ptr<Material> light){ material = light; }
   private:
     std::shared_ptr<Camera> cam;
     std::shared_ptr<Scene> world;
-
+    std::shared_ptr<Material> material;
+    
     // Render info
     int samples_per_pixel;
     int max_recurrent_depth;

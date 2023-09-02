@@ -17,6 +17,7 @@ int main(int argc, char* argv[])
   _Global::Instance()->Set_config(argc, argv);
 
   Importer ifs("test.in");
+  Renderer::Instance()->Set_global_illumin(ifs.Get_global_illumin());
   
   // Add objects to the scene
   std::shared_ptr<Scene> world = std::make_shared<Scene>(ifs.Get_objects());

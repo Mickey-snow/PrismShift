@@ -15,5 +15,6 @@
 #include "materials/material.hpp"
 #include "shapes/shape.hpp"
 #include "textures/texture.hpp"
+#include "lights/light.hpp"
 
 #endif

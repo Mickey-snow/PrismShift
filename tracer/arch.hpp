@@ -23,11 +23,15 @@ public:
   void Import(std::stringstream&);
 
   std::shared_ptr<Camera> Get_camera(){ return cam; }
+  std::shared_ptr<Material> Get_global_illumin(){ return global_illumin; }
+  
   std::vector<std::shared_ptr<Visible>> Get_objects(){ return objects; }
   std::vector<std::shared_ptr<Material>> Get_material(){ return materials; }
     
 private:
   std::shared_ptr<Camera> cam;
+  std::shared_ptr<Material> global_illumin;
+  
   std::vector<std::shared_ptr<Visible>> objects;
   std::vector<std::shared_ptr<Material>> materials;
 };

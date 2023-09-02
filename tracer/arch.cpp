@@ -12,6 +12,7 @@ std::shared_ptr<Material> Import_material(std::stringstream&);
 
 void Importer::Import(std::stringstream& ss){
   cam = Import_cam(ss);
+  global_illumin = Import_material(ss);
 
   int material_count, object_count, link_count;
   ss>>material_count;

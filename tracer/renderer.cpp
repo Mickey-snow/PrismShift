@@ -105,7 +105,8 @@ Color Renderer::__Renderer_facade::Ray_Color(const Ray& r, int current_recur_dep
 
   // hits background
   // This can be later encapsulated in a global Ambient Light visible object
-  Vector3 unit_direction = Unit_vector(r.Direction());
-  auto a = 0.5*(unit_direction.y() + 1.0);
-  return (1.0-a)*Color(1.0, 1.0, 1.0) + a*Color(0.5, 0.7, 1.0);
+  // Vector3 unit_direction = Unit_vector(r.Direction());
+  // auto a = 0.5*(unit_direction.y() + 1.0);
+  // return (1.0-a)*Color(1.0, 1.0, 1.0) + a*Color(0.5, 0.7, 1.0);
+  return material->Ray_Color(r, Hit_record());
 }
