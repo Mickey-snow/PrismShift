@@ -1,0 +1,9 @@
+#include "factory.hpp"
+
+#include<sstream>
+#include<memory>
+#include<map>
+
+bool ShapeFactory::RegisterVisible(int id, CreateVisibleptrCallback CreateFn){
+  
+}

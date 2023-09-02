@@ -1,6 +1,7 @@
 #include "renderer.hpp"
-#include "common/mat.hpp"
-#include "common/color.hpp"
+#include "util/mat.hpp"
+#include "util/color.hpp"
+#include<global_config.hpp>
 
 #include "opencv2/highgui.hpp"
 
@@ -32,17 +33,20 @@ void Write_Color(Mat& canvas, const int& i,const int &j, Color pixel_color){
   canvas.at<cv::Vec3d>(i,j)[1] = pixel_color.y();
   canvas.at<cv::Vec3d>(i,j)[2] = pixel_color.x();
 }
-Mat Renderer::__Renderer_facade::Render() const{
+Mat Renderer::__Renderer_facade::Render(){
   world->Build_BVH();
   
-  _show_preview_window = show_preview_window;
+  _show_preview_window = show_preview_window = _Global::Instance()->show_render_window;
+  samples_per_pixel = _Global::Instance()->samples_per_pixel;
+  max_recurrent_depth = _Global::Instance()->max_recurrent_depth;
+
   if(show_preview_window) cv::namedWindow("Preview", cv::WINDOW_AUTOSIZE);
   
   Camera::View_Info view = cam->Get_Initialize_View();
   Mat canvas(cam->image_height, cam->image_width, CV_64FC3);
 
-  static const int _pixel_block_size = 64;
-  static const int _max_subprocess_count = 32;
+  static const int _pixel_block_size = 128;
+  static const int _max_subprocess_count = _Global::Instance()->max_threads;
 
   _finished_render_sub_process_count = 0;
   _total_render_sub_process_count = ((cam->image_height-1)/_pixel_block_size+1) * ((cam->image_width-1)/_pixel_block_size+1);

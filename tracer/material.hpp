@@ -1,9 +1,9 @@
 #ifndef MATERIAL_H
 #define MATERIAL_H
 
-#include "objects.hpp"
+#include "visual_shape.hpp"
 #include "renderer.hpp"
-#include "common/common.hpp"
+#include "util/util.hpp"
 
 class Material{
 public:

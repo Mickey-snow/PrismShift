@@ -1,7 +1,7 @@
 #ifndef SCENE_H
 #define SCENE_H
 
-#include "objects.hpp"
+#include "visual_shape.hpp"
 #include "bvh.hpp"
 
 #include<iostream>

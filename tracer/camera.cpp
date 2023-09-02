@@ -1,5 +1,5 @@
 #include "camera.hpp"
-#include "common/common.hpp"
+#include "util/util.hpp"
 
 
 Camera::View_Info Camera::Get_Initialize_View() const{

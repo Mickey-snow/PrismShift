@@ -1,7 +1,7 @@
 #ifndef OBJECTS_H
 #define OBJECTS_H
 
-#include "common/common.hpp"
+#include "util/util.hpp"
 
 class Visible;
 

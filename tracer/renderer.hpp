@@ -3,7 +3,7 @@
 
 #include<iostream>
 
-#include "common/common.hpp"
+#include "util/util.hpp"
 #include "scene.hpp"
 #include "camera.hpp"
 
@@ -17,7 +17,7 @@ private:
     void Set_Camera(Camera* cam_){ cam=cam_; }
     void Set_World(Scene* world_){ world=world_; }
 
-    Mat Render() const;
+    Mat Render();
     Color Ray_Color(const Ray&,int current_recur_depth) const;
 
     void Set_Samples_per_pixel(const int& samples){ samples_per_pixel = samples; }
@@ -28,9 +28,9 @@ private:
     Scene* world;
 
     // Render info
-    int samples_per_pixel = 25;
-    int max_recurrent_depth = 110;
-    bool show_preview_window = true;
+    int samples_per_pixel;
+    int max_recurrent_depth;
+    bool show_preview_window;
   };
 
 public:

@@ -3,31 +3,50 @@ project(Raytracer)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -w -O2 --std=c++20")
-
-set(TRACER_LIB_DIR "tracer/")
-
-
-file(GLOB COMMON_LIB_SOURCES "${TRACER_LIB_DIR}/common/*.cpp")
-file(GLOB RAYTRACER_LIB_SOURCES "${TRACER_LIB_DIR}/*.cpp")
-		   
-add_library(raylib STATIC
-			${COMMON_LIB_SOURCES}
-			${RAYTRACER_LIB_SOURCES}
-			)
 
 find_package(OpenCV REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
 
+# Build libraries
+set(GLOBAL_INCLUDE_LIB_DIR "include")
+include_directories(${GLOBAL_INCLUDE_LIB_DIR})
+file(GLOB GLOBAL_INCLUDE_LIB_SOURCES "${GLOBAL_INCLUDE_LIB_DIR}/*.cpp")
+add_library(global_include STATIC ${GLOBAL_INCLUDE_LIB_SOURCES})
+
+
+set(TRACER_LIB_DIR "tracer")
+file(GLOB COMMON_LIB_SOURCE "${TRACER_LIB_DIR}/util/*.cpp")
+file(GLOB RAYTRACER_LIB_SOURCE "${TRACER_LIB_DIR}/*.cpp")		   
+add_library(raylib STATIC
+			${COMMON_LIB_SOURCE}
+			${RAYTRACER_LIB_SOURCE}
+			)
+target_link_libraries(raylib
+			${OpenCV_LIBS}
+			global_include
+			)
+
+
+
+# Build main
 add_executable(main source.cpp)
 target_link_libraries(main
 	${OpenCV_LIBS}
 	raylib
+	global_include
 	)
 
-set(TRACER_TEST_DIR "tracer/test/")
-file(GLOB TRACER_TEST_SOURCE_FILES "${TRACER_TEST_DIR}/*.cpp")
-add_executable(tracer_test ${TRACER_TEST_SOURCE_FILES})
+
+#Build tests
+enable_testing()
+
+set(TRACER_TEST_DIR "${TRACER_LIB_DIR}/test/")
+file(GLOB TRACER_TEST_SOURCE "${TRACER_TEST_DIR}/*.cpp")
+add_executable(tracer_test ${TRACER_TEST_SOURCE})
+
+set(GLOBAL_INCLUDE_LIB_TEST_DIR "${GLOBAL_INCLUDE_LIB_DIR}/test/")
+file(GLOB GLOBAL_INCLUDE_LIB_TEST_SOURCE "${GLOBAL_INCLUDE_LIB_TEST_DIR}/*.cpp")
+add_executable(global_include_test ${GLOBAL_INCLUDE_LIB_TEST_SOURCE})
 
 include(FetchContent)
 FetchContent_Declare(
@@ -41,6 +60,21 @@ target_link_libraries(tracer_test
 	GTest::gtest_main
 	${OpenCV_LIBS}
 	raylib
+	global_include
 	)
+
+target_include_directories(global_include_test PUBLIC ${GLOBAL_INCLUDE_LIB_DIR})
+target_link_libraries(global_include_test
+	GTest::gtest_main
+	global_include
+	)
+
+
 include(GoogleTest)
+
 gtest_discover_tests(tracer_test)
+gtest_discover_tests(global_include_test)
+
+add_test(test_all
+	global_include_test
+	tracer_test)

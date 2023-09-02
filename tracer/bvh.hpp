@@ -1,8 +1,8 @@
 #ifndef BVF_H
 #define BVF_H
 
-#include "common/common.hpp"
-#include "objects.hpp"
+#include "util/util.hpp"
+#include "visual_shape.hpp"
 
 #include<vector>
 #include<memory>
@@ -22,6 +22,12 @@ public:
     y_interval(Interval(a.y_interval,b.y_interval)),
     z_interval(Interval(a.z_interval,b.z_interval)) {}
 
+  bool operator == (const AABB& rhs) const{
+    return x_interval == rhs.Axis(0) &&
+      y_interval == rhs.Axis(1) &&
+      z_interval == rhs.Axis(2);
+  }
+  
   const Interval<double>& Axis(const int& n) const;
 
   bool Is_Hit_in_Interval(const Ray&, Interval<double>) const;

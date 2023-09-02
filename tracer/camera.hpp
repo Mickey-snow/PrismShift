@@ -1,8 +1,8 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
-#include "common/common.hpp"
-#include "objects.hpp"
+#include "util/util.hpp"
+#include "visual_shape.hpp"
 #include<iostream>
 
 class Renderer;

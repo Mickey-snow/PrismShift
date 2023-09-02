@@ -4,16 +4,15 @@
 #include<string>
 #include<chrono>
 
-#include "tracer/common/common.hpp"
-#include "tracer/scene.hpp"
-#include "tracer/material.hpp"
-#include "tracer/sphere.hpp"
-#include "tracer/camera.hpp"
-#include "tracer/renderer.hpp"
+#include "tracer/core.hpp"
 
-signed main(void)
+#include<global_config.hpp>
+
+int main(int argc, char* argv[])
 {
   const auto time_start = std::chrono::high_resolution_clock::now();
+
+  _Global::Instance()->Set_config(argc, argv);
 
   // Add objects to the scene
   Scene world;
@@ -53,21 +52,18 @@ signed main(void)
   Camera cam(Point3(13,2,3),Point3(0,0,0));
   Renderer::Instance()->Set_Camera(&cam);
   cam.Set_View_angle_vertical(20);
-  cam.Set_Image_Height(580);
-
-  // Render config
-  Renderer::Instance()->Set_Samples_per_pixel(35);
-  Renderer::Instance()->Set_Max_recurrent_depth(110);
+  cam.Set_Image_Height(_Global::Instance()->image_height);
 
   // Render
   auto canvas = Renderer::Instance()->Render();
   Mat output;
   canvas.convertTo(output, CV_8UC3, 256);
-  cv::imwrite("img.png", output);
+  cv::imwrite(_Global::Instance()->output_directory.c_str(), output);
 
   const auto time_end = std::chrono::high_resolution_clock::now();
   const std::chrono::duration<double> time_elapsed = time_end - time_start;
-  std::cout<<"\nExecution time: "<<time_elapsed.count()<<'s'<<std::endl;
+  if(_Global::Instance()->use_timer)
+    std::cout<<"\nExecution time: "<<time_elapsed.count()<<'s'<<std::endl;
   
   return 0;
 }

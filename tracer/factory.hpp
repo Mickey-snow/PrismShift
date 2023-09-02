@@ -1,0 +1,55 @@
+#ifndef VISUAL_SHAPE_FACTORY_H
+#define VISUAL_SHAPE_FACTORY_H
+
+#include "visual_shape.hpp"
+
+#include<sstream>
+#include<memory>
+#include<map>
+#include<string>
+#include<format>
+
+template<typename idtype, typename productType>
+class _Factory{
+public:
+  typedef productType (*Create_Callback)(std::stringstream&);
+private:
+  using CallbackMap = std::map<idtype, Create_Callback>;
+  CallbackMap _callbacks;
+    
+public:
+  // Returns true iff suffessfully register creating function to factory
+  bool RegisterVisible(idtype id, Create_Callback CreateFn){
+    return _callbacks.insert(std::pair{id, CreateFn}).second;
+  }
+
+  bool isRegistered(idtype id) const{
+    return _callbacks.find(id) != _callbacks.end();
+  }
+
+  Create_Callback GetCreateFn(idtype shapeid){
+    auto it = _callbacks.find(shapeid);
+    if(it == _callbacks.end())
+      throw std::runtime_error(std::format("Unknown Shape ID: {}", shapeid));
+    return it->second;
+  }
+};
+
+
+class ShapeFactory{
+private:
+  class ShapeFactory_ins : public _Factory<std::string, std::shared_ptr<Visible>>{};
+
+public:
+  ShapeFactory() = delete;
+  ShapeFactory(ShapeFactory&) = delete;
+    
+  static ShapeFactory_ins* Instance(){
+    static ShapeFactory_ins factory;
+    return &factory;
+  }
+};
+
+
+
+#endif

@@ -4,7 +4,7 @@
 #include<algorithm>
 
 #include <bvh.hpp>
-#include <common/common.hpp>
+#include <util/util.hpp>
 #include <scene.hpp>
 #include <sphere.hpp>
 

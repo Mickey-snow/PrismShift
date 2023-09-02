@@ -1,0 +1,10 @@
+#include "args.hpp"
+
+namespace args{
+  const char* Parser::RawArg_at(const int& index) const{
+  return argv[index].c_str();
+}
+
+  int Parser::ArgCount(void) const{ return argc; }
+
+}
