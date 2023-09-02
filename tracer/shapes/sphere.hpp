@@ -11,7 +11,7 @@
 #include<sstream>
 #include<string>
 
-class Sphere : public Shape{
+class Sphere : public Visible{
 public:
   static constexpr std::string name{"sphere"};
 
@@ -27,6 +27,9 @@ public:
   virtual Color Ray_Color(const Ray& r, const Hit_record& rec) const override;
   
   virtual Hit_record Ray_Hit(const Ray& r, const Interval<double>& time) const override;
+
+  virtual Point2 Map_Texture(const Ray& r, const Hit_record& rec) const override;
+
   
   std::string Get_Name(void) const override{ return name; }
   void Set_material(std::shared_ptr<Material> mat) override{ material = mat; }
@@ -39,7 +42,7 @@ private:
 };
 
 namespace{
-  std::shared_ptr<Shape> CreateSphere(std::stringstream& ss){
+  std::shared_ptr<Visible> CreateSphere(std::stringstream& ss){
     double x,y,z;
     double r;
     ss>>x>>y>>z>>r;
@@ -48,7 +51,7 @@ namespace{
   }
 
   constexpr std::string Sphere_ShapeID = Sphere::name;
-  const bool registered = ShapeFactory::Instance()->Register(Sphere_ShapeID, CreateSphere);
+  const bool sphere_registered = ShapeFactory::Instance()->Register(Sphere_ShapeID, CreateSphere);
 }
 
 #endif

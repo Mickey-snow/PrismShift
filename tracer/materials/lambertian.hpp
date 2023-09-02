@@ -4,6 +4,8 @@
 #include<util/util.hpp>
 #include<material.hpp>
 #include<factory.hpp>
+#include<texture.hpp>
+#include<textures/solidcolor.hpp>
 
 #include<string>
 #include<sstream>
@@ -12,21 +14,23 @@ class Lambertian : public Material{
 public:
   static constexpr std::string name{"lambertian"};
   
-  Lambertian(const Color& col) : attenuation(col) {}
+  Lambertian(const Color& col){ texture = std::make_shared<SolidColor>(col); }
+  Lambertian(std::shared_ptr<Texture> tex) : texture(tex) {}
 
   virtual Color Ray_Color(const Ray& r,const Hit_record& rec) const override;
   
 protected:
-  Color attenuation;
+  std::shared_ptr<Texture> texture;
 };
 
 namespace{
   std::shared_ptr<Material> CreateLambertian(std::stringstream& ss){
-    double r,g,b; ss>>r>>g>>b;
-    return std::make_shared<Lambertian>(Color(r,g,b));
+    std::string texture_name; ss>>texture_name;
+    auto texture = (TextureFactory::Instance()->GetCreateFn(texture_name))(ss);
+    return std::make_shared<Lambertian>(texture);
   }
   constexpr std::string Lambertian_MaterialID = Lambertian::name;
-  const bool registered00 = MaterialFactory::Instance()->Register(Lambertian_MaterialID, CreateLambertian);
+  const bool lambertian_registered = MaterialFactory::Instance()->Register(Lambertian_MaterialID, CreateLambertian);
 }
 
 #endif

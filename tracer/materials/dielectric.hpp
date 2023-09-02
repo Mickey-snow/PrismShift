@@ -29,7 +29,7 @@ namespace{
     return std::make_shared<Dielectric>(eta);
   }
   constexpr std::string Dielectric_MaterialID = Dielectric::name;
-  const bool registered1 = MaterialFactory::Instance()->Register(Dielectric_MaterialID, CreateDielectric);
+  const bool dielectric_registered = MaterialFactory::Instance()->Register(Dielectric_MaterialID, CreateDielectric);
 }
 
 

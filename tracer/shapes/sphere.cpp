@@ -46,3 +46,18 @@ Hit_record Sphere::Ray_Hit(const Ray& r, const Interval<double>& time) const{
     
   return rec;
 }
+
+
+Point2 Sphere::Map_Texture(const Ray& r, const Hit_record& rec) const{
+  double x = rec.normal.x();
+  double y = rec.normal.y();
+  double z = rec.normal.z();
+
+  double theta = acos(y);
+  double phi = atan2(-z,x)+pi;
+
+  double v = theta/pi;
+  double u = phi/(2*pi);
+
+  return Point2(u,v);
+}

@@ -6,11 +6,6 @@
 #include<memory>
 
 
-Color bvh_node::Ray_Color(const Ray& r, const Hit_record& rec) const{
-  throw std::runtime_error("bvh_node::Ray_Color should never be called.");
-  return Color(0,0,0);
-}
-
 // Construct a bvh tree
 bvh_node::bvh_node(std::vector<std::shared_ptr<Shape>>& src_obj, size_t start, size_t end, int axis){
   class __final_comparer{

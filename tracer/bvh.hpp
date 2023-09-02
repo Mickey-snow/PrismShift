@@ -27,13 +27,11 @@ public:
   // However it never set itself as the hitted object
   Hit_record Ray_Hit(const Ray&,const Interval<double>&)const override;
 
-  // This method should never be called since a structural bch node will never be the hitted object in the Hit_record
-  Color Ray_Color(const Ray&, const Hit_record&) const override;
-
   AABB Get_Bounding_box(void) const override{ return bbox; }
 
-  std::string Get_Name(void) const override{ return std::string{"bvh_node"}; }
-  void Set_material(std::shared_ptr<Material>) override{ std::cerr<<"Cannot set material to a bvh node"<<std::endl<<std::flush; }
+  virtual std::string Get_Name(void) const override{
+    return std::string{"BVH Node"};
+  }
 private:
   std::shared_ptr<Shape> lch,rch;
   AABB bbox;

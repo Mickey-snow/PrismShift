@@ -24,12 +24,12 @@ private:
 };
 
 
-class Shape;
+class Visible;
 class Hit_record{		// Records with a ray hits a visible Shape object
 public:
   bool hits;
   int hit_counts;
-  std::shared_ptr<Shape> hitted_obj;
+  std::shared_ptr<Visible> hitted_obj;
   
   Point3 position;	        // hit position
   Vector3 normal;		// outward normal vector

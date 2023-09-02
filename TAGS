@@ -1,8 +1,12 @@
 
+global_include_test,0
+
 scene/test.in,0
 
 source.cpp,45
 int main(int argc, char* argv[])main12,162
+
+tracer_test,0
 
 CMakeLists.txt,789
 project(Raytracer CXX)Raytracer2,36
@@ -78,6 +82,8 @@ namespace args{args7,66
     std::vector<std::string> argv;argv45,1187
     std::vector<ArgumentMarshaler> founded_argument;founded_argument49,1246
 
+main,0
+
 build/global_include_test,0
 
 build/tracer_test,0
@@ -85,7 +91,7 @@ build/tracer_test,0
 build/CTestTestfile.cmake,0
 
 build/tracer_test[1]_tests.cmake,123
-set(  tracer_test_TESTS aabbConstructor.nopara rayaabbIntersection.hit rayaabbIntersection.notHitracer_test_TESTS27,4995
+set(  tracer_test_TESTS aabbConstructor.nopara rayaabbIntersection.hit rayaabbIntersection.notHitracer_test_TESTS31,5705
 
 build/main,0
 
@@ -12593,7 +12599,7 @@ set(CMAKE_SYSTEM_LOADED 1)CMAKE_SYSTEM_LOADED15,379
 
 build/_deps/googletest-subbuild/CMakeFiles/TargetDirectories.txt,0
 
-build/Makefile,11475
+build/Makefile,13593
 default_target: alldefault_target5,163
 % : %,v%18,515
 % : RCS/%%21,560
@@ -12744,44 +12750,64 @@ tracer/test/sphere-test.i: tracer/test/sphere-test.cpp.itracer/test/sphere-test
 tracer/test/sphere-test.cpp.i:tracer/test/sphere-test.cpp.i663,23363
 tracer/test/sphere-test.s: tracer/test/sphere-test.cpp.stracer/test/sphere-test.s667,23555
 tracer/test/sphere-test.cpp.s:tracer/test/sphere-test.cpp.s671,23689
-tracer/util/aabb.o: tracer/util/aabb.cpp.otracer/util/aabb.o675,23881
-tracer/util/aabb.cpp.o:tracer/util/aabb.cpp.o679,23986
-tracer/util/aabb.i: tracer/util/aabb.cpp.itracer/util/aabb.i683,24147
-tracer/util/aabb.cpp.i:tracer/util/aabb.cpp.i687,24256
-tracer/util/aabb.s: tracer/util/aabb.cpp.stracer/util/aabb.s691,24417
-tracer/util/aabb.cpp.s:tracer/util/aabb.cpp.s695,24530
-tracer/util/color.o: tracer/util/color.cpp.otracer/util/color.o699,24691
-tracer/util/color.cpp.o:tracer/util/color.cpp.o703,24799
-tracer/util/color.i: tracer/util/color.cpp.itracer/util/color.i707,24963
-tracer/util/color.cpp.i:tracer/util/color.cpp.i711,25075
-tracer/util/color.s: tracer/util/color.cpp.stracer/util/color.s715,25239
-tracer/util/color.cpp.s:tracer/util/color.cpp.s719,25355
-tracer/util/random.o: tracer/util/random.cpp.otracer/util/random.o723,25519
-tracer/util/random.cpp.o:tracer/util/random.cpp.o727,25630
-tracer/util/random.i: tracer/util/random.cpp.itracer/util/random.i731,25797
-tracer/util/random.cpp.i:tracer/util/random.cpp.i735,25912
-tracer/util/random.s: tracer/util/random.cpp.stracer/util/random.s739,26079
-tracer/util/random.cpp.s:tracer/util/random.cpp.s743,26198
-tracer/util/ray.o: tracer/util/ray.cpp.otracer/util/ray.o747,26365
-tracer/util/ray.cpp.o:tracer/util/ray.cpp.o751,26467
-tracer/util/ray.i: tracer/util/ray.cpp.itracer/util/ray.i755,26625
-tracer/util/ray.cpp.i:tracer/util/ray.cpp.i759,26731
-tracer/util/ray.s: tracer/util/ray.cpp.stracer/util/ray.s763,26889
-tracer/util/ray.cpp.s:tracer/util/ray.cpp.s767,26999
-tracer/util/vector3.o: tracer/util/vector3.cpp.otracer/util/vector3.o771,27157
-tracer/util/vector3.cpp.o:tracer/util/vector3.cpp.o775,27271
-tracer/util/vector3.i: tracer/util/vector3.cpp.itracer/util/vector3.i779,27441
-tracer/util/vector3.cpp.i:tracer/util/vector3.cpp.i783,27559
-tracer/util/vector3.s: tracer/util/vector3.cpp.stracer/util/vector3.s787,27729
-tracer/util/vector3.cpp.s:tracer/util/vector3.cpp.s791,27851
-help:help796,28035
-cmake_check_build_system:cmake_check_build_system890,31116
+tracer/test/util/vector2-test.o: tracer/test/util/vector2-test.cpp.otracer/test/util/vector2-test.o675,23881
+tracer/test/util/vector2-test.cpp.o:tracer/test/util/vector2-test.cpp.o679,24025
+tracer/test/util/vector2-test.i: tracer/test/util/vector2-test.cpp.itracer/test/util/vector2-test.i683,24235
+tracer/test/util/vector2-test.cpp.i:tracer/test/util/vector2-test.cpp.i687,24383
+tracer/test/util/vector2-test.s: tracer/test/util/vector2-test.cpp.stracer/test/util/vector2-test.s691,24593
+tracer/test/util/vector2-test.cpp.s:tracer/test/util/vector2-test.cpp.s695,24745
+tracer/textures/imagetexture.o: tracer/textures/imagetexture.cpp.otracer/textures/imagetexture.o699,24955
+tracer/textures/imagetexture.cpp.o:tracer/textures/imagetexture.cpp.o703,25096
+tracer/textures/imagetexture.i: tracer/textures/imagetexture.cpp.itracer/textures/imagetexture.i707,25293
+tracer/textures/imagetexture.cpp.i:tracer/textures/imagetexture.cpp.i711,25438
+tracer/textures/imagetexture.s: tracer/textures/imagetexture.cpp.stracer/textures/imagetexture.s715,25635
+tracer/textures/imagetexture.cpp.s:tracer/textures/imagetexture.cpp.s719,25784
+tracer/textures/solidcolor.o: tracer/textures/solidcolor.cpp.otracer/textures/solidcolor.o723,25981
+tracer/textures/solidcolor.cpp.o:tracer/textures/solidcolor.cpp.o727,26116
+tracer/textures/solidcolor.i: tracer/textures/solidcolor.cpp.itracer/textures/solidcolor.i731,26307
+tracer/textures/solidcolor.cpp.i:tracer/textures/solidcolor.cpp.i735,26446
+tracer/textures/solidcolor.s: tracer/textures/solidcolor.cpp.stracer/textures/solidcolor.s739,26637
+tracer/textures/solidcolor.cpp.s:tracer/textures/solidcolor.cpp.s743,26780
+tracer/util/aabb.o: tracer/util/aabb.cpp.otracer/util/aabb.o747,26971
+tracer/util/aabb.cpp.o:tracer/util/aabb.cpp.o751,27076
+tracer/util/aabb.i: tracer/util/aabb.cpp.itracer/util/aabb.i755,27237
+tracer/util/aabb.cpp.i:tracer/util/aabb.cpp.i759,27346
+tracer/util/aabb.s: tracer/util/aabb.cpp.stracer/util/aabb.s763,27507
+tracer/util/aabb.cpp.s:tracer/util/aabb.cpp.s767,27620
+tracer/util/color.o: tracer/util/color.cpp.otracer/util/color.o771,27781
+tracer/util/color.cpp.o:tracer/util/color.cpp.o775,27889
+tracer/util/color.i: tracer/util/color.cpp.itracer/util/color.i779,28053
+tracer/util/color.cpp.i:tracer/util/color.cpp.i783,28165
+tracer/util/color.s: tracer/util/color.cpp.stracer/util/color.s787,28329
+tracer/util/color.cpp.s:tracer/util/color.cpp.s791,28445
+tracer/util/random.o: tracer/util/random.cpp.otracer/util/random.o795,28609
+tracer/util/random.cpp.o:tracer/util/random.cpp.o799,28720
+tracer/util/random.i: tracer/util/random.cpp.itracer/util/random.i803,28887
+tracer/util/random.cpp.i:tracer/util/random.cpp.i807,29002
+tracer/util/random.s: tracer/util/random.cpp.stracer/util/random.s811,29169
+tracer/util/random.cpp.s:tracer/util/random.cpp.s815,29288
+tracer/util/ray.o: tracer/util/ray.cpp.otracer/util/ray.o819,29455
+tracer/util/ray.cpp.o:tracer/util/ray.cpp.o823,29557
+tracer/util/ray.i: tracer/util/ray.cpp.itracer/util/ray.i827,29715
+tracer/util/ray.cpp.i:tracer/util/ray.cpp.i831,29821
+tracer/util/ray.s: tracer/util/ray.cpp.stracer/util/ray.s835,29979
+tracer/util/ray.cpp.s:tracer/util/ray.cpp.s839,30089
+tracer/util/vector2.o: tracer/util/vector2.cpp.otracer/util/vector2.o843,30247
+tracer/util/vector2.cpp.o:tracer/util/vector2.cpp.o847,30361
+tracer/util/vector2.i: tracer/util/vector2.cpp.itracer/util/vector2.i851,30531
+tracer/util/vector2.cpp.i:tracer/util/vector2.cpp.i855,30649
+tracer/util/vector2.s: tracer/util/vector2.cpp.stracer/util/vector2.s859,30819
+tracer/util/vector2.cpp.s:tracer/util/vector2.cpp.s863,30941
+tracer/util/vector3.o: tracer/util/vector3.cpp.otracer/util/vector3.o867,31111
+tracer/util/vector3.cpp.o:tracer/util/vector3.cpp.o871,31225
+tracer/util/vector3.i: tracer/util/vector3.cpp.itracer/util/vector3.i875,31395
+tracer/util/vector3.cpp.i:tracer/util/vector3.cpp.i879,31513
+tracer/util/vector3.s: tracer/util/vector3.cpp.stracer/util/vector3.s883,31683
+tracer/util/vector3.cpp.s:tracer/util/vector3.cpp.s887,31805
+help:help892,31989
+cmake_check_build_system:cmake_check_build_system998,35568
 
 build/global_include_test[1]_include.cmake,0
-
-build/Testing/Temporary/LastTest.log,0
-
-build/Testing/Temporary/CTestCostData.txt,0
 
 build/CMakeCache.txt,0
 
@@ -12800,6 +12826,8 @@ build/CMakeFiles/tracer_test.dir/tracer/test/bvh-test.cpp.o.d,0
 
 build/CMakeFiles/tracer_test.dir/tracer/test/sphere-test.cpp.o.d,0
 
+build/CMakeFiles/tracer_test.dir/tracer/test/util/vector2-test.cpp.o.d,0
+
 build/CMakeFiles/tracer_test.dir/link.txt,0
 
 build/CMakeFiles/tracer_test.dir/cmake_clean.cmake,0
@@ -12810,12 +12838,12 @@ build/CMakeFiles/tracer_test.dir/progress.make,0
 
 build/CMakeFiles/tracer_test.dir/compiler_depend.make,0
 
-build/CMakeFiles/tracer_test.dir/DependInfo.cmake,373
+build/CMakeFiles/tracer_test.dir/DependInfo.cmake,375
 set(CMAKE_DEPENDS_IN_PROJECT_ONLY OFF)CMAKE_DEPENDS_IN_PROJECT_ONLY3,42
 set(CMAKE_DEPENDS_LANGUAGESCMAKE_DEPENDS_LANGUAGES6,149
 set(CMAKE_DEPENDS_DEPENDENCY_FILESCMAKE_DEPENDS_DEPENDENCY_FILES10,230
-set(CMAKE_Fortran_TARGET_LINKED_INFO_FILESCMAKE_Fortran_TARGET_LINKED_INFO_FILES17,905
-set(CMAKE_Fortran_TARGET_MODULE_DIR "")CMAKE_Fortran_TARGET_MODULE_DIR21,988
+set(CMAKE_Fortran_TARGET_LINKED_INFO_FILESCMAKE_Fortran_TARGET_LINKED_INFO_FILES18,1113
+set(CMAKE_Fortran_TARGET_MODULE_DIR "")CMAKE_Fortran_TARGET_MODULE_DIR22,1196
 
 build/CMakeFiles/tracer_test.dir/compiler_depend.internal,0
 
@@ -12876,9 +12904,11 @@ build/CMakeFiles/raylib.dir/flags.make,0
 
 build/CMakeFiles/raylib.dir/tracer/renderer.cpp.o.d,0
 
-build/CMakeFiles/raylib.dir/tracer/materials/metal.cpp.o.d,0
+build/CMakeFiles/raylib.dir/tracer/textures/solidcolor.cpp.o.d,0
 
-build/CMakeFiles/raylib.dir/tracer/materials/basic_material.cpp.o.d,0
+build/CMakeFiles/raylib.dir/tracer/textures/imagetexture.cpp.o.d,0
+
+build/CMakeFiles/raylib.dir/tracer/materials/metal.cpp.o.d,0
 
 build/CMakeFiles/raylib.dir/tracer/materials/lambertian.cpp.o.d,0
 
@@ -12900,6 +12930,8 @@ build/CMakeFiles/raylib.dir/tracer/util/random.cpp.o.d,0
 
 build/CMakeFiles/raylib.dir/tracer/util/color.cpp.o.d,0
 
+build/CMakeFiles/raylib.dir/tracer/util/vector2.cpp.o.d,0
+
 build/CMakeFiles/raylib.dir/tracer/bvh.cpp.o.d,0
 
 build/CMakeFiles/raylib.dir/link.txt,0
@@ -12916,8 +12948,8 @@ build/CMakeFiles/raylib.dir/DependInfo.cmake,375
 set(CMAKE_DEPENDS_IN_PROJECT_ONLY OFF)CMAKE_DEPENDS_IN_PROJECT_ONLY3,42
 set(CMAKE_DEPENDS_LANGUAGESCMAKE_DEPENDS_LANGUAGES6,149
 set(CMAKE_DEPENDS_DEPENDENCY_FILESCMAKE_DEPENDS_DEPENDENCY_FILES10,230
-set(CMAKE_Fortran_TARGET_LINKED_INFO_FILESCMAKE_Fortran_TARGET_LINKED_INFO_FILES27,2471
-set(CMAKE_Fortran_TARGET_MODULE_DIR "")CMAKE_Fortran_TARGET_MODULE_DIR31,2554
+set(CMAKE_Fortran_TARGET_LINKED_INFO_FILESCMAKE_Fortran_TARGET_LINKED_INFO_FILES30,3023
+set(CMAKE_Fortran_TARGET_MODULE_DIR "")CMAKE_Fortran_TARGET_MODULE_DIR34,3106
 
 build/CMakeFiles/raylib.dir/cmake_clean_target.cmake,0
 
@@ -13745,17 +13777,28 @@ const std::string sphere_shapeid("sphere");sphere_shapeid9,136
 TEST(sphere, registerfactory){TEST11,181
 TEST(sphere, instantiateUsingFactory){TEST16,287
 
-tracer/arch.hpp,572
+tracer/test/util/vector2-test.cpp,407
+class Vector2Test : public ::testing::Test{Vector2Test7,86
+  void SetUp() override{SetUp9,141
+  Vector2 orig;orig14,224
+  Vector2 v1,v2;v115,240
+  Vector2 v1,v2;v215,240
+constexpr double EPS = 1e-8;EPS18,261
+testing::AssertionResult Vec2eq(Vector2 vec, double x,double y){Vec2eq20,291
+TEST_F(Vector2Test, getxycomponentMethodvsOperator){TEST_F25,592
+TEST_F(Vector2Test, init){TEST_F32,790
+
+tracer/arch.hpp,576
 #define ARCH_HARCH_H2,15
 class Importer{Importer13,162
   Importer(){}Importer15,186
   Importer(std::string filename){Importer16,201
   std::shared_ptr<Camera> Get_camera(){ return cam; }Get_camera25,423
-  std::vector<std::shared_ptr<Shape>> Get_objects(){ return objects; }Get_objects26,477
-  std::vector<std::shared_ptr<Material>> Get_material(){ return materials; }Get_material27,548
-  std::shared_ptr<Camera> cam;cam30,639
-  std::vector<std::shared_ptr<Shape>> objects;objects31,670
-  std::vector<std::shared_ptr<Material>> materials;materials32,717
+  std::vector<std::shared_ptr<Visible>> Get_objects(){ return objects; }Get_objects26,477
+  std::vector<std::shared_ptr<Material>> Get_material(){ return materials; }Get_material27,550
+  std::shared_ptr<Camera> cam;cam30,641
+  std::vector<std::shared_ptr<Visible>> objects;objects31,672
+  std::vector<std::shared_ptr<Material>> materials;materials32,721
 
 tracer/renderer.cpp,864
 std::vector<Point3> Rand_Pixel_Samples(const Camera::View_Info& view, const int& row, const int&Rand_Pixel_Samples11,169
@@ -13768,20 +13811,56 @@ void _render_sub_process(Mat canvas, Interval<int> row, Interval<int> col, const
 void _update_preview_window(Mat canvas){_update_preview_window89,3500
 Color Renderer::__Renderer_facade::Ray_Color(const Ray& r, int current_recur_depth) const{Ray_Color96,3631
 
-tracer/shape.hpp,59
+tracer/texture.hpp,61
+#define TEXTURE_HTEXTURE_H2,18
+class Texture{Texture6,62
+
+tracer/shape.hpp,104
 #define OBJECTS_HOBJECTS_H2,18
 class Shape{Shape12,135
+class Visible : public Shape{Visible26,526
 
-tracer/bvh.hpp,566
+tracer/textures/imagetexture.cpp,132
+ImageTexture::ImageTexture(std::string filename){ImageTexture8,114
+Color ImageTexture::ColorAt(const Point2& pos){ColorAt25,772
+
+tracer/textures/texture.hpp,51
+#define TEXTURES_TEXTURE_HTEXTURES_TEXTURE_H2,27
+
+tracer/textures/imagetexture.hpp,529
+#define IMAGE_TEX_HIMAGE_TEX_H2,20
+class ImageTexture : public Texture{ImageTexture14,165
+  static constexpr std::string name{"imagetex"};name16,210
+  cv::Mat img;img23,360
+namespace{__anon1afff692011125,378
+  std::shared_ptr<Texture> CreateImageTexture(std::stringstream& ss){CreateImageTexture26,389
+  constexpr std::string Imagetex_TextureID = ImageTexture::name;Imagetex_TextureID30,556
+  const bool imagetex_registered = TextureFactory::Instance()->Register(Imagetex_TextureID, Creaimagetex_registered31,621
+
+tracer/textures/solidcolor.cpp,56
+Color SolidColor::ColorAt(const Point2&) {ColorAt5,55
+
+tracer/textures/solidcolor.hpp,669
+#define SOLIDCOLOR_HSOLIDCOLOR_H2,21
+class SolidColor : public Texture{SolidColor10,130
+  static constexpr std::string name{"solidcolor"};name12,173
+  SolidColor(const Color& c) : color(c) {}SolidColor14,227
+  SolidColor(double r,double g,double b) : color(r,g,b) {}SolidColor15,270
+  Color color;color19,388
+namespace{__anon01113098011122,407
+  std::shared_ptr<Texture> CreateSolidColor(std::stringstream& ss){CreateSolidColor23,418
+  constexpr std::string SolidColor_TextureID = SolidColor::name;SolidColor_TextureID27,569
+  const bool solidcolor_registered = TextureFactory::Instance()->Register(SolidColor_TextureID, solidcolor_registered28,634
+
+tracer/bvh.hpp,421
 #define BVF_HBVF_H2,14
 class bvh_node : public Shape{bvh_node13,152
   bvh_node(const std::vector<std::shared_ptr<Shape>>& src){bvh_node18,378
-  AABB Get_Bounding_box(void) const override{ return bbox; }Get_Bounding_box33,1165
-  std::string Get_Name(void) const override{ return std::string{"bvh_node"}; }Get_Name35,1227
-  void Set_material(std::shared_ptr<Material>) override{ std::cerr<<"Cannot set material to a bvSet_material36,1306
-  std::shared_ptr<Shape> lch,rch;lch38,1445
-  std::shared_ptr<Shape> lch,rch;rch38,1445
-  AABB bbox;bbox39,1479
+  AABB Get_Bounding_box(void) const override{ return bbox; }Get_Bounding_box30,981
+  virtual std::string Get_Name(void) const override{Get_Name32,1043
+  std::shared_ptr<Shape> lch,rch;lch36,1145
+  std::shared_ptr<Shape> lch,rch;rch36,1145
+  AABB bbox;bbox37,1179
 
 tracer/camera.hpp,1710
 #define CAMERA_HCAMERA_H2,17
@@ -13813,7 +13892,7 @@ class Camera{Camera10,118
   Point3 looking_at;looking_at67,1892
   double view_angle_vertical;view_angle_vertical69,1914
 
-tracer/materials/dielectric.hpp,618
+tracer/materials/dielectric.hpp,628
 #define DIELECTRIC_HDIELECTRIC_H2,21
 class Dielectric : public Material{Dielectric12,150
   static constexpr std::string name{"dielectric"};name14,194
@@ -13822,18 +13901,19 @@ class Dielectric : public Material{Dielectric12,150
 namespace{__anon0d5545f4011126,438
   std::shared_ptr<Material> CreateDielectric(std::stringstream& ss){CreateDielectric27,449
   constexpr std::string Dielectric_MaterialID = Dielectric::name;Dielectric_MaterialID31,593
-  const bool registered1 = MaterialFactory::Instance()->Register(Dielectric_MaterialID, CreateDiregistered132,659
+  const bool dielectric_registered = MaterialFactory::Instance()->Register(Dielectric_MaterialIDdielectric_registered32,659
 
-tracer/materials/lambertian.hpp,609
+tracer/materials/lambertian.hpp,734
 #define LAMBERTIAN_HLAMBERTIAN_H2,21
-class Lambertian : public Material{Lambertian11,149
-  static constexpr std::string name{"lambertian"};name13,193
-  Lambertian(const Color& col) : attenuation(col) {}Lambertian15,247
-  Color attenuation;attenuation20,393
-namespace{__anoncaf6e23b011123,418
-  std::shared_ptr<Material> CreateLambertian(std::stringstream& ss){CreateLambertian24,429
-  constexpr std::string Lambertian_MaterialID = Lambertian::name;Lambertian_MaterialID28,588
-  const bool registered00 = MaterialFactory::Instance()->Register(Lambertian_MaterialID, CreateLregistered0029,654
+class Lambertian : public Material{Lambertian13,205
+  static constexpr std::string name{"lambertian"};name15,249
+  Lambertian(const Color& col){ texture = std::make_shared<SolidColor>(col); }Lambertian17,303
+  Lambertian(std::shared_ptr<Texture> tex) : texture(tex) {}Lambertian18,382
+  std::shared_ptr<Texture> texture;texture23,536
+namespace{__anoncaf6e23b011126,576
+  std::shared_ptr<Material> CreateLambertian(std::stringstream& ss){CreateLambertian27,587
+  constexpr std::string Lambertian_MaterialID = Lambertian::name;Lambertian_MaterialID32,838
+  const bool lambertian_registered = MaterialFactory::Instance()->Register(Lambertian_MaterialIDlambertian_registered33,904
 
 tracer/materials/material.hpp,55
 #define MATERIALS_MATERIAL_HMATERIALS_MATERIAL_H2,29
@@ -13848,37 +13928,41 @@ Color Lambertian::Ray_Color(const Ray& r,const Hit_record& rec) const {Ray_Colo
 tracer/materials/metal.cpp,82
 Color Metal::Ray_Color(const Ray& r,const Hit_record& rec) const {Ray_Color6,70
 
-tracer/materials/metal.hpp,614
+tracer/materials/metal.hpp,749
 #define METAL_HMETAL_H2,16
-class Metal : public Material{Metal11,139
-  static constexpr std::string name{"metal"};name13,178
-  Metal(const Color& col, const double& f=0) : attenuation(col),fuzz(fabs(f)<1?f:1) {}Metal15,227
-  Color attenuation;attenuation20,407
-  double fuzz;fuzz21,428
-namespace{__anoncfd0a28f011124,447
-  std::shared_ptr<Material> CreateMetal(std::stringstream& ss){CreateMetal25,458
-  constexpr std::string Metal_MaterialID = Metal::name;Metal_MaterialID29,624
-  const bool registered3 = MaterialFactory::Instance()->Register(Metal_MaterialID, CreateMetal);registered330,680
+class Metal : public Material{Metal13,195
+  static constexpr std::string name{"metal"};name15,234
+  Metal(const Color& col, const double& f=0) : fuzz(fabs(f)<1?f:1) { texture = std::make_shared<Metal17,283
+  Metal(std::shared_ptr<Texture> tex, const double& f=0) : fuzz(fabs(f)<1?f:1), texture(tex) {}Metal18,399
+  std::shared_ptr<Texture> texture;texture23,588
+  double fuzz;fuzz24,624
+namespace{__anoncfd0a28f011127,643
+  std::shared_ptr<Material> CreateMetal(std::stringstream& ss){CreateMetal28,654
+  constexpr std::string Metal_MaterialID = Metal::name;Metal_MaterialID34,928
+  const bool metal_registered = MaterialFactory::Instance()->Register(Metal_MaterialID, CreateMemetal_registered35,984
 
 tracer/material.hpp,65
 #define MATERIAL_HMATERIAL_H2,19
 class Material{Material6,65
 
-tracer/factory.hpp,917
+tracer/factory.hpp,1137
 #define VISUAL_SHAPE_FACTORY_HVISUAL_SHAPE_FACTORY_H2,31
-class _Factory{_Factory11,195
-  typedef productType (*Create_Callback)(std::stringstream&);Create_Callback13,219
-  using CallbackMap = std::map<idtype, Create_Callback>;CallbackMap15,290
-  CallbackMap _callbacks;_callbacks16,347
-  bool Register(idtype id, Create_Callback CreateFn){Register20,459
-  bool isRegistered(idtype id) const{isRegistered24,580
-  Create_Callback GetCreateFn(idtype shapeid){GetCreateFn28,675
-class ShapeFactory{ShapeFactory38,916
-  class ShapeFactory_ins : public _Factory<std::string, std::shared_ptr<Shape>>{};ShapeFactory_ins40,945
-  static ShapeFactory_ins* Instance(){Instance46,1109
-class MaterialFactory{MaterialFactory54,1231
-  class MaterialFactory_ins : public _Factory<std::string, std::shared_ptr<Material>> {};MaterialFactory_ins56,1263
-  static MaterialFactory_ins* Instance(){Instance62,1439
+class _Factory{_Factory12,196
+  typedef productType (*Create_Callback)(std::stringstream&);Create_Callback14,220
+  using CallbackMap = std::map<idtype, Create_Callback>;CallbackMap16,291
+  CallbackMap _callbacks;_callbacks17,348
+  bool Register(idtype id, Create_Callback CreateFn){Register21,460
+  bool isRegistered(idtype id) const{isRegistered25,581
+  Create_Callback GetCreateFn(idtype shapeid){GetCreateFn29,676
+class ShapeFactory{ShapeFactory39,917
+  class ShapeFactory_ins : public _Factory<std::string, std::shared_ptr<Visible>>{};ShapeFactory_ins41,946
+  static ShapeFactory_ins* Instance(){Instance47,1112
+class MaterialFactory{MaterialFactory55,1234
+  class MaterialFactory_ins : public _Factory<std::string, std::shared_ptr<Material>> {};MaterialFactory_ins57,1266
+  static MaterialFactory_ins* Instance(){Instance63,1442
+class TextureFactory{TextureFactory70,1568
+  class TextureFactory_ins : public _Factory<std::string, std::shared_ptr<Texture>> {};TextureFactory_ins72,1599
+  static TextureFactory_ins* Instance(){Instance78,1770
 
 tracer/renderer.hpp,897
 #define RENDERER_PANEL_HRENDERER_PANEL_H2,25
@@ -13899,57 +13983,57 @@ class Renderer{Renderer11,157
 tracer/camera.cpp,80
 Camera::View_Info Camera::Get_Initialize_View() const{Get_Initialize_View5,49
 
-tracer/shapes/sphere.hpp,1051
+tracer/shapes/sphere.hpp,1067
 #define SPHERE_HSPHERE_H2,17
-class Sphere : public Shape{Sphere14,194
-  static constexpr std::string name{"sphere"};name16,231
-  Sphere(const Point3& _center, const double& r):Sphere(_center,r,nullptr) {}Sphere18,279
-  Sphere(const Point3& _center, const double& r, std::shared_ptr<Material> _material) : center(_Sphere19,357
-  AABB Get_Bounding_box(void) const override{ return bbox; }Get_Bounding_box25,617
-  std::string Get_Name(void) const override{ return name; }Get_Name31,853
-  void Set_material(std::shared_ptr<Material> mat) override{ material = mat; }Set_material32,913
-  Point3 center;center34,1001
-  double radius;radius35,1018
-  std::shared_ptr<Material> material;material36,1035
-  AABB bbox;bbox38,1074
-namespace{__anonc6540f05011141,1091
-  std::shared_ptr<Shape> CreateSphere(std::stringstream& ss){CreateSphere42,1102
-  constexpr std::string Sphere_ShapeID = Sphere::name;Sphere_ShapeID50,1278
-  const bool registered = ShapeFactory::Instance()->Register(Sphere_ShapeID, CreateSphere);registered51,1333
+class Sphere : public Visible{Sphere14,194
+  static constexpr std::string name{"sphere"};name16,233
+  Sphere(const Point3& _center, const double& r):Sphere(_center,r,nullptr) {}Sphere18,281
+  Sphere(const Point3& _center, const double& r, std::shared_ptr<Material> _material) : center(_Sphere19,359
+  AABB Get_Bounding_box(void) const override{ return bbox; }Get_Bounding_box25,619
+  std::string Get_Name(void) const override{ return name; }Get_Name34,939
+  void Set_material(std::shared_ptr<Material> mat) override{ material = mat; }Set_material35,999
+  Point3 center;center37,1087
+  double radius;radius38,1104
+  std::shared_ptr<Material> material;material39,1121
+  AABB bbox;bbox41,1160
+namespace{__anonc6540f05011144,1177
+  std::shared_ptr<Visible> CreateSphere(std::stringstream& ss){CreateSphere45,1188
+  constexpr std::string Sphere_ShapeID = Sphere::name;Sphere_ShapeID53,1366
+  const bool sphere_registered = ShapeFactory::Instance()->Register(Sphere_ShapeID, CreateSpheresphere_registered54,1421
 
 tracer/shapes/shape.hpp,43
 #define SHAPES_SHAPE_HSHAPES_SHAPE_H2,23
 
-tracer/shapes/sphere.cpp,178
+tracer/shapes/sphere.cpp,269
 Color Sphere::Ray_Color(const Ray& r, const Hit_record& rec) const{Ray_Color11,148
 Hit_record Sphere::Ray_Hit(const Ray& r, const Interval<double>& time) const{Ray_Hit19,538
+Point2 Sphere::Map_Texture(const Ray& r, const Hit_record& rec) const{Map_Texture51,1416
 
-tracer/arch.cpp,310
-void Importer::Import(std::stringstream& ss){Import13,300
-std::shared_ptr<Camera> Import_cam(std::stringstream& ss){Import_cam32,777
-std::shared_ptr<Shape> Import_object(std::stringstream& ss){Import_object47,1195
-std::shared_ptr<Material> Import_material(std::stringstream& ss){Import_material52,1343
+tracer/arch.cpp,312
+void Importer::Import(std::stringstream& ss){Import13,302
+std::shared_ptr<Camera> Import_cam(std::stringstream& ss){Import_cam32,779
+std::shared_ptr<Visible> Import_object(std::stringstream& ss){Import_object47,1197
+std::shared_ptr<Material> Import_material(std::stringstream& ss){Import_material52,1347
 
 tracer/core.hpp,41
 #define TRACER_CORE_HTRACER_CORE_H2,22
 
-tracer/scene.hpp,1058
+tracer/scene.hpp,927
 #define SCENE_HSCENE_H2,16
 class Scene: public Shape{Scene11,128
   Scene(){}Scene13,163
   Scene(std::shared_ptr<Shape> obj) : objects{obj} {Scene14,175
   Scene(const std::vector<std::shared_ptr<Shape>>& obj_src){Scene17,268
-  void Clear(){ objects.clear(); bbox=AABB(); bv_tree=nullptr; }Clear22,396
-  void Add(std::shared_ptr<Shape> obj){Add23,461
-  void Build_BVH(void){Build_BVH29,605
-  virtual Hit_record Ray_Hit(const Ray& r, const Interval<double>& time) const override{Ray_Hit36,889
-  virtual Color Ray_Color(const Ray& r, const Hit_record& rec) const override{Ray_Color55,1347
-  virtual AABB Get_Bounding_box(void) const override{ return bbox; }Get_Bounding_box59,1476
-  std::string Get_Name(void) const override{ return std::string{"object_list"}; }Get_Name61,1546
-  void Set_material(std::shared_ptr<Material>) override{ std::cerr<<"Cannot set material to a scSet_material62,1628
-  std::vector<std::shared_ptr<Shape>> objects;objects65,1769
-  AABB bbox;bbox67,1817
-  std::shared_ptr<bvh_node> bv_tree;bv_tree68,1830
+  Scene(const std::vector<std::shared_ptr<Visible>>& obj_src){Scene20,371
+  void Clear(){ objects.clear(); bbox=AABB(); bv_tree=nullptr; }Clear25,501
+  void Add(std::shared_ptr<Shape> obj){Add26,566
+  void Build_BVH(void){Build_BVH32,710
+  virtual Hit_record Ray_Hit(const Ray& r, const Interval<double>& time) const override{Ray_Hit39,994
+  virtual AABB Get_Bounding_box(void) const override{ return bbox; }Get_Bounding_box59,1453
+  virtual std::string Get_Name(void) const override{ return std::string{"Object List"}; }Get_Name61,1523
+  std::vector<std::shared_ptr<Shape>> objects;objects64,1627
+  AABB bbox;bbox66,1675
+  std::shared_ptr<bvh_node> bv_tree;bv_tree67,1688
 
 tracer/util/aabb.cpp,167
 const Interval<double>& AABB::Axis(const int& n) const{Axis7,76
@@ -13963,6 +14047,21 @@ constexpr double pi = 3.1415926535897932385;pi8,139
 tracer/util/color.hpp,63
 #define COLOR_HCOLOR_H2,16
 using Color = Vector3;Color7,76
+
+tracer/util/vector2.hpp,463
+#define VEC2_HVEC2_H2,15
+class Vector2{Vector26,51
+  Vector2():e{0,0} {}Vector28,74
+  Vector2(const double& ix,const double& iy) : e{ix,iy} {}Vector29,96
+  double x() const{ return e[0]; }x11,156
+  double y() const{ return e[1]; }y12,191
+  double operator [] (const int& i) const{ return e[i]; }operator [] 14,227
+  double& operator [] (const int& i){ return e[i]; }operator [] 15,285
+  double e[2];e18,350
+using Point2 = Vector2;Point220,368
+
+tracer/util/vector2.cpp,82
+std::ostream& operator << (std::ostream& out, const Vector2& v){operator <<4,43
 
 tracer/util/vector3.hpp,117
 #define VEC3_HVEC3_H2,15
@@ -14007,14 +14106,14 @@ Vector3 Vector3::Random(const double& min,const double& max){Random88,2591
 
 tracer/util/util.hpp,98
 #define COMMON_HCOMMON_H2,17
-inline double Degree2Rad(const double& degrees){Degree2Rad19,292
+inline double Degree2Rad(const double& degrees){Degree2Rad20,315
 
 tracer/util/random.cpp,202
 double random_uniform_01(void){random_uniform_016,57
 double random_double(const double& min, const double& max){random_double12,239
 int random_int(const int& min, const int& max){random_int16,348
 
-tracer/util/ray.hpp,959
+tracer/util/ray.hpp,961
 #define RAY_HRAY_H2,14
 class Ray{Ray8,71
   Ray(){}Ray10,90
@@ -14023,16 +14122,16 @@ class Ray{Ray8,71
   Vector3 Direction() const{ return direction; }Direction14,243
   Point3 origin;origin22,610
   Vector3 direction;direction23,627
-class Hit_record{		// Records with a ray hits a visible Shape objectHit_record28,666
-  bool hits;hits30,743
-  int hit_counts;hit_counts31,756
-  std::shared_ptr<Shape> hitted_obj;hitted_obj32,774
-  Point3 position;	        // hit positionposition34,814
-  Vector3 normal;		// outward normal vectornormal35,857
-  double time;			// timetime36,901
-  bool front_face;		// is this the front face of the hitted obj?front_face37,926
-  Hit_record():hits(false),hit_counts(0) {}Hit_record39,992
-  void Set_Face_Normal(const Ray& r, const Vector3& outward_normal){Set_Face_Normal41,1037
+class Hit_record{		// Records with a ray hits a visible Shape objectHit_record28,668
+  bool hits;hits30,745
+  int hit_counts;hit_counts31,758
+  std::shared_ptr<Visible> hitted_obj;hitted_obj32,776
+  Point3 position;	        // hit positionposition34,818
+  Vector3 normal;		// outward normal vectornormal35,861
+  double time;			// timetime36,905
+  bool front_face;		// is this the front face of the hitted obj?front_face37,930
+  Hit_record():hits(false),hit_counts(0) {}Hit_record39,996
+  void Set_Face_Normal(const Ray& r, const Vector3& outward_normal){Set_Face_Normal41,1041
 
 tracer/util/aabb.hpp,834
 #define AABB_HAABB_H2,15
@@ -14083,21 +14182,30 @@ class Interval{Interval8,97
 tracer/util/mat.hpp,25
 #define MAT_HMAT_H2,14
 
-tracer/bvh.cpp,634
-Color bvh_node::Ray_Color(const Ray& r, const Hit_record& rec) const{Ray_Color9,100
-bvh_node::bvh_node(std::vector<std::shared_ptr<Shape>>& src_obj, size_t start, size_t end, int abvh_node15,295
-  class __final_comparer{__final_comparer16,397
-    __final_comparer(const AABB::Componentbased_Comparer& cp) : component_comparer(cp) {}__final_comparer18,433
-    bool operator () (std::shared_ptr<Shape> a, std::shared_ptr<Shape> b){operator () 19,523
-    AABB::Componentbased_Comparer component_comparer;component_comparer23,694
-Hit_record bvh_node::Ray_Hit(const Ray& r, const Interval<double>& time) const{Ray_Hit51,1752
+tracer/bvh.cpp,548
+bvh_node::bvh_node(std::vector<std::shared_ptr<Shape>>& src_obj, size_t start, size_t end, int abvh_node10,124
+  class __final_comparer{__final_comparer11,226
+    __final_comparer(const AABB::Componentbased_Comparer& cp) : component_comparer(cp) {}__final_comparer13,262
+    bool operator () (std::shared_ptr<Shape> a, std::shared_ptr<Shape> b){operator () 14,352
+    AABB::Componentbased_Comparer component_comparer;component_comparer18,523
+Hit_record bvh_node::Ray_Hit(const Ray& r, const Interval<double>& time) const{Ray_Hit46,1581
 
 images/metal-glass-balls.png,0
 
 images/metal-glass-balls-hq.ppm,0
 
+images/out.ppm,0
+
 images/metal-glass-balls_draft_10sp.png,0
+
+test.in,0
+
+earth.jpg,0
 
 make.sh,0
 
 TAGS,0
+
+out.ppm,0
+
+RS3_Jupiter.webp,0

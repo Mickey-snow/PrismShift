@@ -7,6 +7,7 @@
 #include<string>
 #include<format>
 
+
 template<typename idtype, typename productType>
 class _Factory{
 public:
@@ -37,7 +38,7 @@ public:
 class Shape;
 class ShapeFactory{
 private:
-  class ShapeFactory_ins : public _Factory<std::string, std::shared_ptr<Shape>>{};
+  class ShapeFactory_ins : public _Factory<std::string, std::shared_ptr<Visible>>{};
 
 public:
   ShapeFactory() = delete;
@@ -65,6 +66,19 @@ public:
   }
 };
 
+class Texture;
+class TextureFactory{
+private:
+  class TextureFactory_ins : public _Factory<std::string, std::shared_ptr<Texture>> {};
 
+public:
+  TextureFactory() = delete;
+  TextureFactory(TextureFactory&) = delete;
+
+  static TextureFactory_ins* Instance(){
+    static TextureFactory_ins factory;
+    return &factory;
+  }
+};
 
 #endif

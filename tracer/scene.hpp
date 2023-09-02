@@ -17,6 +17,9 @@ public:
   Scene(const std::vector<std::shared_ptr<Shape>>& obj_src){
     for(auto obj : obj_src) Add(obj);
   }
+  Scene(const std::vector<std::shared_ptr<Visible>>& obj_src){
+    for(auto obj : obj_src) Add(obj);
+  }
   ~Scene() = default;
   
   void Clear(){ objects.clear(); bbox=AABB(); bv_tree=nullptr; }
@@ -52,14 +55,10 @@ public:
     }
   }
 
-  virtual Color Ray_Color(const Ray& r, const Hit_record& rec) const override{
-    return rec.hitted_obj->Ray_Color(r,rec);
-  }
 
   virtual AABB Get_Bounding_box(void) const override{ return bbox; }
 
-  std::string Get_Name(void) const override{ return std::string{"object_list"}; }
-  void Set_material(std::shared_ptr<Material>) override{ std::cerr<<"Cannot set material to a scene"<<std::endl<<std::flush; }
+  virtual std::string Get_Name(void) const override{ return std::string{"Object List"}; }
   
 protected:
   std::vector<std::shared_ptr<Shape>> objects;
