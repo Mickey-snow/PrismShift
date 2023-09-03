@@ -36,7 +36,12 @@ public:
 
   static Vector3 Random_Unit();
   static Vector3 Random(const double& min=-1.0, const double& max=1.0);
-  
+
+  static double Dot(const Vector3& u,const Vector3& v);
+  static Vector3 Cross(const Vector3& u,const Vector3& v);
+
+  static Vector3 Unit_vector(const Vector3& v);
+
 protected:
   double e[3];
 };
@@ -46,10 +51,6 @@ using Point3 = Vector3;
 Vector3 operator * (const double&, const Vector3&);
 Vector3 operator * (const Vector3&, const double&);
 
-double Dot(const Vector3& u,const Vector3& v);
-Vector3 Cross(const Vector3& u,const Vector3& v);
-
-Vector3 Unit_vector(const Vector3& v);
 
 std::ostream& operator << (std::ostream& out, const Vector3& v);
 

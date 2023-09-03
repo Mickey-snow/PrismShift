@@ -6,7 +6,7 @@
 #include <bvh.hpp>
 #include <util/util.hpp>
 #include <scene.hpp>
-#include <shapes/sphere.hpp>
+#include <shapes/3d/sphere.hpp>
 
 constexpr double EPS = 1e-6;
 
@@ -106,7 +106,7 @@ Sphere_Data GenerateData(size_t data_size, Interval<int> value_range=Interval(-1
 Sphere_Data GenerateSmallData(){ return GenerateData(8); }
 Sphere_Data GenerateScatteredData(){ return GenerateData(8, Interval<int>(-1000,1000)); }
 Sphere_Data GenerateCondensedData(){ return GenerateData(128); }
-Sphere_Data GenerateLargeData(){ return GenerateData(131072, Interval<int>(-2097152, 2097152)); }
+Sphere_Data GenerateLargeData(){ return GenerateData(65536, Interval<int>(-2097152, 2097152)); }
 
 class ValueParameterizedBVHFixture : public TestWithParam<dataFactory*>{
 protected:

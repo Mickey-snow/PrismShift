@@ -39,7 +39,7 @@ public:
   Hit_record():hits(false),hit_counts(0) {}
 
   void Set_Face_Normal(const Ray& r, const Vector3& outward_normal){
-    front_face = Dot(r.Direction(), outward_normal) < 0;
+    front_face = Vector3::Dot(r.Direction(), outward_normal) < 0;
     normal = front_face ? outward_normal : -outward_normal;
   }
 };

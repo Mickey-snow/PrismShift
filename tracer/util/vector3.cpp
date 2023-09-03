@@ -62,19 +62,19 @@ std::ostream& operator <<(std::ostream& out, const Vector3& v){
 }
 
 
-double Dot(const Vector3 &u, const Vector3 &v) {
+double Vector3::Dot(const Vector3 &u, const Vector3 &v) {
   return u[0] * v[0]
     + u[1] * v[1]
     + u[2] * v[2];
 }
 
-Vector3 Cross(const Vector3 &u, const Vector3 &v) {
+Vector3 Vector3::Cross(const Vector3 &u, const Vector3 &v) {
   return Vector3(u[1] * v[2] - u[2] * v[1],
 		 u[2] * v[0] - u[0] * v[2],
 		 u[0] * v[1] - u[1] * v[0]);
 }
 
-Vector3 Unit_vector(const Vector3& v) {
+Vector3 Vector3::Unit_vector(const Vector3& v) {
   return v / v.Length();
 }
 
@@ -83,7 +83,7 @@ Vector3 Vector3::Random_Unit(){
   do{
     rand_v = Vector3(random_double(-1.0,1.0), random_double(-1.0,1.0), random_double(-1.0,1.0));
   }while(false);
-  return Unit_vector(rand_v);
+  return Vector3::Unit_vector(rand_v);
 }
 Vector3 Vector3::Random(const double& min,const double& max){
   return Vector3(random_double(min,max), random_double(min,max), random_double(min,max));

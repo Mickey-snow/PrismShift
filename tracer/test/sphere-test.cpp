@@ -1,4 +1,4 @@
-#include<shapes/sphere.hpp>
+#include<shapes/3d/sphere.hpp>
 #include<factory.hpp>
 #include<util/util.hpp>
 #include<bvh.hpp>

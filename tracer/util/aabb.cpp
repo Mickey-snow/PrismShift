@@ -30,3 +30,11 @@ bool AABB::Is_Hit_in_Interval(const Ray& r, Interval<double> ray_t)const {
   }
   return true;
 }
+
+AABB AABB::Pad() const{
+  static double EPS = 1e-3;
+  Interval<double> xx = (x_interval.Size() < EPS) ? x_interval.Expand(EPS) : x_interval;
+  Interval<double> yy = (y_interval.Size() < EPS) ? y_interval.Expand(EPS) : y_interval;
+  Interval<double> zz = (z_interval.Size() < EPS) ? z_interval.Expand(EPS) : z_interval;
+  return AABB(xx,yy,zz);
+}

@@ -15,8 +15,8 @@ Camera::View_Info Camera::Get_Initialize_View() const{
 
   // The camera coordinate frame basis vectors
   auto w = (looking_at-camera_center).Unit(); // front
-  auto u = Cross(up_direction, w).Unit();     // right
-  auto v = Cross(u,w);			      // up
+  auto u = Vector3::Cross(up_direction, w).Unit();     // right
+  auto v = Vector3::Cross(u,w);			      // up
   
   // Vectors across the horizontal and down the vertical viewport edges
   view.viewport_u = view.viewport_width * u;

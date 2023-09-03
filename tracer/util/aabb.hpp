@@ -12,6 +12,7 @@ class AABB{
   // All rays miss this cube thus miss the object
 public:
   AABB():x_interval(Interval<double>::Empty()), y_interval(Interval<double>::Empty()), z_interval(Interval<double>::Empty()) {}
+  AABB(const Interval<double>& x,const Interval<double>& y, const Interval<double>& z) : x_interval(x), y_interval(y), z_interval(z) {}
   AABB(const Point3& a, const Point3& b){
     x_interval = Interval(fmin(a.x(),b.x()), fmax(a.x(),b.x()));
     y_interval = Interval(fmin(a.y(),b.y()), fmax(a.y(),b.y()));
@@ -31,6 +32,8 @@ public:
   const Interval<double>& Axis(const int& n) const;
 
   bool Is_Hit_in_Interval(const Ray&, Interval<double>) const;
+
+  AABB Pad() const;
 
   class Componentbased_Comparer{
   public:

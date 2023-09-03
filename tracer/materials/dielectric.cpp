@@ -14,7 +14,7 @@ double Reflectance(const double& cosine, const double& ref_idx){
 Color Dielectric::Ray_Color(const Ray& r, const Hit_record& rec) const {
   double eta_ratio = rec.front_face ? (1.0/eta) : eta;
 
-  double cos_theta = fmin(Dot(-r.Direction().Unit(), rec.normal), 1.0);
+  double cos_theta = fmin(Vector3::Dot(-r.Direction().Unit(), rec.normal), 1.0);
   double sin_theta = std::sqrt(1.0 - cos_theta*cos_theta);
 
   if(eta_ratio*sin_theta > 1.0 or Reflectance(cos_theta, eta_ratio) > random_uniform_01()){
