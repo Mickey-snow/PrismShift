@@ -14,7 +14,7 @@ double Vector3::y() const{ return e[1]; }
 double Vector3::z() const{ return e[2]; }
 
 bool Vector3::Near_Zero() const{
-  static double EPS = 1e-8;
+  static double EPS = 1e-6;
   return (fabs(e[0])<EPS) and (fabs(e[1])<EPS) and (fabs(e[2])<EPS);
 }
 
@@ -78,13 +78,13 @@ Vector3 Vector3::Unit_vector(const Vector3& v) {
   return v / v.Length();
 }
 
+Vector3 Vector3::Random(const double& min,const double& max){
+  return Vector3(random_double(min,max), random_double(min,max), random_double(min,max));
+}
 Vector3 Vector3::Random_Unit(){
   Vector3 rand_v;
   do{
-    rand_v = Vector3(random_double(-1.0,1.0), random_double(-1.0,1.0), random_double(-1.0,1.0));
-  }while(false);
+    rand_v = Vector3::Random(-1000,1000);
+  }while(rand_v.Near_Zero());
   return Vector3::Unit_vector(rand_v);
-}
-Vector3 Vector3::Random(const double& min,const double& max){
-  return Vector3(random_double(min,max), random_double(min,max), random_double(min,max));
 }

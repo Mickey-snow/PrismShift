@@ -32,7 +32,7 @@ public:
   std::shared_ptr<Visible> hitted_obj;
   
   Point3 position;	        // hit position
-  Vector3 normal;		// outward normal vector
+  Vector3 normal;		// normal vector, at the same side with ray
   double time;			// time
   bool front_face;		// is this the front face of the hitted obj?
 
