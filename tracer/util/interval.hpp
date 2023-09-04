@@ -55,6 +55,7 @@ public:
 
   static Interval<T> Empty(){ return Interval<T>(std::numeric_limits<T>::max(), std::numeric_limits<T>::min()); }
   static Interval<T> Positive(){ return Interval<T>(std::numeric_limits<T>::min(), std::numeric_limits<T>::max()); }
+  static Interval<T> Universe(){ return Interval<T>(std::numeric_limits<T>::lowest(), std::numeric_limits<T>::max()); }
 };
 
 
