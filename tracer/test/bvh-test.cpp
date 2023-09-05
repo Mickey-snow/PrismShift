@@ -136,7 +136,7 @@ TEST_P(ValueParameterizedBVHFixture, BatRayHitwithBF){
   Scene world_with_bvh(spheres); world_with_bvh.Build_BVH();
   Scene world_without_bvh(spheres);
 
-  Hit_record withbvh,withoutbvh;
+  Hit_record withbvh=Hit_record::NoHit(),withoutbvh=Hit_record::NoHit();
   const int samples = 65536/spheres.size();
   for(int i=0;i<samples;++i){
     Ray r(Vector3::Random(-175,-150), Vector3::Random_Unit());

@@ -9,24 +9,20 @@ Color Parallelogram::Ray_Color(const Ray &r, const Hit_record &rec) const{
 }
 
 Hit_record Parallelogram::Ray_Hit(const Ray& r, const Interval<double>& time_interval) const{
-  Hit_record rec_miss,rec; rec_miss.hits = false;
-
   double time = r.intersectionTimeWithPlane(Q,u,v);
-  if(std::isnan(time)) return rec_miss;
+  if(std::isnan(time)) return Hit_record::NoHit();
   auto intersection = r.At(time);
 
   Vector3 p = intersection - Q;
   auto alpha = decomposer->Componenti(p);
   auto beta = decomposer->Componentj(p);
-  if(!On_Object(alpha,beta)) return rec_miss;
+  if(!On_Object(alpha,beta)) return Hit_record::NoHit();
 
-  rec.hits = true;
-  rec.hitted_obj = std::make_shared<Parallelogram>(*this);
-  rec.time = time;
-  rec.position = intersection;
-  rec.Set_Face_Normal(r, normal);
-
-  return rec;
+  return Hit_record::MakeHitRecordWith_ORTPN(std::make_shared<Parallelogram>(*this),
+					     r,
+					     time,
+					     intersection,
+					     normal);
 }
 
 Point2 Parallelogram::Map_Texture(const Ray& r, const Hit_record& rec) const{

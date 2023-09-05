@@ -16,15 +16,13 @@ Color Sphere::Ray_Color(const Ray& r, const Hit_record& rec) const{
 
 
 Hit_record Sphere::Ray_Hit(const Ray& r, const Interval<double>& time) const{
-  Hit_record rec; rec.hits = false;
-    
   Vector3 oc = r.Origin() - center;
   auto a = r.Direction().Length_squared();
   auto half_b = Vector3::Dot(oc, r.Direction());
   auto c = oc.Length_squared() - radius*radius;
 
   auto discriminant = half_b*half_b - a*c;
-  if (discriminant < 0) return rec;
+  if (discriminant < 0) return Hit_record::NoHit();
   auto sqrtd = std::sqrt(discriminant);
 
   // Find the nearest root that lies in the acceptable range.
@@ -32,18 +30,20 @@ Hit_record Sphere::Ray_Hit(const Ray& r, const Interval<double>& time) const{
   if (!time.Surrounds(root)){
     root = (-half_b + sqrtd) / a;
     if (!time.Surrounds(root))
-      return rec;
+      return Hit_record::NoHit();
   }
 
-  rec.hits = true;
-  rec.hitted_obj = std::make_shared<Sphere>(*this);
+  double t = root;
+  Point3 position = r.At(t);
+  Vector3 normal = (position - center) / radius;
     
-  rec.time = root;
-  rec.position = r.At(rec.time);
-  Vector3 outward_normal = (rec.position - center) / radius;
-  rec.Set_Face_Normal(r, outward_normal);
-    
-  return rec;
+  return Hit_record::MakeHitRecordWith_ORTPN(std::make_shared<Sphere>(*this),
+					     r,
+					     t,
+					     position,
+					     normal);
+					     
+					     
 }
 
 

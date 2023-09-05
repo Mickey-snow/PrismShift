@@ -40,7 +40,7 @@ public:
     if(bv_tree != nullptr) return bv_tree->Ray_Hit(r,time);
 
     else{
-      Hit_record temp_rec,rec;
+      Hit_record temp_rec=Hit_record::NoHit(),rec=Hit_record::NoHit();
       double closest_hit_time = time.end;
 
       for(const auto& obj : objects){

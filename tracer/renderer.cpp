@@ -96,13 +96,12 @@ void _update_preview_window(Mat canvas){
 Color Renderer::__Renderer_facade::Ray_Color(const Ray& r, int current_recur_depth) const{
   if(current_recur_depth > max_recurrent_depth) return Color(0,0,0);
   
-  Hit_record rec; 
-  rec = world->Ray_Hit(r, Interval<double>::Positive());
+  Hit_record rec = world->Ray_Hit(r, Interval<double>::Positive());
   if(rec.hits){ 		// hits visible object
     rec.hit_counts = current_recur_depth + 1;
     return rec.hitted_obj->Ray_Color(r, rec);
   }
 
   // hits background
-  return material->Ray_Color(r, Hit_record());
+  return material->Ray_Color(r, Hit_record::NoHit());
 }

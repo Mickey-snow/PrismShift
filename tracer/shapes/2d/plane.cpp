@@ -12,21 +12,15 @@ Color Plane::Ray_Color(const Ray& r, const Hit_record& rec) const{
 }
 
 Hit_record Plane::Ray_Hit(const Ray& r, const Interval<double>& time_interval) const{
-  Hit_record rec; rec.hits = false;
-
   double time = r.intersectionTimeWithPlane(Q,u,v);
-  if(std::isnan(time)) return rec;
-  if(!time_interval.Contains(time)) return rec;
+  if(std::isnan(time)) return Hit_record::NoHit();
+  if(!time_interval.Contains(time)) return Hit_record::NoHit();
 
-  auto intersection = r.At(time);
-
-  rec.hits = true;
-  rec.time = time;
-  rec.hitted_obj = std::make_shared<Plane>(*this);
-  rec.position = intersection;
-  rec.Set_Face_Normal(r,normal);
-
-  return rec;
+  return Hit_record::MakeHitRecordWith_ORTPN(std::make_shared<Plane>(*this),
+					     r,
+					     time,
+					     r.At(time),
+					     normal);
 }
 Point2 Plane::Map_Texture(const Ray& r, const Hit_record& rec) const{
   Vector3 p = rec.position-Q;

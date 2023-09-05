@@ -44,13 +44,13 @@ bvh_node::bvh_node(std::vector<std::shared_ptr<Shape>>& src_obj, size_t start, s
 
 // Only provide answer to Ray_Hit queries if it is certain that the ray missed
 Hit_record bvh_node::Ray_Hit(const Ray& r, const Interval<double>& time) const{
-  Hit_record rec; rec.hits = false;
   double closest_hit_time = time.end;
   
-  if(not bbox.Is_Hit_in_Interval(r,time)) return rec; // missed
+  if(not bbox.Is_Hit_in_Interval(r,time)) return Hit_record::NoHit(); // missed
 
   // Deffer query to children
   Hit_record temp_rec = lch->Ray_Hit(r,time);
+  Hit_record rec = Hit_record::NoHit();
   if(temp_rec.hits){
     rec = temp_rec;
     closest_hit_time = temp_rec.time;
