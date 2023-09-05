@@ -13,6 +13,7 @@ Hit_record Parallelogram::Ray_Hit(const Ray& r, const Interval<double>& time_int
 
   double time = r.intersectionTimeWithPlane(Q,u,v);
   if(std::isnan(time)) return rec_miss;
+  if(!time_interval.Surrounds(time)) return rec_miss;
   auto intersection = r.At(time);
 
   Vector3 p = intersection - Q;
