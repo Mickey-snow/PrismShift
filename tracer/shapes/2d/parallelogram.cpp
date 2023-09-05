@@ -10,7 +10,9 @@ Color Parallelogram::Ray_Color(const Ray &r, const Hit_record &rec) const{
 
 Hit_record Parallelogram::Ray_Hit(const Ray& r, const Interval<double>& time_interval) const{
   double time = r.intersectionTimeWithPlane(Q,u,v);
+
   if(std::isnan(time)) return Hit_record::NoHit();
+  if(!time_interval.Surrounds(time)) return Hit_record::NoHit();
   auto intersection = r.At(time);
 
   Vector3 p = intersection - Q;
