@@ -99,9 +99,9 @@ Color Renderer::__Renderer_facade::Ray_Color(const Ray& r, int current_recur_dep
   Hit_record rec = world->Ray_Hit(r, Interval<double>::Positive());
   if(rec.hits){ 		// hits visible object
     rec.hit_counts = current_recur_depth + 1;
-    return rec.hitted_obj->Ray_Color(r, rec);
+    return rec.hitted_obj->Ray_Color(rec);
   }
 
   // hits background
-  return material->Ray_Color(r, Hit_record::NoHit());
+  return material->Ray_Color(Hit_record::NoHit());
 }

@@ -13,20 +13,20 @@ double Reflectance(const double& cosine, const double& ref_idx){
 }
 
 
-Color Dielectric::Ray_Color(const Ray& r, const Hit_record& rec) const {
+Color Dielectric::Ray_Color(const Hit_record& rec) const {
   double eta_ratio = rec.front_face ? (1.0/eta) : eta;
 
-  double cos_theta = fmin(Vector3::Dot(-r.Direction().Unit(), rec.normal), 1.0);
+  double cos_theta = fmin(Vector3::Dot(-rec.ray.Direction().Unit(), rec.normal), 1.0);
   double sin_theta = std::sqrt(1.0 - cos_theta*cos_theta);
 
   if(eta_ratio*sin_theta > 1.0 or Reflectance(cos_theta, eta_ratio) > random_uniform_01()){
     // Total reflection
-    Vector3 reflected_direction = r.Reflect_Direction(rec.normal);
+    Vector3 reflected_direction = rec.ray.Reflect_Direction(rec.normal);
     return Renderer::Instance()->Ray_Color(Ray(rec.position, reflected_direction), rec.hit_counts);
   }
   else{
     // Refract
-    Vector3 refracted_direction = r.Refract_Direction(rec.normal, eta_ratio);
+    Vector3 refracted_direction = rec.ray.Refract_Direction(rec.normal, eta_ratio);
     return Renderer::Instance()->Ray_Color(Ray(rec.position, refracted_direction), rec.hit_counts);
   }      
 }

@@ -17,7 +17,7 @@ public:
   Metal(const Color& col, const double& f=0) : fuzz(fabs(f)<1?f:1) { texture = std::make_shared<SolidColor>(col); }
   Metal(std::shared_ptr<Texture> tex, const double& f=0) : fuzz(fabs(f)<1?f:1), texture(tex) {}
 
-  virtual Color Ray_Color(const Ray& r,const Hit_record& rec) const override;
+  virtual Color Ray_Color(const Hit_record& rec) const override;
   
 protected:
   std::shared_ptr<Texture> texture;

@@ -20,9 +20,9 @@ public:
   static Triangle* From_points(const Point3& a,const Point3& b,const Point3& c){ return new Triangle(a,b-a,c-a); }
   static Triangle* From_pointvecvec(const Point3& a,const Vector3& u,const Vector3& v){ return new Triangle(a,u,v); }
 
-  virtual Color Ray_Color(const Ray& r,const Hit_record& rec) const override;
+  virtual Color Ray_Color(const Hit_record& rec) const override;
   virtual Hit_record Ray_Hit(const Ray&, const Interval<double>&) const override;
-  Point2 Map_Texture(const Ray&, const Hit_record&) const override;
+  Point2 Map_Texture(const Hit_record&) const override;
 
   AABB Get_Bounding_box(void) const override{ return bbox; }
   void Set_material(std::shared_ptr<Material> mat) override{ material = mat; }

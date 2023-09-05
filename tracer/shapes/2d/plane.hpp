@@ -24,11 +24,11 @@ public:
 
   AABB Get_Bounding_box(void) const override{ return bbox; }
 
-  virtual Color Ray_Color(const Ray& r, const Hit_record& rec) const override;
+  virtual Color Ray_Color(const Hit_record& rec) const override;
 
   virtual Hit_record Ray_Hit(const Ray& r, const Interval<double>& time) const override;
 
-  virtual Point2 Map_Texture(const Ray&, const Hit_record&) const override;
+  virtual Point2 Map_Texture(const Hit_record&) const override;
 
 protected:
   AABB bbox;

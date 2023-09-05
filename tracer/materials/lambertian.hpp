@@ -17,7 +17,7 @@ public:
   Lambertian(const Color& col){ texture = std::make_shared<SolidColor>(col); }
   Lambertian(std::shared_ptr<Texture> tex) : texture(tex) {}
 
-  virtual Color Ray_Color(const Ray& r,const Hit_record& rec) const override;
+  virtual Color Ray_Color(const Hit_record& rec) const override;
   
 protected:
   std::shared_ptr<Texture> texture;

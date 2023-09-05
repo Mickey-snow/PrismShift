@@ -15,7 +15,7 @@ public:
   
   Dielectric(const double& index_of_refraction) : eta(index_of_refraction) {}
 
-  virtual Color Ray_Color(const Ray& r, const Hit_record& rec) const override;
+  virtual Color Ray_Color(const Hit_record& rec) const override;
   
 private:
   double eta;

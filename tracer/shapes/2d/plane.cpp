@@ -6,9 +6,9 @@
 #include<utility>
 #include<cmath>
 
-Color Plane::Ray_Color(const Ray& r, const Hit_record& rec) const{
+Color Plane::Ray_Color(const Hit_record& rec) const{
   if(material == nullptr) return Color(1,0,0);
-  else return material->Ray_Color(r,rec);
+  else return material->Ray_Color(rec);
 }
 
 Hit_record Plane::Ray_Hit(const Ray& r, const Interval<double>& time_interval) const{
@@ -22,7 +22,7 @@ Hit_record Plane::Ray_Hit(const Ray& r, const Interval<double>& time_interval) c
 					     r.At(time),
 					     normal);
 }
-Point2 Plane::Map_Texture(const Ray& r, const Hit_record& rec) const{
+Point2 Plane::Map_Texture(const Hit_record& rec) const{
   Vector3 p = rec.position-Q;
   auto alpha = decomposer->Componenti(p);
   auto beta = decomposer->Componentj(p);

@@ -8,10 +8,10 @@
 #include<memory>
 
 
-Color Sphere::Ray_Color(const Ray& r, const Hit_record& rec) const{
-  if(material == nullptr){	// No material attatched, no color
-    return Color(0,0,0);
-  } else return material->Ray_Color(r,rec); 
+Color Sphere::Ray_Color(const Hit_record& rec) const{
+  if(material == nullptr){
+    return Color(1,0,0);
+  } else return material->Ray_Color(rec); 
 }
 
 
@@ -47,7 +47,7 @@ Hit_record Sphere::Ray_Hit(const Ray& r, const Interval<double>& time) const{
 }
 
 
-Point2 Sphere::Map_Texture(const Ray& r, const Hit_record& rec) const{
+Point2 Sphere::Map_Texture(const Hit_record& rec) const{
   double x = rec.normal.x();
   double y = rec.normal.y();
   double z = rec.normal.z();

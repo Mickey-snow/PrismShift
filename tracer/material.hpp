@@ -7,7 +7,7 @@ class Material{
 public:
   ~Material() = default;
 
-  virtual Color Ray_Color(const Ray&, const Hit_record&) const = 0;
+  virtual Color Ray_Color(const Hit_record&) const = 0;
 };
 
 

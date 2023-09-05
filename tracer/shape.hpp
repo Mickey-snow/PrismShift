@@ -2,7 +2,6 @@
 #define OBJECTS_H
 
 #include "util/util.hpp"
-#include "material.hpp"
 
 #include<memory>
 #include<string>
@@ -23,6 +22,7 @@ public:
   virtual AABB Get_Bounding_box(void) const = 0;
 };
 
+class Material;
 class Visible : public Shape{
 public:
   virtual ~Visible() = default;
@@ -30,9 +30,10 @@ public:
   virtual void Set_material(std::shared_ptr<Material>) = 0;
 
   // Return the color of the Ray r that hits an object
-  virtual Color Ray_Color(const Ray& R, const Hit_record& rec) const = 0;
+  virtual Color Ray_Color(const Hit_record& rec) const = 0;
 
-  virtual Point2 Map_Texture(const Ray&, const Hit_record&) const = 0;
-
+  virtual Point2 Map_Texture(const Hit_record&) const = 0;
 };
+
+
 #endif
