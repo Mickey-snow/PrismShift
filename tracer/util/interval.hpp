@@ -2,14 +2,13 @@
 #define INTERVAL_H
 
 #include<iostream>
-#include<limits>
 
 template<typename T>
 class Interval{
 public:
   T begin,end;
   
-  Interval():begin(std::numeric_limits<T>::max()),end(std::numeric_limits<T>::min()) {} // default interval is empty
+  Interval():begin(0),end(0) {}
   Interval(const T& _min, const T& _max) : begin(_min), end(_max) {}
   Interval(const Interval& a, const Interval& b){
     begin = a.begin < b.begin ? a.begin : b.begin;
@@ -53,9 +52,9 @@ public:
     return out<<'['<<seq.begin<<','<<seq.end<<']';
   }
 
-  static Interval<T> Empty(){ return Interval<T>(std::numeric_limits<T>::max(), std::numeric_limits<T>::min()); }
-  static Interval<T> Positive(){ return Interval<T>(std::numeric_limits<T>::min(), std::numeric_limits<T>::max()); }
-  static Interval<T> Universe(){ return Interval<T>(std::numeric_limits<T>::lowest(), std::numeric_limits<T>::max()); }
+  static Interval<T> Empty(){ return Interval<T>(0,0); }
+  static Interval<T> Positive();
+  static Interval<T> Universe();
 };
 
 

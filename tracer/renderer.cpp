@@ -97,16 +97,12 @@ Color Renderer::__Renderer_facade::Ray_Color(const Ray& r, int current_recur_dep
   if(current_recur_depth > max_recurrent_depth) return Color(0,0,0);
   
   Hit_record rec; 
-  rec = world->Ray_Hit(r, Interval{1e-8,infinity});
+  rec = world->Ray_Hit(r, Interval<double>::Positive());
   if(rec.hits){ 		// hits visible object
     rec.hit_counts = current_recur_depth + 1;
     return rec.hitted_obj->Ray_Color(r, rec);
   }
 
   // hits background
-  // This can be later encapsulated in a global Ambient Light visible object
-  // Vector3 unit_direction = Unit_vector(r.Direction());
-  // auto a = 0.5*(unit_direction.y() + 1.0);
-  // return (1.0-a)*Color(1.0, 1.0, 1.0) + a*Color(0.5, 0.7, 1.0);
   return material->Ray_Color(r, Hit_record());
 }

@@ -10,7 +10,10 @@
 class tPlane : public Plane{
 public:
   using Plane::Plane;
-  virtual std::pair<bool, Point3> Intersection(const Ray& r, const Interval<double>& time) const { return Plane::Intersection(r,time); }
+  virtual std::pair<bool, Point3> Intersection_(const Ray& r, const Interval<double>& time) const {
+    auto [hits,hitTime] = Plane::Intersection(r,time);
+    return std::make_pair(hits, r.At(hitTime));
+  }
   virtual std::pair<double,double> Decomposition(const Vector3& vec) const{
     return Plane::Decomposition(vec);
   }
@@ -25,7 +28,7 @@ TEST(plane, intersection){
   auto plane = tPlane(Point3(0,0,0), Vector3(0,1,0), Vector3(1,0,1));
   auto r = Ray(Point3(0,0,-10), Point3(2.5,5,2.5)-Point3(0,0,-10));
 
-  auto [hits,intersection] = plane.Intersection(r, Interval<double>::Universe());
+  auto [hits,intersection] = plane.Intersection_(r, Interval<double>::Universe());
   ASSERT_TRUE(hits);
   EXPECT_TRUE(Vec3eq(intersection, 2.5,5,2.5));
 }

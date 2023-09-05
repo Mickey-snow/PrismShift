@@ -13,7 +13,7 @@ constexpr double EPS = 1e-6;
 TEST(aabbConstructor, nopara){
   AABB box;
   for(int i=0;i<3;++i)
-    EXPECT_GT(box.Axis(i).begin, box.Axis(i).end); // An empty interval
+    EXPECT_GE(box.Axis(i).begin, box.Axis(i).end); // An empty interval
 }
 
 TEST(rayaabbIntersection, hit){

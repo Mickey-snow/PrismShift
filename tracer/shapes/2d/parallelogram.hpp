@@ -11,20 +11,43 @@
 
 #include "plane.hpp"
 
-class Parallelogram : public Plane{
+class Parallelogram : public Visible{
 public:
   static constexpr std::string name{"parallelogram"};
   std::string Get_Name(void) const override{ return name; }
   
-  using Plane::Plane;
+  Parallelogram(const Point3& _Q, const Vector3& _u, const Vector3& _v) : Q(_Q),u(_u),v(_v) { Init(); }
+  
+  virtual Color Ray_Color(const Ray& r, const Hit_record& rec) const override;
+  virtual Hit_record Ray_Hit(const Ray&, const Interval<double>&) const override;
+  Point2 Map_Texture(const Ray&, const Hit_record&) const override;
+
+  AABB Get_Bounding_box(void) const override{ return bbox; }
+  void Set_material(std::shared_ptr<Material> mat) override{ material = mat; }
+  
 
 protected:
-  virtual void Initbbox(void) override{
-    bbox = AABB(Q,Q+u+v);
+  AABB bbox;
+  Point3 Q;
+  Vector3 u,v;
+
+  std::shared_ptr<Material> material;
+  std::shared_ptr<Plane> plane;
+  
+  void Initbbox(void){
+    bbox = AABB(Q,Q+u+v).Pad();
+  }
+  void Init(void){
+    Initbbox();
+    plane = std::make_shared<Plane>(Q,u,v);
   }
 
-  virtual bool On_Object(const double& a,const double& b) const override{
+  bool On_Object(const double& a,const double& b) const{
     return 0<=a&&a<=1 && 0<=b&&b<=1;
+  }
+
+  std::shared_ptr<Visible> Get_ptr(void) const{
+    return std::make_shared<Parallelogram>(*this);
   }
 };
 

@@ -1,14 +1,15 @@
-#include "parallelogram.hpp"
+#include "triangle.hpp"
 
 #include<util/util.hpp>
+
 #include<utility>
 
-Color Parallelogram::Ray_Color(const Ray &r, const Hit_record &rec) const{
-  if(material == nullptr) return Color(0,0,0);
+Color Triangle::Ray_Color(const Ray &r, const Hit_record &rec) const{
+  if(material == nullptr) return Color(1,0,0);
   else return material->Ray_Color(r,rec);
 }
 
-Hit_record Parallelogram::Ray_Hit(const Ray& r, const Interval<double>& time_interval) const{
+Hit_record Triangle::Ray_Hit(const Ray& r, const Interval<double>& time_interval) const{
   Hit_record rec_miss,rec; rec_miss.hits = false;
   
   auto [hitsplane, time] = plane->Intersection(r, time_interval);
@@ -19,14 +20,14 @@ Hit_record Parallelogram::Ray_Hit(const Ray& r, const Interval<double>& time_int
   if(!On_Object(alpha,beta)) return rec_miss;
 
   rec.hits = true;
-  rec.hitted_obj = Get_ptr();
   rec.time = time;
+  rec.hitted_obj = Get_ptr();
   rec.position = intersection;
   rec.Set_Face_Normal(r, plane->normal);
 
   return rec;
 }
 
-Point2 Parallelogram::Map_Texture(const Ray& r, const Hit_record& rec) const{
+Point2 Triangle::Map_Texture(const Ray& r, const Hit_record& rec) const{
   return plane->Map_Texture(r,rec);
 }

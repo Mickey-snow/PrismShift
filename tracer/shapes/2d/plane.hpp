@@ -11,6 +11,8 @@
 #include<string>
 #include<sstream>
 
+class Parallelogram;
+class Triangle;
 class Plane : public Visible{
 public:
   static constexpr std::string name{"plane"};
@@ -52,10 +54,18 @@ protected:
     Initbbox();
   }
 
-  virtual std::pair<bool, Point3> Intersection(const Ray& r, const Interval<double>& time) const;
+  virtual std::pair<bool, double> Intersection(const Ray& r, const Interval<double>& time) const;
   virtual std::pair<double,double> Decomposition(const Vector3&) const;
 
   virtual bool On_Object(const double&,const double&) const;
+
+  virtual std::shared_ptr<Visible> Get_ptr(void) const{
+    return std::make_shared<Plane>(*this);
+  }
+
+private:
+  friend Parallelogram;
+  friend Triangle;
 };
 
 namespace{

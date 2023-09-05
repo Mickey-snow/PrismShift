@@ -2,8 +2,6 @@
 #define COMMON_H
 
 #include<cassert>
-#include<cmath>
-#include<memory>
 
 // Headers
 #include "vector3.hpp"
