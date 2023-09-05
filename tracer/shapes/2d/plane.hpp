@@ -33,39 +33,16 @@ public:
 protected:
   AABB bbox;
   Point3 Q;
-  Vector3 u,v;
+  Vector3 u,v,normal;
 
   std::shared_ptr<Material> material;
-  
-  Vector3 normal;
-  double dist_to_orig;
-  Vector3 Omega;
-  virtual void InitConstant(void){
-    normal = Vector3::Unit_vector(Vector3::Cross(u,v));
-    dist_to_orig = Vector3::Dot(normal, Q);
-    Omega = normal / (Vector3::Dot(normal, Vector3::Cross(u,v)));
+  Decomposer3d *decomposer;
 
-  }
-  virtual void Initbbox(void){
-    bbox = AABB(Interval<double>::Universe(), Interval<double>::Universe(), Interval<double>::Universe());
-  }    
   virtual void Init(void){
-    InitConstant();
-    Initbbox();
+    normal = Vector3::Unit_vector(Vector3::Cross(u,v));
+    bbox = AABB(Interval<double>::Universe(), Interval<double>::Universe(), Interval<double>::Universe());
+    decomposer = new Decomposer3d(u,v,normal);
   }
-
-  virtual std::pair<bool, double> Intersection(const Ray& r, const Interval<double>& time) const;
-  virtual std::pair<double,double> Decomposition(const Vector3&) const;
-
-  virtual bool On_Object(const double&,const double&) const;
-
-  virtual std::shared_ptr<Visible> Get_ptr(void) const{
-    return std::make_shared<Plane>(*this);
-  }
-
-private:
-  friend Parallelogram;
-  friend Triangle;
 };
 
 namespace{

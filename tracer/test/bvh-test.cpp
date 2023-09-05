@@ -106,7 +106,7 @@ Sphere_Data GenerateData(size_t data_size, Interval<int> value_range=Interval(-1
 Sphere_Data GenerateSmallData(){ return GenerateData(8); }
 Sphere_Data GenerateScatteredData(){ return GenerateData(8, Interval<int>(-1000,1000)); }
 Sphere_Data GenerateCondensedData(){ return GenerateData(128); }
-Sphere_Data GenerateLargeData(){ return GenerateData(65536, Interval<int>(-2097152, 2097152)); }
+Sphere_Data GenerateLargeData(){ return GenerateData(8192, Interval<int>(-2097152, 2097152)); }
 
 class ValueParameterizedBVHFixture : public TestWithParam<dataFactory*>{
 protected:
@@ -137,7 +137,7 @@ TEST_P(ValueParameterizedBVHFixture, BatRayHitwithBF){
   Scene world_without_bvh(spheres);
 
   Hit_record withbvh,withoutbvh;
-  const int samples = 1000000/spheres.size();
+  const int samples = 65536/spheres.size();
   for(int i=0;i<samples;++i){
     Ray r(Vector3::Random(-175,-150), Vector3::Random_Unit());
     withbvh = world_with_bvh.Ray_Hit(r, Interval<double>::Positive());

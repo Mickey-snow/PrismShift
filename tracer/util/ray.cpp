@@ -23,3 +23,12 @@ Vector3 Ray::Refract_Direction(const Vector3& in_direction, const Vector3& norma
   Vector3 out_direction_parallel = -std::sqrt(fabs(1.0-out_direction_perpendicular.Length_squared())) * normal;
   return out_direction_parallel + out_direction_perpendicular;
 }
+
+
+double Ray::intersectionTimeWithPlane(const Point3& Q, const Vector3 &u, const Vector3 &v)const{
+  double tup,tdown;
+  Vector3 normal = Vector3::Unit_vector(Vector3::Cross(u,v));
+  tup = Vector3::Dot(normal, Q) - Vector3::Dot(origin, normal);
+  tdown = Vector3::Dot(direction, normal);
+  return tup/tdown;
+}

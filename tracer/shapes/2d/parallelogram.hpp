@@ -29,25 +29,20 @@ public:
 protected:
   AABB bbox;
   Point3 Q;
-  Vector3 u,v;
+  Vector3 u,v,normal;
 
   std::shared_ptr<Material> material;
-  std::shared_ptr<Plane> plane;
+  Decomposer3d* decomposer;
   
-  void Initbbox(void){
-    bbox = AABB(Q,Q+u+v).Pad();
-  }
+
   void Init(void){
-    Initbbox();
-    plane = std::make_shared<Plane>(Q,u,v);
+    bbox = AABB(Q,Q+u+v).Pad();
+    normal = Vector3::Unit_vector(Vector3::Cross(u,v));
+    decomposer = new Decomposer3d(u,v,normal);
   }
 
   bool On_Object(const double& a,const double& b) const{
     return 0<=a&&a<=1 && 0<=b&&b<=1;
-  }
-
-  std::shared_ptr<Visible> Get_ptr(void) const{
-    return std::make_shared<Parallelogram>(*this);
   }
 };
 

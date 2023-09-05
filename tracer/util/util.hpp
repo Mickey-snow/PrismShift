@@ -6,6 +6,7 @@
 // Headers
 #include "vector3.hpp"
 #include "vector2.hpp"
+#include "decomposer.hpp"
 #include "color.hpp"
 #include "ray.hpp"
 #include "interval.hpp"
