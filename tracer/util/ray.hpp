@@ -17,9 +17,9 @@ public:
 
   double intersectionTimeWithPlane(const Point3&,const Vector3&,const Vector3&) const;
   
-  static Vector3 Scatter_Direction(const Vector3& normal);
-  static Vector3 Reflect_Direction(const Vector3& in_direction, const Vector3& normal);
-  static Vector3 Refract_Direction(const Vector3& in_direction, const Vector3& normal, const double& refractive_index_ratio);
+  Vector3 Scatter_Direction(const Vector3& normal) const;
+  Vector3 Reflect_Direction(const Vector3& normal) const;
+  Vector3 Refract_Direction(const Vector3& normal, const double& refractive_index_ratio) const;
 private:
   Point3 origin;
   Vector3 direction;

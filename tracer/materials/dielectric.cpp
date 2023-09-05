@@ -11,6 +11,8 @@ double Reflectance(const double& cosine, const double& ref_idx){
   r0 = r0*r0;
   return r0+(1-r0)*pow((1-cosine), 5);
 }
+
+
 Color Dielectric::Ray_Color(const Ray& r, const Hit_record& rec) const {
   double eta_ratio = rec.front_face ? (1.0/eta) : eta;
 
@@ -19,12 +21,12 @@ Color Dielectric::Ray_Color(const Ray& r, const Hit_record& rec) const {
 
   if(eta_ratio*sin_theta > 1.0 or Reflectance(cos_theta, eta_ratio) > random_uniform_01()){
     // Total reflection
-    Vector3 reflected_direction = Ray::Reflect_Direction(r.Direction(), rec.front_face ? rec.normal : rec.normal);
+    Vector3 reflected_direction = r.Reflect_Direction(rec.normal);
     return Renderer::Instance()->Ray_Color(Ray(rec.position, reflected_direction), rec.hit_counts);
   }
   else{
     // Refract
-    Vector3 refracted_direction = Ray::Refract_Direction(r.Direction().Unit(), rec.normal, eta_ratio);
+    Vector3 refracted_direction = r.Refract_Direction(rec.normal, eta_ratio);
     return Renderer::Instance()->Ray_Color(Ray(rec.position, refracted_direction), rec.hit_counts);
   }      
 }
