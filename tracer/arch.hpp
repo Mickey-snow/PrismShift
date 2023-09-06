@@ -1,32 +1,79 @@
 #ifndef ARCH_H
 #define ARCH_H
 
-#include "shape.hpp"
-#include "camera.hpp"
-
-#include<sstream>
-#include<fstream>
+#include<exception>
+#include<string>
 #include<memory>
-#include<vector>
+#include<map>
 
-class Material;
-class Importer{
+#include<scene.hpp>
+#include<camera.hpp>
+#include<shape.hpp>
+#include<material.hpp>
+
+class Importer_Base{
 public:
-  Importer(std::string filename):file(filename) { Reimport(); }
+  virtual ~Importer_Base() = default;
 
-  void Reimport();
+  virtual std::shared_ptr<Scene> GetScene(void) = 0;
+  virtual std::shared_ptr<Camera> GetCamera(void) = 0;
+};
 
-  std::shared_ptr<Camera> Get_camera(){ return cam; }
-  
-  std::vector<std::shared_ptr<Visible>> Get_objects(){ return objects; }
-  std::vector<std::shared_ptr<Material>> Get_material(){ return materials; }
-    
+namespace Json{ class Value; }
+class jsonImporter : public Importer_Base{
+public:
+  jsonImporter(std::string);
+
+  std::shared_ptr<Scene> GetScene(void) override{ return scene; }
+  std::shared_ptr<Camera> GetCamera(void) override{ return camera; }
+
 private:
   std::string file;
-  std::shared_ptr<Camera> cam;
+
+  std::shared_ptr<Camera> camera;
+  std::shared_ptr<Scene> scene;
+  std::map<std::string,std::shared_ptr<Material>> material;
+
+  void Import();
+  void ImportMaterial(Json::Value);
+  void ImportScene(Json::Value);
+  void ImportCamera(Json::Value);
+};
+
+
+class Importer : public Importer_Base{
+public:
+  Importer(std::string filename):file(filename) { myimporter = nullptr; }
+  ~Importer(){ delete myimporter; }
+
+  void SetFile(std::string filename){
+    file = filename;
+    delete myimporter;
+    myimporter = nullptr;
+  }
   
-  std::vector<std::shared_ptr<Visible>> objects;
-  std::vector<std::shared_ptr<Material>> materials;
+  std::shared_ptr<Scene> GetScene(void) override{
+    if(!myimporter) InitImporter();
+    return myimporter->GetScene();
+  }
+
+  std::shared_ptr<Camera> GetCamera(void) override{
+    if(!myimporter) InitImporter();
+    return myimporter->GetCamera();
+  }
+  
+private:
+  std::string file;
+  Importer_Base* myimporter;
+
+  void InitImporter(){
+    if(file.rfind(".json")==file.length()-5 ||
+       file.rfind(".JSON")==file.length()-5){
+      myimporter = new jsonImporter(file);
+    }
+
+    else throw std::runtime_error("file format unrecognized: " + file);
+  }
 };
 
 #endif

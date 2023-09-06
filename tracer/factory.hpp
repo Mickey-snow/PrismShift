@@ -7,11 +7,12 @@
 #include<string>
 #include<format>
 
+#include<jsoncpp/json.h>
 
 template<typename idtype, typename productType>
 class _Factory{
 public:
-  typedef productType (*Create_Callback)(std::stringstream&);
+  typedef productType (*Create_Callback)(Json::Value);
 private:
   using CallbackMap = std::map<idtype, Create_Callback>;
   CallbackMap _callbacks;
@@ -35,7 +36,7 @@ public:
 };
 
 
-class Shape;
+class Visible;
 class ShapeFactory{
 private:
   class ShapeFactory_ins : public _Factory<std::string, std::shared_ptr<Visible>>{};

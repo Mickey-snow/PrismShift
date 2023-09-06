@@ -20,10 +20,13 @@ private:
 };
 
 namespace{
-  std::shared_ptr<Texture> CreateSolidColor(std::stringstream& ss){
-    double r,g,b; ss>>r>>g>>b;
+  std::shared_ptr<Texture> CreateSolidColor(Json::Value attribute){
+    double r = attribute["rgb"][0].asDouble();
+    double g = attribute["rgb"][1].asDouble();
+    double b = attribute["rgb"][2].asDouble();
     return std::make_shared<SolidColor>(r,g,b);
   }
+  
   constexpr std::string SolidColor_TextureID = SolidColor::name;
   const bool solidcolor_registered = TextureFactory::Instance()->Register(SolidColor_TextureID, CreateSolidColor);
 }

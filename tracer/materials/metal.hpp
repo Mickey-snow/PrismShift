@@ -25,10 +25,13 @@ protected:
 };
 
 namespace{
-  std::shared_ptr<Material> CreateMetal(std::stringstream& ss){
-    double fuzz; ss>>fuzz;
-    std::string texture_name; ss>>texture_name;
-    auto texture = (TextureFactory::Instance()->GetCreateFn(texture_name))(ss);
+  std::shared_ptr<Material> CreateMetal(Json::Value attribute){
+    double fuzz = attribute["fuzz"].asDouble();
+
+    Json::Value texture_attr = attribute["texture"];
+    std::string texture_type = texture_attr["type"].asString();
+    auto texture = (TextureFactory::Instance()->GetCreateFn(texture_type))(texture_attr["attribute"]);
+
     return std::make_shared<Metal>(texture, fuzz);
   }
   constexpr std::string Metal_MaterialID = Metal::name;

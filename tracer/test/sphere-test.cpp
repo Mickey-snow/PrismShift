@@ -14,7 +14,10 @@ TEST(sphere, registerfactory){
 
 
 TEST(sphere, instantiateUsingFactory){
-  std::stringstream ss("0 0 0 1");
+  Json::Value ss, center;
+  center[0] = 0; center[1] = 0; center[2] = 0;
+  ss["r"] = 1;
+  ss["center"] = center;
   std::shared_ptr<Shape> ball = (ShapeFactory::Instance()->GetCreateFn(sphere_shapeid))(ss);
 
   EXPECT_EQ(ball->Get_Bounding_box(), AABB(Point3(1,1,1), Point3(-1,-1,-1)));

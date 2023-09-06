@@ -24,10 +24,19 @@ protected:
 };
 
 namespace{
-  std::shared_ptr<Material> CreateLambertian(std::stringstream& ss){
-    std::string texture_name; ss>>texture_name;
-    auto texture = (TextureFactory::Instance()->GetCreateFn(texture_name))(ss);
-    return std::make_shared<Lambertian>(texture);
+  std::shared_ptr<Material> CreateLambertian(Json::Value attribute){
+    if(attribute.isMember("texture")){
+	Json::Value texture_attr = attribute["texture"];
+	std::string texture_type = texture_attr["type"].asString();
+
+	auto texture = (TextureFactory::Instance()->GetCreateFn(texture_type))(texture_attr["attribute"]);
+	return std::make_shared<Lambertian>(texture);
+    } else {
+      double r = attribute["rgb"][0].asDouble();
+      double g = attribute["rgb"][1].asDouble();
+      double b = attribute["rgb"][2].asDouble();
+      return std::make_shared<Lambertian>(Color(r,g,b));
+    }
   }
   constexpr std::string Lambertian_MaterialID = Lambertian::name;
   const bool lambertian_registered = MaterialFactory::Instance()->Register(Lambertian_MaterialID, CreateLambertian);

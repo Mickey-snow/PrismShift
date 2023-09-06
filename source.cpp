@@ -6,7 +6,6 @@
 #include<chrono>
 
 #include "tracer/core.hpp"
-
 #include<global_config.hpp>
 
 int main(int argc, char* argv[])
@@ -16,15 +15,12 @@ int main(int argc, char* argv[])
 
   _Global::Instance()->Set_config(argc, argv);
 
-  Importer ifs("test.in");
-  Renderer::Instance()->Set_global_illumin(ifs.Get_global_illumin());
-  
-  // Add objects to the scene
-  std::shared_ptr<Scene> world = std::make_shared<Scene>(ifs.Get_objects());
-  Renderer::Instance()->Set_World(world);
+  Importer ifs("test.json");
+  ifs.GetScene();
 
-  std::shared_ptr<Camera> cam = ifs.Get_camera();
-  Renderer::Instance()->Set_Camera(cam);
+  // Add objects to the scene
+  Renderer::Instance()->Set_World(ifs.GetScene());
+  Renderer::Instance()->Set_Camera(ifs.GetCamera());
   
   // Render
   auto canvas = Renderer::Instance()->Render();
@@ -32,6 +28,7 @@ int main(int argc, char* argv[])
   canvas.convertTo(output, CV_8UC3, 256);
   cv::imwrite(_Global::Instance()->output_directory.c_str(), output);
 
+  
   const auto time_end = std::chrono::high_resolution_clock::now();
   const std::chrono::duration<double> time_elapsed = time_end - time_start;
   if(_Global::Instance()->use_timer)

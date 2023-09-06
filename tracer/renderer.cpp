@@ -103,5 +103,5 @@ Color Renderer::__Renderer_facade::Ray_Color(const Ray& r, int current_recur_dep
   }
 
   // hits background
-  return material->Ray_Color(Hit_record::NoHit());
+  return Color(0,0,0);
 }

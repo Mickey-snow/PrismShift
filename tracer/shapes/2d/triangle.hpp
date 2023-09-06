@@ -47,19 +47,15 @@ protected:
 };
 
 namespace{
-  std::shared_ptr<Visible> CreateTriangle(std::stringstream& ss){
-    std::string method; ss>>method;
-    double x,y,z;
-    Point3 Q,A,B;
+  std::shared_ptr<Visible> CreateTriangle(Json::Value attribute){
+    Vector3 u,v,w;
+    auto wi=attribute["w"], ui=attribute["u"], vi=attribute["v"];
 
-    ss>>x>>y>>z; Q = Vector3(x,y,z);
-    ss>>x>>y>>z; A = Vector3(x,y,z);
-    ss>>x>>y>>z; B = Vector3(x,y,z);
+    u =Vector3(ui[0].asDouble(), ui[1].asDouble(), ui[2].asDouble());
+    v = Vector3(vi[0].asDouble(), vi[1].asDouble(), vi[2].asDouble());
+    w = Vector3(wi[0].asDouble(), wi[1].asDouble(), wi[2].asDouble());
 
-    Vector3 u,v;
-    if(method == std::string{"point"}) u=A-Q, v=B-Q;
-    else u=A,v=B;
-    return std::make_shared<Triangle>(Q,u,v);
+    return std::shared_ptr<Triangle>(Triangle::From_points(w, u, v));
   }
 
   constexpr std::string Triangle_ShapeID = Triangle::name;

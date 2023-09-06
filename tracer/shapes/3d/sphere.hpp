@@ -43,10 +43,11 @@ private:
 };
 
 namespace{
-  std::shared_ptr<Visible> CreateSphere(std::stringstream& ss){
-    double x,y,z;
-    double r;
-    ss>>x>>y>>z>>r;
+  std::shared_ptr<Visible> CreateSphere(Json::Value attribute){
+    double r = attribute["r"].asDouble();
+    double x = attribute["center"][0].asDouble();
+    double y= attribute["center"][1].asDouble();
+    double z = attribute["center"][2].asDouble();
 
     return std::make_shared<Sphere>(Vector3(x,y,z), r);
   }

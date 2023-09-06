@@ -1,56 +1,82 @@
 #include "arch.hpp"
-#include "factory.hpp"
-#include "util/util.hpp"
+#include<factory.hpp>
 
-#include<sstream>
-#include<vector>
+#include<cassert>
+#include<fstream>
+#include<iostream>
 #include<memory>
 
-std::shared_ptr<Camera> Import_cam(std::stringstream&);
-std::shared_ptr<Visible> Import_object(std::stringstream&);
-std::shared_ptr<Material> Import_material(std::stringstream&);
+#include<jsoncpp/json.h>
 
-void Importer::Reimport(){
-  cam = Import_cam(ss);
-  global_illumin = Import_material(ss);
 
-  int material_count, object_count, link_count;
-  ss>>material_count;
-  for(int i=0;i<material_count;++i)
-    materials.push_back(Import_material(ss));
+jsonImporter::jsonImporter(std::string filename) : file(filename) { Import(); }
 
-  ss>>object_count;
-  for(int i=0;i<object_count;++i)
-    objects.push_back(Import_object(ss));
 
-  ss>>link_count;
-  for(int i=0;i<link_count;++i){
-    int obj_id, mat_id; ss>>obj_id>>mat_id;
-    objects[obj_id]->Set_material(materials[mat_id]);
+Json::Value Readjson(std::string file){
+  std::ifstream ifs(file.c_str());
+  if(!ifs.is_open()) throw std::runtime_error("failed to optn file " + file);
+  Json::Value root;  ifs>>root;
+  return root;
+}
+
+
+
+void jsonImporter::Import(){
+  std::cout<<"import scene from file: "<<file<<"  ...   "<<std::flush;
+  Json::Value root = Readjson(file);
+
+  if(root.isMember("camera"))
+    ImportCamera(root["camera"]);
+  else camera = nullptr;
+
+  if(root.isMember("materials")) ImportMaterial(root["materials"]);
+
+  scene = std::make_shared<Scene>();
+  if(root.isMember("objects")) ImportScene(root["objects"]);
+
+  std::cout<<"Done."<<std::endl;
+}
+
+void jsonImporter::ImportMaterial(Json::Value material_arr){
+  assert(material_arr.isArray());
+
+  for(const auto& material : material_arr){
+    std::string name = material["name"].asString();
+    std::string type = material["type"].asString();
+    auto factoryMethod = MaterialFactory::Instance()->GetCreateFn(type);
+
+    this->material[name] = (*factoryMethod)(material["attribute"]);
   }
 }
 
-std::shared_ptr<Camera> Import_cam(std::stringstream& ss){
-  double x,y,z;
-  ss>>x>>y>>z;
-  Point3 center_position(x,y,z);
+void jsonImporter::ImportScene(Json::Value scene_arr){
+  assert(scene_arr.isArray());
+  
+  for(const auto& obj_attr : scene_arr){
+    std::string name = obj_attr["name"].asString();
+    std::string type = obj_attr["type"].asString();
+    auto factoryMethod = ShapeFactory::Instance()->GetCreateFn(type);
 
-  ss>>x>>y>>z;
-  Point3 looking_at(x,y,z);
-
-  int image_height; ss>>image_height;
-  double aspect_ratio; ss>>aspect_ratio;
-  double view_angle_vertical; ss>>view_angle_vertical;
-
-  return std::make_shared<Camera>(center_position,looking_at, image_height, aspect_ratio, view_angle_vertical);
+    std::shared_ptr<Visible> createdShape = (*factoryMethod)(obj_attr["attribute"]);
+    if(obj_attr.isMember("material"))
+      createdShape->Set_material(this->material[obj_attr["material"].asString()]);
+       
+    this->scene->Add(createdShape);
+  }
 }
 
-std::shared_ptr<Visible> Import_object(std::stringstream& ss){
-  std::string id; ss>>id;
-  return (ShapeFactory::Instance()->GetCreateFn(id))(ss);
-}
-
-std::shared_ptr<Material> Import_material(std::stringstream& ss){
-  std::string id; ss>>id;
-  return (MaterialFactory::Instance()->GetCreateFn(id))(ss);
+void jsonImporter::ImportCamera(Json::Value camval){
+  Point3 position,lookat;
+  int imageheight;
+  double aspectratio, viewangle;
+  
+  Json::Value vec = camval["position"];
+  position = Point3(vec[0].asDouble(), vec[1].asDouble(), vec[2].asDouble());
+  vec = camval["lookat"];
+  lookat = Point3(vec[0].asDouble(), vec[1].asDouble(), vec[2].asDouble());
+  imageheight = camval["image_height"].asInt();
+  aspectratio = camval["aspect_ratio"].asDouble();
+  viewangle = camval["view_angle"].asDouble();
+  
+  this->camera = std::make_shared<Camera>(position,lookat,imageheight,aspectratio,viewangle);
 }

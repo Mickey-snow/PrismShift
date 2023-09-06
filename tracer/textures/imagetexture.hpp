@@ -23,8 +23,8 @@ private:
   cv::Mat img;
 };
 namespace{
-  std::shared_ptr<Texture> CreateImageTexture(std::stringstream& ss){
-    std::string filename; ss>>filename;
+  std::shared_ptr<Texture> CreateImageTexture(Json::Value attribute){
+    std::string filename = attribute["path"].asString();
     return std::make_shared<ImageTexture>(filename);
   }
   constexpr std::string Imagetex_TextureID = ImageTexture::name;

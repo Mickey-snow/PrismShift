@@ -24,8 +24,8 @@ private:
 
 
 namespace{
-  std::shared_ptr<Material> CreateDielectric(std::stringstream& ss){
-    double eta; ss>>eta;
+  std::shared_ptr<Material> CreateDielectric(Json::Value attribute){
+    double eta = attribute["eta"].asDouble();
     return std::make_shared<Dielectric>(eta);
   }
   constexpr std::string Dielectric_MaterialID = Dielectric::name;

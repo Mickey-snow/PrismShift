@@ -22,8 +22,10 @@ private:
 };
 
 namespace{
-  std::shared_ptr<Material> CreatePointlight(std::stringstream& ss){
-    double r,g,b; ss>>r>>g>>b;
+  std::shared_ptr<Material> CreatePointlight(Json::Value attribute){
+    double r = attribute["rgb"][0].asDouble();
+    double g = attribute["rgb"][1].asDouble();
+    double b = attribute["rgb"][2].asDouble();
     return std::make_shared<Pointlight>(r,g,b);
   }
   constexpr std::string Pointlight_MaterialID = Pointlight::name;

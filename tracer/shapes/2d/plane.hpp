@@ -46,13 +46,13 @@ protected:
 };
 
 namespace{
-  std::shared_ptr<Visible> CreatePlane(std::stringstream& ss){
-    double x,y,z;
+  std::shared_ptr<Visible> CreatePlane(Json::Value attribute){
     Vector3 Q,u,v;
+    auto qi=attribute["origin"], ui=attribute["u"], vi=attribute["v"];
 
-    ss>>x>>y>>z; Q = Vector3(x,y,z);
-    ss>>x>>y>>z; u = Vector3(x,y,z);
-    ss>>x>>y>>z; v = Vector3(x,y,z);
+    Q = Vector3(qi[0].asDouble(), qi[1].asDouble(), qi[2].asDouble());
+    u =Vector3(ui[0].asDouble(), ui[1].asDouble(), ui[2].asDouble());
+    v = Vector3(vi[0].asDouble(), vi[1].asDouble(), vi[2].asDouble());
 
     return std::make_shared<Plane>(Q,u,v);
   }
