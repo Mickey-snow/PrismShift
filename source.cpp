@@ -15,8 +15,10 @@ int main(int argc, char* argv[])
 
   _Global::Instance()->Set_config(argc, argv);
 
-  Importer ifs("test.json");
-  ifs.GetScene();
+  /*Importer ifs("test.json");
+    ifs.GetScene();*/
+
+  objImporter ifs("sofa.obj");
 
   // Add objects to the scene
   Renderer::Instance()->Set_World(ifs.GetScene());

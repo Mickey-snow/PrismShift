@@ -6,9 +6,7 @@
 #include<fstream>
 #include<iostream>
 #include<memory>
-
-jsonImporter::jsonImporter(std::string filename) : file(filename) { Import(); }
-
+#include<format>
 
 Json::Value Readjson(std::string file){
   std::ifstream ifs(file.c_str());
@@ -16,12 +14,16 @@ Json::Value Readjson(std::string file){
   Json::Value root;  ifs>>root;
   return root;
 }
+jsonImporter::jsonImporter(std::string filename){
+  Json::Value root = Readjson(filename);
+  Import(root);
+}
+jsonImporter::jsonImporter(Json::Value root){ Import(root); }
 
 
 
-void jsonImporter::Import(){
-  std::cout<<"import scene from file: "<<file<<"  ...   "<<std::flush;
-  Json::Value root = Readjson(file);
+void jsonImporter::Import(Json::Value root){
+  std::cout<<"importing scene   ...   "<<std::flush;
 
   if(root.isMember("camera"))
     ImportCamera(root["camera"]);
@@ -100,4 +102,98 @@ void jsonImporter::ImportCamera(Json::Value camval){
   viewangle = camval["view_angle"].asDouble();
   
   this->camera = std::make_shared<Camera>(position,lookat,imageheight,aspectratio,viewangle);
+}
+
+
+
+objImporter::objImporter(std::string filename){
+  bool triangulate = true;
+  std::string warn,err;
+  const char* basepath = NULL;
+  bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn,&err, filename.c_str(), basepath,triangulate);
+
+  if(!warn.empty()) std::cout<<"WARN: "<<warn<<std::endl;
+  if(!err.empty()) std::cerr<<"ERR: "<<err<<std::endl;
+  if(!ret) throw std::runtime_error("Failed to load from file "+filename);
+
+  Import();
+}
+
+void objImporter::Import(){
+  jsonimp = new jsonImporter(Makejson());
+}
+
+
+Json::Value objImporter::MakeMaterial(){
+  Json::Value root,elem;
+  elem["name"] = "default";
+  elem["type"] = "lambertian";
+  elem["attribute"]["texture"]["type"] = "solidcolor";
+  auto &rgb = elem["attribute"]["texture"]["attribute"]["rgb"];
+  rgb[0] = 0.628; rgb[1] = 0.524; rgb[2] = 0.339;
+  root.append(elem);
+  elem["name"] = "light";
+  elem["type"] = "pointlight";
+  auto &rrgb = elem["attribute"]["rgb"];
+  rrgb[0] = rrgb[1] = rrgb[2] = 15;
+  root.append(elem);
+  return root;
+}
+Json::Value objImporter::MakeCamera(){
+  Json::Value root;
+  auto &pos = root["position"];
+  pos[0] = pos[1] = pos[2] = 1600;
+  pos[1] = 1200;
+  auto &lk = root["lookat"];
+  lk[0] = 0; lk[1] = lk[2] = -100;
+  lk[1] = -770;
+  root["image_height"] = 580;
+  root["aspect_ratio"] = 1.77777;
+  root["view_angle"] = 35;
+  return root;
+}
+Json::Value objImporter::MakeObject(){
+  Json::Value obj,root;
+  obj["name"] = "isphere";
+  obj["type"] = "sphere";
+  obj["material"] = "light";
+  obj["attribute"]["r"] = 800;
+  auto &cent = obj["attribute"]["center"];
+  cent[0] = 1500; cent[1] = 3000; cent[2] = 1450;
+  root.append(obj);
+
+
+  for(size_t i=0;i<shapes.size();++i){
+    size_t index_offset = 0;
+    for(size_t f=0;f<shapes[i].mesh.num_face_vertices.size(); ++f){
+      size_t fnum = shapes[i].mesh.num_face_vertices[f];
+      obj.clear();
+      obj["name"] = std::format("face {}",f);
+      obj["type"] = "triangle";
+      obj["material"] = "default";
+      auto& attr = obj["attribute"];
+    
+      for(int v=0;v<fnum;++v){
+	auto idx = shapes[i].mesh.indices[index_offset+v];
+
+	for(int k=0;k<3;++k){
+	  attr["vertex"][v][k] = attrib.vertices[3*size_t(idx.vertex_index)+k];
+	  if(idx.normal_index >= 0)
+	  attr["normal"][v][k] = attrib.normals[3*idx.normal_index+k];
+	}
+      }
+      root.append(obj);
+      index_offset += fnum;
+    }
+  }
+  
+  
+  return root;
+}
+Json::Value objImporter::Makejson(){
+  Json::Value root;
+  root["camera"] = MakeCamera();
+  root["materials"] = MakeMaterial();
+  root["objects"] = MakeObject();
+  return root;
 }
