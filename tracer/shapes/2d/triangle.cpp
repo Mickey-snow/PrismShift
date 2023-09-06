@@ -16,20 +16,25 @@ Hit_record Triangle::Ray_Hit(const Ray& r, const Interval<double>& time_interval
   auto intersection = r.At(time);
 
   Vector3 p = intersection - Q;
-  auto alpha = decomposer->Componenti(p);
-  auto beta = decomposer->Componentj(p);
+  auto alpha = planeDec->Componenti(p);
+  auto beta = planeDec->Componentj(p);
   if(!On_Object(alpha,beta)) return Hit_record::NoHit();
 
+  auto ww = normalDec->Componenti(intersection);
+  auto wu = normalDec->Componentj(intersection);
+  auto wv = normalDec->Componentk(intersection);
+  auto weightedNormal = (nw*ww+nu*wu+nv*wv) / (ww+wu+wv);
+    
   return Hit_record::MakeHitRecordWith_ORTPN(std::make_shared<Triangle>(*this),
 					     r,
 					     time,
 					     intersection,
-					     normal);
+					     weightedNormal);
 }
 
 Point2 Triangle::Map_Texture(const Hit_record& rec) const{
   Vector3 p = rec.position - Q;
-  auto alpha = decomposer->Componenti(p);
-  auto beta = decomposer->Componentj(p);
+  auto alpha = planeDec->Componenti(p);
+  auto beta = planeDec->Componentj(p);
   return Point2(alpha,beta);
 }
