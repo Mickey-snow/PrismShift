@@ -1,0 +1,17 @@
+# Ignore everything
+*
+# but not directories except build/
+!*/
+build/
+
+# but not source files
+!*.hpp
+!*.h
+!*.cc
+!*.cpp
+!*.py
+!CMakeLists.txt
+
+
+#*#*
+*~
