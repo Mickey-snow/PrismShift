@@ -10,7 +10,7 @@ std::shared_ptr<Camera> Import_cam(std::stringstream&);
 std::shared_ptr<Visible> Import_object(std::stringstream&);
 std::shared_ptr<Material> Import_material(std::stringstream&);
 
-void Importer::Import(std::stringstream& ss){
+void Importer::Reimport(){
   cam = Import_cam(ss);
   global_illumin = Import_material(ss);
 

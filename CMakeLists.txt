@@ -4,8 +4,14 @@ project(Raytracer CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# External libraries
 find_package(OpenCV REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
+
+set(JSONCPP_LIB_DIR "External/jsoncpp")
+include_directories(${JSONCPP_LIB_DIR})
+file(GLOB JSONCPP_SOURCES "${JSONCPP_LIB_DIR}/lib_json/*.cpp")
+add_library(jsoncpp STATIC ${JSONCPP_SOURCES})
 
 # Build libraries
 set(GLOBAL_INCLUDE_LIB_DIR "include")
@@ -24,6 +30,7 @@ target_include_directories(raylib PUBLIC ${TRACER_LIB_DIR})
 target_link_libraries(raylib
 			${OpenCV_LIBS}
 			global_include
+			jsoncpp
 			)
 
 
@@ -61,6 +68,7 @@ target_link_libraries(tracer_test
 	${OpenCV_LIBS}
 	raylib
 	global_include
+	jsoncpp
 	)
 
 target_include_directories(global_include_test PUBLIC ${GLOBAL_INCLUDE_LIB_DIR})
