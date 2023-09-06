@@ -11,6 +11,8 @@
 #include<shape.hpp>
 #include<material.hpp>
 
+#include<tiny_obj_loader.h>
+
 class Importer_Base{
 public:
   virtual ~Importer_Base() = default;
@@ -23,23 +25,43 @@ namespace Json{ class Value; }
 class jsonImporter : public Importer_Base{
 public:
   jsonImporter(std::string);
+  jsonImporter(Json::Value);
 
   std::shared_ptr<Scene> GetScene(void) override{ return scene; }
   std::shared_ptr<Camera> GetCamera(void) override{ return camera; }
 
 private:
-  std::string file;
-
   std::shared_ptr<Camera> camera;
   std::shared_ptr<Scene> scene;
   std::map<std::string,std::shared_ptr<Material>> material;
 
-  void Import();
+  void Import(Json::Value);
   void ImportMaterial(Json::Value);
   void ImportScene(Json::Value);
   void ImportCamera(Json::Value);
 };
 
+class objImporter: public Importer_Base{
+public:
+  objImporter(std::string);
+
+  std::shared_ptr<Scene> GetScene(void) override{ return jsonimp->GetScene(); }
+  std::shared_ptr<Camera> GetCamera(void) override{ return jsonimp->GetCamera(); }
+
+private:
+
+  tinyobj::attrib_t attrib;
+  std::vector<tinyobj::shape_t> shapes;
+  std::vector<tinyobj::material_t> materials;
+  
+  jsonImporter* jsonimp;
+
+  void Import();
+  Json::Value Makejson();
+  Json::Value MakeCamera();
+  Json::Value MakeObject();
+  Json::Value MakeMaterial();
+};
 
 class Importer : public Importer_Base{
 public:

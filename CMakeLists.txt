@@ -13,6 +13,11 @@ include_directories(${JSONCPP_LIB_DIR})
 file(GLOB_RECURSE JSONCPP_SOURCES "${JSONCPP_LIB_DIR}/*.cpp")
 add_library(jsoncpp STATIC ${JSONCPP_SOURCES})
 
+set(TINYOBJ_LIB_DIR "External/tinyobj")
+include_directories(${TINYOBJ_LIB_DIR})
+file(GLOB_RECURSE TINYOBJ_SOURCES "${TINYOBJ_LIB_DIR}/*.cc")
+add_library(tinyobj STATIC ${TINYOBJ_SOURCES})
+
 # Build libraries
 set(GLOBAL_INCLUDE_LIB_DIR "include")
 include_directories(${GLOBAL_INCLUDE_LIB_DIR})
@@ -31,6 +36,7 @@ target_link_libraries(raylib
 			${OpenCV_LIBS}
 			global_include
 			jsoncpp
+			tinyobj
 			)
 
 
@@ -41,6 +47,7 @@ target_link_libraries(main
 	${OpenCV_LIBS}
 	raylib
 	global_include
+	tinyobj
 	)
 
 
