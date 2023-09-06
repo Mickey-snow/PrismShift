@@ -1,13 +1,11 @@
 #include "arch.hpp"
 #include<factory.hpp>
 
+#include<exception>
 #include<cassert>
 #include<fstream>
 #include<iostream>
 #include<memory>
-
-#include<jsoncpp/json.h>
-
 
 jsonImporter::jsonImporter(std::string filename) : file(filename) { Import(); }
 
@@ -27,12 +25,17 @@ void jsonImporter::Import(){
 
   if(root.isMember("camera"))
     ImportCamera(root["camera"]);
-  else camera = nullptr;
+  else{
+    std::cout<<"camera not found"<<std::endl;
+    camera = nullptr;
+  }
 
   if(root.isMember("materials")) ImportMaterial(root["materials"]);
+  else std::cout<<"material not found"<<std::endl;
 
   scene = std::make_shared<Scene>();
   if(root.isMember("objects")) ImportScene(root["objects"]);
+  else std::cout<<"object not found"<<std::endl;
 
   std::cout<<"Done."<<std::endl;
 }
@@ -43,9 +46,15 @@ void jsonImporter::ImportMaterial(Json::Value material_arr){
   for(const auto& material : material_arr){
     std::string name = material["name"].asString();
     std::string type = material["type"].asString();
-    auto factoryMethod = MaterialFactory::Instance()->GetCreateFn(type);
 
-    this->material[name] = (*factoryMethod)(material["attribute"]);
+    try{
+      auto factoryMethod = MaterialFactory::Instance()->GetCreateFn(type);
+      this->material[name] = (*factoryMethod)(material["attribute"]);
+    } catch(std::runtime_error e){
+      std::cerr<<e.what()<<std::endl;
+      std::cerr<<"json::importMaterial> at instantiating "<<name<<std::endl;
+      throw e;
+    }
   }
 }
 
@@ -55,17 +64,29 @@ void jsonImporter::ImportScene(Json::Value scene_arr){
   for(const auto& obj_attr : scene_arr){
     std::string name = obj_attr["name"].asString();
     std::string type = obj_attr["type"].asString();
-    auto factoryMethod = ShapeFactory::Instance()->GetCreateFn(type);
-
-    std::shared_ptr<Visible> createdShape = (*factoryMethod)(obj_attr["attribute"]);
-    if(obj_attr.isMember("material"))
-      createdShape->Set_material(this->material[obj_attr["material"].asString()]);
+    std::shared_ptr<Visible> createdShape;
+  
+    try{
+      auto factoryMethod = ShapeFactory::Instance()->GetCreateFn(type);
+      createdShape = (*factoryMethod)(obj_attr["attribute"]);
+      if(obj_attr.isMember("material"))
+	createdShape->Set_material(this->material[obj_attr["material"].asString()]);
+      else std::cout<<"no material for object"<<name<<std::endl;
+	
+    } catch(std::runtime_error e){
+      std::cerr<<e.what()<<std::endl;
+      std::cerr<<"json::importScene> at instantiating "<<name<<std::endl;
+      throw e;
+    }
+  
        
     this->scene->Add(createdShape);
   }
 }
 
 void jsonImporter::ImportCamera(Json::Value camval){
+  Json::RequireMember(camval, "position","lookat","image_height","aspect_ratio","view_angle");
+  
   Point3 position,lookat;
   int imageheight;
   double aspectratio, viewangle;

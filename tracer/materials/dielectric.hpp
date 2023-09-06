@@ -25,6 +25,7 @@ private:
 
 namespace{
   std::shared_ptr<Material> CreateDielectric(Json::Value attribute){
+    Json::RequireMember(attribute, "eta");
     double eta = attribute["eta"].asDouble();
     return std::make_shared<Dielectric>(eta);
   }

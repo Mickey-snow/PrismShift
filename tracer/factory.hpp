@@ -7,7 +7,7 @@
 #include<string>
 #include<format>
 
-#include<jsoncpp/json.h>
+#include<jsoncpp.h>
 
 template<typename idtype, typename productType>
 class _Factory{

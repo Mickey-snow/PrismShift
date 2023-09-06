@@ -48,6 +48,7 @@ protected:
 
 namespace{
   std::shared_ptr<Visible> CreateTriangle(Json::Value attribute){
+    Json::RequireMember(attribute, "w", "u", "v");
     Vector3 u,v,w;
     auto wi=attribute["w"], ui=attribute["u"], vi=attribute["v"];
 

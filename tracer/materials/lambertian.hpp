@@ -32,6 +32,7 @@ namespace{
 	auto texture = (TextureFactory::Instance()->GetCreateFn(texture_type))(texture_attr["attribute"]);
 	return std::make_shared<Lambertian>(texture);
     } else {
+      Json::RequireMember(attribute, "rgb");
       double r = attribute["rgb"][0].asDouble();
       double g = attribute["rgb"][1].asDouble();
       double b = attribute["rgb"][2].asDouble();

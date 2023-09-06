@@ -10,7 +10,7 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 
 set(JSONCPP_LIB_DIR "External/jsoncpp")
 include_directories(${JSONCPP_LIB_DIR})
-file(GLOB JSONCPP_SOURCES "${JSONCPP_LIB_DIR}/lib_json/*.cpp")
+file(GLOB_RECURSE JSONCPP_SOURCES "${JSONCPP_LIB_DIR}/*.cpp")
 add_library(jsoncpp STATIC ${JSONCPP_SOURCES})
 
 # Build libraries

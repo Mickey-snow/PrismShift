@@ -47,6 +47,7 @@ protected:
 
 namespace{
   std::shared_ptr<Visible> CreatePlane(Json::Value attribute){
+    Json::RequireMember(attribute, "origin", "u", "v");
     Vector3 Q,u,v;
     auto qi=attribute["origin"], ui=attribute["u"], vi=attribute["v"];
 

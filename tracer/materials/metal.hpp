@@ -26,6 +26,7 @@ protected:
 
 namespace{
   std::shared_ptr<Material> CreateMetal(Json::Value attribute){
+    Json::RequireMember(attribute, "fuzz", "texture");
     double fuzz = attribute["fuzz"].asDouble();
 
     Json::Value texture_attr = attribute["texture"];

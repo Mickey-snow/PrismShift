@@ -23,6 +23,8 @@ private:
 
 namespace{
   std::shared_ptr<Material> CreatePointlight(Json::Value attribute){
+    Json::RequireMember(attribute, "rgb");
+    
     double r = attribute["rgb"][0].asDouble();
     double g = attribute["rgb"][1].asDouble();
     double b = attribute["rgb"][2].asDouble();

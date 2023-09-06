@@ -44,6 +44,7 @@ private:
 
 namespace{
   std::shared_ptr<Visible> CreateSphere(Json::Value attribute){
+    Json::RequireMember(attribute, "r", "center");
     double r = attribute["r"].asDouble();
     double x = attribute["center"][0].asDouble();
     double y= attribute["center"][1].asDouble();

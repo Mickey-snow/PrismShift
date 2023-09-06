@@ -24,6 +24,7 @@ private:
 };
 namespace{
   std::shared_ptr<Texture> CreateImageTexture(Json::Value attribute){
+    Json::RequireMember(attribute, "path");
     std::string filename = attribute["path"].asString();
     return std::make_shared<ImageTexture>(filename);
   }
