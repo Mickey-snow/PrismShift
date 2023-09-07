@@ -63,13 +63,25 @@ int main(int argc, char* argv[])
   Add_Arguments();
   Parse_Arguments(argc,argv);
   Set_Config();
+
+  std::shared_ptr<Scene> world = std::make_shared<Scene>();
+  std::shared_ptr<Camera> camera;
+
+  for(const auto& input_source : input_files){
+    Importer ifs(input_source);
+    
+    world->Add(ifs.GetScene());
+    if(ifs.GetCamera() != nullptr) camera = ifs.GetCamera();
+  }
+
+  if(camera == nullptr){
+    std::cerr << "No camera provided" << std::endl;
+    std::exit(1);
+  }
   
-
-  Importer ifs(input_files[0]); 
-
   // Add objects to the scene
-  Renderer::Instance()->Set_World(ifs.GetScene());
-  Renderer::Instance()->Set_Camera(ifs.GetCamera());
+  Renderer::Instance()->Set_World(world);
+  Renderer::Instance()->Set_Camera(camera);
   
   // Render
   auto canvas = Renderer::Instance()->Render();

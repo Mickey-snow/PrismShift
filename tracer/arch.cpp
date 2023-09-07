@@ -28,16 +28,16 @@ void jsonImporter::Import(Json::Value root){
   if(root.isMember("camera"))
     ImportCamera(root["camera"]);
   else{
-    std::cout<<"camera not found"<<std::endl;
+    std::cout<<"camera not found  "<<std::flush;
     camera = nullptr;
   }
 
   if(root.isMember("materials")) ImportMaterial(root["materials"]);
-  else std::cout<<"material not found"<<std::endl;
+  else std::cout<<"material not found  "<<std::flush;
 
   scene = std::make_shared<Scene>();
   if(root.isMember("objects")) ImportScene(root["objects"]);
-  else std::cout<<"object not found"<<std::endl;
+  else std::cout<<"object not found  "<<std::flush;
 
   std::cout<<"Done."<<std::endl;
 }
