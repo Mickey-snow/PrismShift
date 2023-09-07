@@ -1,4 +1,5 @@
 #include "metal.hpp"
+#include<shape.hpp>
 
 #include<renderer.hpp>
 #include<util/util.hpp>

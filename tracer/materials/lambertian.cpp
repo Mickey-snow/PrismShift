@@ -2,6 +2,7 @@
 
 #include<util/util.hpp>
 #include<renderer.hpp>
+#include<shape.hpp>
 
 Color Lambertian::Ray_Color(const Hit_record& rec) const {
   Vector3 scattered_direction = rec.ray.Scatter_Direction(rec.normal);
