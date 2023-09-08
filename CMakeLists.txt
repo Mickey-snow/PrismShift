@@ -21,9 +21,8 @@ file(GLOB_RECURSE TINYOBJ_SOURCES "${TINYOBJ_LIB_DIR}/*.cc")
 add_library(tinyobj STATIC ${TINYOBJ_SOURCES})
 
 # Build libraries
-set(TRACER_LIB_DIR "tracer")
+set(TRACER_LIB_DIR "src/tracer")
 file(GLOB_RECURSE RAYTRACER_LIB_SOURCE "${TRACER_LIB_DIR}/*.cpp")
-list(FILTER RAYTRACER_LIB_SOURCE EXCLUDE REGEX "${TRACER_LIB_DIR}/test/*")
 add_library(raylib STATIC
 			${RAYTRACER_LIB_SOURCE}
 			)
@@ -37,7 +36,7 @@ target_link_libraries(raylib
 
 
 # Build main
-add_executable(main source.cpp)
+add_executable(main src/source.cpp)
 target_link_libraries(main
 	${OpenCV_LIBS}
 	raylib
@@ -48,9 +47,9 @@ target_link_libraries(main
 #Build tests
 enable_testing()
 
-set(TRACER_TEST_DIR "${TRACER_LIB_DIR}/test/")
-file(GLOB_RECURSE TRACER_TEST_SOURCE "${TRACER_TEST_DIR}/*.cpp")
-add_executable(tracer_test ${TRACER_TEST_SOURCE})
+set(TEST_DIR "test/")
+file(GLOB_RECURSE TEST_SOURCE "${TEST_DIR}/*.cpp")
+add_executable(unit_test ${TEST_SOURCE})
 
 include(FetchContent)
 FetchContent_Declare(
@@ -59,8 +58,8 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(googletest)
 
-target_include_directories(tracer_test PUBLIC ${TRACER_LIB_DIR})
-target_link_libraries(tracer_test
+target_include_directories(unit_test PUBLIC ${TRACER_LIB_DIR})
+target_link_libraries(unit_test
 	GTest::gtest_main
 	${OpenCV_LIBS}
 	raylib
@@ -70,7 +69,7 @@ target_link_libraries(tracer_test
 
 include(GoogleTest)
 
-gtest_discover_tests(tracer_test)
+gtest_discover_tests(unit_test)
 
 add_test(test_all
-	tracer_test)
+	unit_test)

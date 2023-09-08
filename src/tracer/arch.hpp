@@ -31,12 +31,14 @@ public:
   std::shared_ptr<Camera> GetCamera(void) override{ return camera; }
 
 private:
+  std::shared_ptr<Camera> camera;
   std::shared_ptr<Scene> scene;
   std::map<std::string,std::shared_ptr<Material>> material;
 
   void Import(Json::Value);
   void ImportMaterial(Json::Value);
   void ImportScene(Json::Value);
+  void ImportCamera(Json::Value);
 };
 
 class objImporter: public Importer_Base{
