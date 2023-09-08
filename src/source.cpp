@@ -25,14 +25,14 @@ void Add_Arguments(){
     .default_value(true)
     .implicit_value(false);
   parser.add_argument("-spp", "--samples-per-pixel")
-    .default_value(30);
+    .default_value(30).scan<'i',int>();
   parser.add_argument("-mrd", "--max-recurrent-depth")
-    .default_value(50);
+    .default_value(50).scan<'i',int>();
   parser.add_argument("-nt", "--no-timer")
     .default_value(true)
     .implicit_value(false);
   parser.add_argument("-j", "--threads")
-    .default_value(16);
+    .default_value(16).scan<'i',int>();
 }
 
 void Parse_Arguments(int argc, char** argv){
