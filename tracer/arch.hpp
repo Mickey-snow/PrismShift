@@ -31,14 +31,12 @@ public:
   std::shared_ptr<Camera> GetCamera(void) override{ return camera; }
 
 private:
-  std::shared_ptr<Camera> camera;
   std::shared_ptr<Scene> scene;
   std::map<std::string,std::shared_ptr<Material>> material;
 
   void Import(Json::Value);
   void ImportMaterial(Json::Value);
   void ImportScene(Json::Value);
-  void ImportCamera(Json::Value);
 };
 
 class objImporter: public Importer_Base{
@@ -58,7 +56,6 @@ private:
 
   void Import();
   Json::Value Makejson();
-  Json::Value MakeCamera();
   Json::Value MakeObject();
   Json::Value MakeMaterial();
 };
@@ -93,6 +90,8 @@ private:
        file.rfind(".JSON")==file.length()-5){
       myimporter = new jsonImporter(file);
     }
+    else if(file.rfind(".obj")==file.length()-4)
+      myimporter = new objImporter(file);
 
     else throw std::runtime_error("file format unrecognized: " + file);
   }

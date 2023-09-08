@@ -126,43 +126,12 @@ void objImporter::Import(){
 
 Json::Value objImporter::MakeMaterial(){
   Json::Value root,elem;
-  elem["name"] = "default";
-  elem["type"] = "lambertian";
-  elem["attribute"]["texture"]["type"] = "solidcolor";
-  auto &rgb = elem["attribute"]["texture"]["attribute"]["rgb"];
-  rgb[0] = 0.628; rgb[1] = 0.524; rgb[2] = 0.339;
-  root.append(elem);
-  elem["name"] = "light";
-  elem["type"] = "pointlight";
-  auto &rrgb = elem["attribute"]["rgb"];
-  rrgb[0] = rrgb[1] = rrgb[2] = 15;
-  root.append(elem);
-  return root;
-}
-Json::Value objImporter::MakeCamera(){
-  Json::Value root;
-  auto &pos = root["position"];
-  pos[0] = pos[1] = pos[2] = 1600;
-  pos[1] = 1200;
-  auto &lk = root["lookat"];
-  lk[0] = 0; lk[1] = lk[2] = -100;
-  lk[1] = -770;
-  root["image_height"] = 580;
-  root["aspect_ratio"] = 1.77777;
-  root["view_angle"] = 35;
+
   return root;
 }
 Json::Value objImporter::MakeObject(){
   Json::Value obj,root;
-  obj["name"] = "isphere";
-  obj["type"] = "sphere";
-  obj["material"] = "light";
-  obj["attribute"]["r"] = 800;
-  auto &cent = obj["attribute"]["center"];
-  cent[0] = 1500; cent[1] = 3000; cent[2] = 1450;
-  root.append(obj);
-
-
+  
   for(size_t i=0;i<shapes.size();++i){
     size_t index_offset = 0;
     for(size_t f=0;f<shapes[i].mesh.num_face_vertices.size(); ++f){
@@ -192,7 +161,6 @@ Json::Value objImporter::MakeObject(){
 }
 Json::Value objImporter::Makejson(){
   Json::Value root;
-  root["camera"] = MakeCamera();
   root["materials"] = MakeMaterial();
   root["objects"] = MakeObject();
   return root;
