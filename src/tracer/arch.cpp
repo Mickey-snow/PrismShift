@@ -124,9 +124,29 @@ void objImporter::Import(){
 }
 
 
-Json::Value objImporter::MakeMaterial(){
-  Json::Value root,elem;
 
+Json::Value objImporter::MakeMaterial(){
+  Json::Value root;
+
+  for(size_t i=0;i<materials.size();++i){
+    auto nowMat = materials[i];
+    Json::Value mat;
+    
+    mat["name"] = nowMat.name;
+    mat["type"] = "phong";
+    
+    auto& attri = mat["attribute"];
+    for(int k=0;k<3;++k){
+      attri["ambient"][k] = nowMat.ambient[k];
+      attri["diffuse"][k] = nowMat.diffuse[k];
+      attri["specular"][k] = nowMat.specular[k];
+      attri["emission"][k] = nowMat.emission[k];
+    }
+    attri["shininess"] = nowMat.shininess;
+
+    root.append(mat);
+  }
+  
   return root;
 }
 Json::Value objImporter::MakeObject(){
@@ -134,12 +154,17 @@ Json::Value objImporter::MakeObject(){
   
   for(size_t i=0;i<shapes.size();++i){
     size_t index_offset = 0;
+    const std::string obj_name = shapes[i].name;
+      
     for(size_t f=0;f<shapes[i].mesh.num_face_vertices.size(); ++f){
       size_t fnum = shapes[i].mesh.num_face_vertices[f];
       obj.clear();
-      obj["name"] = std::format("face {}",f);
+      obj["name"] = std::format("mesh{}.face{}",obj_name,f);
       obj["type"] = "triangle";
-      obj["material"] = "default";
+
+      const size_t material_id = shapes[i].mesh.material_ids[f];
+      const std::string material_name = materials[material_id].name;
+      obj["material"] = material_name;
       auto& attr = obj["attribute"];
     
       for(int v=0;v<fnum;++v){
