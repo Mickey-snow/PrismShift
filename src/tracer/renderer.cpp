@@ -24,7 +24,7 @@ std::vector<Point3> Rand_Pixel_Samples(const Camera::View_Info& view, const int&
 }
 
 void _update_preview_window(Mat canvas);
-void _render_sub_process(Mat canvas, Interval<int> row, Interval<int> col, const Camera::View_Info& view, const Vector3& cam_position, const int& samples_per_pixel);
+void _render_sub_process(const Renderer&, Mat, Interval<int> row, Interval<int> col, const Camera::View_Info&, const Vector3& cam_position, const int& samples_per_pixel);
 
 int _finished_render_sub_process_count,_total_render_sub_process_count;
 bool _show_preview_window;
@@ -34,7 +34,7 @@ void Write_Color(Mat& canvas, const int& i,const int &j, Color pixel_color){
   canvas.at<cv::Vec3d>(i,j)[1] = pixel_color.y();
   canvas.at<cv::Vec3d>(i,j)[2] = pixel_color.x();
 }
-Mat Renderer::__Renderer_facade::Render(){
+Mat Renderer::Render(){
   world->Build_BVH();
   
   _show_preview_window = show_preview_window;
@@ -54,7 +54,7 @@ Mat Renderer::__Renderer_facade::Render(){
   for(int j=0;j<cam->image_height;j+=_pixel_block_size)
     for(int i=0;i<cam->image_width;i+=_pixel_block_size){
       while(futures.size() >= _max_subprocess_count){ futures.front().wait(); futures.pop(); }
-      futures.push(std::async(_render_sub_process, canvas, Interval{j,std::min(j+_pixel_block_size,cam->image_height)}, Interval{i,std::min(i+_pixel_block_size,cam->image_width)}, view, cam->Position(), samples_per_pixel));
+      futures.push(std::async(_render_sub_process, *this, canvas, Interval{j,std::min(j+_pixel_block_size,cam->image_height)}, Interval{i,std::min(i+_pixel_block_size,cam->image_width)}, view, cam->Position(), samples_per_pixel));
     }
   
   while(!futures.empty()){ futures.front().wait(); futures.pop(); }
@@ -63,7 +63,7 @@ Mat Renderer::__Renderer_facade::Render(){
   return canvas;
 }
 
-void _render_sub_process(Mat canvas, Interval<int> row, Interval<int> col, const Camera::View_Info& view, const Vector3& cam_position, const int& samples_per_pixel){
+void _render_sub_process(const Renderer& renderer, Mat canvas, Interval<int> row, Interval<int> col, const Camera::View_Info& view, const Vector3& cam_position, const int& samples_per_pixel){
   for(int j=row.begin;j<row.end;++j){
     for(int i=col.begin;i<col.end;++i){
       Color pixel_color = Color(0,0,0);
@@ -71,7 +71,7 @@ void _render_sub_process(Mat canvas, Interval<int> row, Interval<int> col, const
       for(const auto& sample : Rand_Pixel_Samples(view, j, i, samples_per_pixel)){
 	auto ray_direction = sample - cam_position;
 	Ray r(cam_position, ray_direction);
-	pixel_color += Renderer::Instance()->Ray_Color(r,0) / samples_per_pixel;
+	pixel_color += renderer.Ray_Color(r,0) / samples_per_pixel;
       }
 
       Write_Color(canvas, j,i, pixel_color);
@@ -91,7 +91,7 @@ void _update_preview_window(Mat canvas){
 }
 
 
-Color Renderer::__Renderer_facade::Ray_Color(const Ray& r, int current_recur_depth) const{
+Color Renderer::Ray_Color(const Ray& r, int current_recur_depth) const{
   if(current_recur_depth > max_recurrent_depth) return Color(0,0,0);
   
   Hit_record rec = world->Ray_Hit(r, Interval<double>::Positive());

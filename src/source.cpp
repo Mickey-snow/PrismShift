@@ -12,6 +12,7 @@ argparse::ArgumentParser parser;
 std::string output_file;
 std::vector<std::string> input_files;
 bool use_timer;
+Renderer renderer;
 
 void Add_Arguments(){
   parser.add_argument("-i", "--input-files")
@@ -44,10 +45,10 @@ void Parse_Arguments(int argc, char** argv){
 }
 
 void Set_Config(){
-  Renderer::Instance()->Set_Samples_per_pixel(parser.get<int>("-spp"));
-  Renderer::Instance()->Set_Max_recurrent_depth(parser.get<int>("-mrd"));
-  Renderer::Instance()->Set_Preview_switch(parser.get<bool>("-nw"));
-  Renderer::Instance()->Set_Threads(parser.get<int>("-j"));
+  renderer.Set_Samples_per_pixel(parser.get<int>("-spp"));
+  renderer.Set_Max_recurrent_depth(parser.get<int>("-mrd"));
+  renderer.Set_Preview_switch(parser.get<bool>("-nw"));
+  renderer.Set_Threads(parser.get<int>("-j"));
 
   output_file = parser.get<decltype(output_file)>("output_file");
   input_files = parser.get<decltype(input_files)>("-i");
@@ -80,11 +81,11 @@ int main(int argc, char* argv[])
   }
   
   // Add objects to the scene
-  Renderer::Instance()->Set_World(world);
-  Renderer::Instance()->Set_Camera(camera);
+  renderer.Set_World(world);
+  renderer.Set_Camera(camera);
   
   // Render
-  auto canvas = Renderer::Instance()->Render();
+  auto canvas = renderer.Render();
   Mat output;
   canvas.convertTo(output, CV_8UC3, 256);
   cv::imwrite(output_file.c_str(), output);

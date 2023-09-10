@@ -7,12 +7,10 @@
 class Camera;
 class Scene;
 class Renderer{
-private:
-  class __Renderer_facade{
   public:
-    __Renderer_facade(){}
-    ~__Renderer_facade() = default;
-
+  Renderer() = default;
+  ~Renderer() = default;
+  
     void Set_Camera(std::shared_ptr<Camera> cam_){ cam=cam_; }
     void Set_World(std::shared_ptr<Scene> world_){ world=world_; }
 
@@ -32,16 +30,6 @@ private:
     int max_recurrent_depth;
     int max_threads;
     bool show_preview_window;
-  };
-
-public:
-  Renderer() = delete;
-  Renderer(const Renderer&) = delete;
-
-  static __Renderer_facade* Instance(void){
-    static __Renderer_facade __control_panel_singleton;
-    return &__control_panel_singleton;
-  }
 };
 
 #endif
