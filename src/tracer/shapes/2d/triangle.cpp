@@ -4,10 +4,6 @@
 
 #include<cmath>
 
-Color Triangle::Ray_Color(const Hit_record &rec) const{
-  if(material == nullptr) return Color(1,0,0);
-  else return material->Ray_Color(rec);
-}
 
 Hit_record Triangle::Ray_Hit(const Ray& r, const Interval<double>& time_interval) const{
   double time = r.intersectionTimeWithPlane(Q,u,v);

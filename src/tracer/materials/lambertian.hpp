@@ -9,6 +9,7 @@
 
 #include<string>
 #include<sstream>
+#include<memory>
 
 class Lambertian : public Material{
 public:
@@ -17,7 +18,7 @@ public:
   Lambertian(const Color& col){ texture = std::make_shared<SolidColor>(col); }
   Lambertian(std::shared_ptr<Texture> tex) : texture(tex) {}
 
-  virtual Color Ray_Color(const Hit_record& rec) const override;
+  virtual std::shared_ptr<MockedBSDF> CalculateBSDF(const Hit_record&) override;
   
 protected:
   std::shared_ptr<Texture> texture;

@@ -8,13 +8,6 @@
 #include<memory>
 
 
-Color Sphere::Ray_Color(const Hit_record& rec) const{
-  if(material == nullptr){
-    return Color(1,0,0);
-  } else return material->Ray_Color(rec); 
-}
-
-
 Hit_record Sphere::Ray_Hit(const Ray& r, const Interval<double>& time) const{
   Vector3 oc = r.Origin() - center;
   auto a = r.Direction().Length_squared();

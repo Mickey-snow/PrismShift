@@ -95,11 +95,11 @@ Color Renderer::__Renderer_facade::Ray_Color(const Ray& r, int current_recur_dep
   if(current_recur_depth > max_recurrent_depth) return Color(0,0,0);
   
   Hit_record rec = world->Ray_Hit(r, Interval<double>::Positive());
-  if(rec.hits){ 		// hits visible object
-    rec.hit_counts = current_recur_depth + 1;
-    return rec.hitted_obj->Ray_Color(rec);
-  }
+  if(!rec.hits) return Color(0,0,0); // background
+  auto bsdf = rec.hitted_obj->Get_Material()->CalculateBSDF(rec);
 
-  // hits background
-  return Color(0,0,0);
+  Color col = bsdf->Emission();
+  if(bsdf->doScatter()) col += bsdf->f() * Ray_Color(Ray(rec.position,bsdf->ScatterDirection()),
+					 current_recur_depth+1);
+  return col;
 }

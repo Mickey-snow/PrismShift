@@ -3,11 +3,6 @@
 #include<util/util.hpp>
 #include<utility>
 
-Color Parallelogram::Ray_Color(const Hit_record &rec) const{
-  if(material == nullptr) return Color(0,1,0);
-  else return material->Ray_Color(rec);
-}
-
 Hit_record Parallelogram::Ray_Hit(const Ray& r, const Interval<double>& time_interval) const{
   double time = r.intersectionTimeWithPlane(Q,u,v);
 

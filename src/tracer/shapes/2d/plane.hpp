@@ -20,11 +20,10 @@ public:
 
   Plane(Point3 _Q, Vector3 _u, Vector3 _v) : Q(_Q),v(_v),u(_u){ Init(); }
 
-  void Set_material(std::shared_ptr<Material> mat) override{ material = mat; }
-
+  void Set_Material(std::shared_ptr<Material> mat) override{ material = mat; }
+  std::shared_ptr<Material> Get_Material(void) override{ return material; }
+  
   AABB Get_Bounding_box(void) const override{ return bbox; }
-
-  virtual Color Ray_Color(const Hit_record& rec) const override;
 
   virtual Hit_record Ray_Hit(const Ray& r, const Interval<double>& time) const override;
 

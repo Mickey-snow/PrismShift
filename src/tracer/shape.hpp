@@ -27,11 +27,9 @@ class Visible : public Shape{
 public:
   virtual ~Visible() = default;
 
-  virtual void Set_material(std::shared_ptr<Material>) = 0;
-
-  // Return the color of the Ray r that hits an object
-  virtual Color Ray_Color(const Hit_record& rec) const = 0;
-
+  virtual void Set_Material(std::shared_ptr<Material>) = 0;
+  virtual std::shared_ptr<Material> Get_Material(void) = 0;
+  
   virtual Point2 Map_Texture(const Hit_record&) const = 0;
 };
 

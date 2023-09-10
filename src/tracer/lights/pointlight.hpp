@@ -15,7 +15,7 @@ public:
   Pointlight(double r,double g,double b) : Pointlight(Color(r,g,b)) {}
   Pointlight(const Color& col) : color(col) {}
 
-  virtual Color Ray_Color(const Hit_record&) const override;
+  virtual std::shared_ptr<MockedBSDF> CalculateBSDF(const Hit_record&) override;
   
 private:
   Color color;

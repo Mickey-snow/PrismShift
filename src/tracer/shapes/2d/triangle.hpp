@@ -30,13 +30,12 @@ public:
     return new Triangle(p,norm);
   }
 
-  virtual Color Ray_Color(const Hit_record& rec) const override;
   virtual Hit_record Ray_Hit(const Ray&, const Interval<double>&) const override;
   Point2 Map_Texture(const Hit_record&) const override;
 
   AABB Get_Bounding_box(void) const override{ return bbox; }
-  void Set_material(std::shared_ptr<Material> mat) override{ material = mat; }
-
+  void Set_Material(std::shared_ptr<Material> mat) override{ material = mat; }
+  std::shared_ptr<Material> Get_Material(void) override{ return material; }
 protected:
   AABB bbox;
   Point3 Q;

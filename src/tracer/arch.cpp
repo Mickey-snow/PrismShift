@@ -72,7 +72,7 @@ void jsonImporter::ImportScene(Json::Value scene_arr){
       auto factoryMethod = ShapeFactory::Instance()->GetCreateFn(type);
       createdShape = (*factoryMethod)(obj_attr["attribute"]);
       if(obj_attr.isMember("material"))
-	createdShape->Set_material(this->material[obj_attr["material"].asString()]);
+	createdShape->Set_Material(this->material[obj_attr["material"].asString()]);
       else std::cout<<"no material for object"<<name<<std::endl;
 	
     } catch(std::runtime_error e){

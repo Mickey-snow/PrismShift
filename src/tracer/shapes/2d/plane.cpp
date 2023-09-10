@@ -6,11 +6,6 @@
 #include<utility>
 #include<cmath>
 
-Color Plane::Ray_Color(const Hit_record& rec) const{
-  if(material == nullptr) return Color(1,0,0);
-  else return material->Ray_Color(rec);
-}
-
 Hit_record Plane::Ray_Hit(const Ray& r, const Interval<double>& time_interval) const{
   double time = r.intersectionTimeWithPlane(Q,u,v);
   if(std::isnan(time)) return Hit_record::NoHit();
