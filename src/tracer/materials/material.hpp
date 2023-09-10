@@ -2,9 +2,6 @@
 #define MATERIALS_MATERIAL_H
 
 
-#include "metal.hpp"
 #include "lambertian.hpp"
-#include "dielectric.hpp"
-#include "phong.hpp"
 
 #endif
