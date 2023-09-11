@@ -82,9 +82,10 @@ Vector3 Vector3::Random(const double& min,const double& max){
   return Vector3(random_double(min,max), random_double(min,max), random_double(min,max));
 }
 Vector3 Vector3::Random_Unit(){
-  Vector3 rand_v;
-  do{
-    rand_v = Vector3::Random(-1000,1000);
-  }while(rand_v.Near_Zero());
-  return Vector3::Unit_vector(rand_v);
+  double x,y,z,pi=std::numbers::pi;
+  auto r1 = random_uniform_01(), r2 = random_uniform_01();
+  x = cos(2*pi*r1)*2*std::sqrt(r2*(1-r2));
+  y = sin(2*pi*r1)*2*std::sqrt(r2*(1-r2));
+  z = 1 - 2*r2;
+  return Vector3(x,y,z);
 }

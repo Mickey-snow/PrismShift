@@ -18,7 +18,8 @@ public:
   Lambertian(const Color& col){ texture = std::make_shared<SolidColor>(col); }
   Lambertian(std::shared_ptr<Texture> tex) : texture(tex) {}
 
-  virtual std::shared_ptr<MockedBSDF> CalculateBSDF(const Hit_record&) override;
+  virtual std::vector<std::shared_ptr<BxDF>> CalculateBSDF(const Hit_record&) override;
+  virtual Color Emission(const Hit_record&) override{ return Color(0,0,0); }
   
 protected:
   std::shared_ptr<Texture> texture;
