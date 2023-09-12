@@ -103,7 +103,7 @@ Color Renderer::Ray_Color(const Ray& r, int current_recur_depth) const{
   BSDF bsdf(rec.hitted_obj->Get_Material()->CalculateBSDF(rec));
   if(bsdf.bxdf_count >= 1){
     auto in_direction = r.Direction().Unit();
-    auto [f,out_direction,pdf] = bsdf.Sample_f(in_direction);
+    auto [f,out_direction,pdf,flag] = bsdf.Sample_f(in_direction);
     double scatter_pdf = bsdf.pdf(in_direction, out_direction);
     col += f*scatter_pdf*Ray_Color(Ray(rec.position,out_direction),
 		     current_recur_depth + 1) / pdf;

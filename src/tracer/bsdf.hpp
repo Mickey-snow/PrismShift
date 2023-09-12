@@ -10,13 +10,19 @@ public:
     Reflection = 1<<0,
     Transmission = 1<<1,
     Diffuse = 1<<2,
-    Glossy, Specular
+    Glossy = 1<<3,
+    Specular = 1<<4,
+    ALL = Reflection|Transmission|Diffuse|Glossy|Specular
   };
 
   BxDFType(unsigned int _flag) : flag(_flag) {}
 
-  bool operator == (const BxDFType& cp) const{ return (flag&cp.flag)!=0; }
-  bool operator == (const unsigned int& cp) const{ return (flag&cp) != 0; }
+  BxDFType operator & (const BxDFType& cp) const{ return BxDFType(flag&cp.flag); }
+  BxDFType operator & (const unsigned int& cp) const{ return BxDFType(flag&cp); }
+  bool operator == (const BxDFType& cp) const { return flag == cp.flag; }
+  bool operator == (const unsigned int& cp) const { return flag == cp; }
+  bool operator != (const BxDFType& cp) const { return !(*this == cp); }
+  bool operator != (const unsigned int& cp) const { return !(*this == cp); }
 private:
   unsigned int flag;
 };
@@ -29,8 +35,8 @@ public:
   virtual std::tuple<Color,Vector3,double> Sample_f(const Vector3& rin)const = 0;
   virtual double pdf(const Vector3& in_direction, const Vector3& out_direction)const = 0;
 
-  bool MatchesFlag(unsigned int flag){ return this->flag == flag; }
-  bool MatchesFlag(const BxDFType& flag){ return this->flag == flag; }
+  bool MatchesFlag(unsigned int flag){ return (this->flag&flag)!=0; }
+  bool MatchesFlag(const BxDFType& flag){ return (this->flag&flag)!=0; }
   BxDFType GetFlags(void){ return this->flag; }
 private:
   BxDFType flag;
@@ -55,9 +61,9 @@ public:
     return true;
   }
 
-  virtual Color f(const Vector3&, const Vector3&) const;
-  virtual std::tuple<Color,Vector3,double> Sample_f(const Vector3&) const;
-  virtual double pdf(const Vector3&, const Vector3&) const;
+  virtual Color f(const Vector3&, const Vector3&,const BxDFType& flag=BxDFType::ALL) const;
+  virtual std::tuple<Color,Vector3,double,BxDFType> Sample_f(const Vector3&) const;
+  virtual double pdf(const Vector3&, const Vector3&,const BxDFType& flag=BxDFType::ALL) const;
 };
 
 

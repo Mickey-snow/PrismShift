@@ -31,25 +31,26 @@ double CosBxDF::pdf(const Vector3& in_direction, const Vector3& out_direction) c
 
 
 
-Color BSDF::f(const Vector3& rin, const Vector3& rout) const{
+Color BSDF::f(const Vector3& rin, const Vector3& rout, const BxDFType& flag) const{
   Color col(1,1,1);
-  std::for_each(bxdfs,bxdfs+bxdf_count,
-		[&col,&rin,&rout](const std::shared_ptr<BxDF>& bxdf){
-		  col *= bxdf->f(rin,rout); });
+  for(int i=0;i<bxdf_count;++i)
+    if(bxdfs[i]->MatchesFlag(flag))
+      col *= bxdfs[i]->f(rin,rout);
   return col;
 }
 
-std::tuple<Color, Vector3, double> BSDF::Sample_f(const Vector3& rin) const{
+std::tuple<Color, Vector3, double, BxDFType> BSDF::Sample_f(const Vector3& rin) const{
   int chosen_bxdf_id = random_uniform_01() * bxdf_count;
   BxDFType chosen_flags = bxdfs[chosen_bxdf_id]->GetFlags();
 
-  return bxdfs[chosen_bxdf_id]->Sample_f(rin);
+  return std::tuple_cat(bxdfs[chosen_bxdf_id]->Sample_f(rin),
+			std::make_tuple(bxdfs[chosen_bxdf_id]->GetFlags()));
 }
 
-double BSDF::pdf(const Vector3& rin, const Vector3& rout) const{
+double BSDF::pdf(const Vector3& rin, const Vector3& rout, const BxDFType& flag) const{
   double pdf = 0;
-  std::for_each(bxdfs,bxdfs+bxdf_count,
-		[&pdf,&rin,&rout](const std::shared_ptr<BxDF>& bxdf){
-		  pdf += bxdf->pdf(rin,rout);});
+  for(int i=0;i<bxdf_count;++i)
+    if(bxdfs[i]->MatchesFlag(flag))
+      pdf += bxdfs[i]->pdf(rin,rout);
   return pdf;
 }
