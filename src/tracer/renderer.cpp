@@ -10,6 +10,8 @@
 #include<queue>
 #include<future>
 
+#include<shapes/3d/sphere.hpp>
+
 std::vector<Point3> Rand_Pixel_Samples(const Camera::View_Info& view, const int& row, const int& column, const int& total_samples){
   std::vector<Point3> samples;
   auto pixel_center = view.pixel00_loc + (column*view.pixel_delta_u) + (row*view.pixel_delta_v);
@@ -35,7 +37,41 @@ void Write_Color(Mat& canvas, const int& i,const int &j, Color pixel_color){
   canvas.at<cv::Vec3d>(i,j)[1] = pixel_color.y();
   canvas.at<cv::Vec3d>(i,j)[2] = pixel_color.x();
 }
+
+
+  // test metal bxdf ---
+  class Metal : public Material{
+  public:
+    Metal(const Color& col) : color(col) {}
+    virtual std::vector<std::shared_ptr<BxDF>> CalculateBSDF(const Hit_record& rec) override{
+      return std::vector<std::shared_ptr<BxDF>>{
+	std::make_shared<bsdf>(rec.normal,color)};
+      }
+
+  private:
+    class bsdf : public BxDF{
+    public:
+      bsdf(Vector3 norm,Color col) : BxDF(BxDFType::Reflection|BxDFType::Specular),normal(norm),color(col) {}
+      virtual Color f(const Vector3&, const Vector3&) const override{ return Color(0,0,0); }
+      virtual std::tuple<Color,Vector3,double> Sample_f(const Vector3& rin) const override{
+	const double pdf = 1.0;
+	const Vector3 out_direction = Ray(Vector3(0,0,0), rin).Reflect_Direction(normal);
+	return std::make_tuple(color, out_direction, pdf);
+      }
+      virtual double pdf(const Vector3&, const Vector3&) const override{ return 0.0; }
+    private:
+      Vector3 normal;
+      Color color;
+    };
+    
+    Color color;
+  };
+  // -----
 Mat Renderer::Render(){
+
+
+  std::shared_ptr<Material> material = std::make_shared<Metal>(Color(0.5,0.5,0.4));
+  world->Add(std::make_shared<Sphere>(Point3(7,2,7), 2.0, material));
   world->Build_BVH();
   
   _show_preview_window = show_preview_window;
@@ -104,7 +140,9 @@ Color Renderer::Ray_Color(const Ray& r, int current_recur_depth) const{
   if(bsdf.bxdf_count >= 1){
     auto in_direction = r.Direction().Unit();
     auto [f,out_direction,pdf,flag] = bsdf.Sample_f(in_direction);
+
     double scatter_pdf = bsdf.pdf(in_direction, out_direction);
+    if((flag&BxDFType::Specular) != BxDFType::None) scatter_pdf = 1;
     col += f*scatter_pdf*Ray_Color(Ray(rec.position,out_direction),
 		     current_recur_depth + 1) / pdf;
   }
