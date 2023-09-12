@@ -8,7 +8,6 @@
 #include<textures/solidcolor.hpp>
 
 #include<string>
-#include<sstream>
 #include<memory>
 
 class Lambertian : public Material{
