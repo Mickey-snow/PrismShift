@@ -10,6 +10,9 @@
 #include<queue>
 #include<future>
 
+#include<shapes/3d/sphere.hpp>
+#include<materials/dielectric.hpp>
+
 std::vector<Point3> Rand_Pixel_Samples(const Camera::View_Info& view, const int& row, const int& column, const int& total_samples){
   std::vector<Point3> samples;
   auto pixel_center = view.pixel00_loc + (column*view.pixel_delta_u) + (row*view.pixel_delta_v);
@@ -35,7 +38,12 @@ void Write_Color(Mat& canvas, const int& i,const int &j, Color pixel_color){
   canvas.at<cv::Vec3d>(i,j)[1] = pixel_color.y();
   canvas.at<cv::Vec3d>(i,j)[2] = pixel_color.x();
 }
+
+
+
 Mat Renderer::Render(){
+  std::shared_ptr<Material> material = std::make_shared<Dielectric>(1.5);
+  world->Add(std::make_shared<Sphere>(Point3(7,2,7), 2.0, material));
   world->Build_BVH();
   
   _show_preview_window = show_preview_window;
@@ -104,7 +112,9 @@ Color Renderer::Ray_Color(const Ray& r, int current_recur_depth) const{
   if(bsdf.bxdf_count >= 1){
     auto in_direction = r.Direction().Unit();
     auto [f,out_direction,pdf,flag] = bsdf.Sample_f(in_direction);
+
     double scatter_pdf = bsdf.pdf(in_direction, out_direction);
+    if((flag&BxDFType::Specular) != BxDFType::None) scatter_pdf = 1;
     col += f*scatter_pdf*Ray_Color(Ray(rec.position,out_direction),
 		     current_recur_depth + 1) / pdf;
   }

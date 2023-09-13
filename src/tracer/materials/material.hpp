@@ -3,5 +3,7 @@
 
 
 #include "lambertian.hpp"
+#include "metal.hpp"
+
 
 #endif
