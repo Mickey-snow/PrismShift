@@ -40,7 +40,7 @@ namespace develop{
     Vector3& operator += (const Vector3& rhs){ return *this = *this + rhs; }
     Vector3 operator -(const Vector3& rhs) const { return *this + (-rhs); }
     Vector3& operator -= (const Vector3& rhs){ return *this = *this + (-rhs); }
-    Vector3 operator *(const double& rhs){ return Vector3{v[0]*rhs, v[1]*rhs, v[2]*rhs}; }
+    Vector3 operator *(const double& rhs) const { return Vector3{v[0]*rhs, v[1]*rhs, v[2]*rhs}; }
     Vector3& operator *=(const double& rhs){ return *this = *this * rhs; }
     Vector3 operator /(const double& rhs) const{ return Vector3{v[0]/rhs, v[1]/rhs, v[2]/rhs}; }
     Vector3& operator /=(const double& rhs){ return *this = *this / rhs; }
@@ -74,6 +74,7 @@ namespace develop{
   inline std::ostream& operator << (std::ostream& os, const Vector3& v){
     os << std::format("({},{},{})", v[0],v[1],v[2]); return os;
   }
+  inline Vector3 operator * (const double& lhs,const Vector3& rhs){ return rhs * lhs; }
 
 
   class Point2;
@@ -133,6 +134,7 @@ namespace develop{
   inline std::ostream& operator << (std::ostream& os, const Vector2& v){
     os << std::format("({},{})", v[0],v[1]); return os;
   }
+  inline Vector2 operator * (const double& lhs,const Vector2& rhs){ return rhs * lhs; }
 
 
   class Point2{
