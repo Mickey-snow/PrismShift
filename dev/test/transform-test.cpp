@@ -1,9 +1,9 @@
 #include<gtest/gtest.h>
 #include "constant.hpp"
 
-#include<util/transform.hpp>
-#include<util/matrix.hpp>
-#include<util/random.hpp>
+#include<transform.hpp>
+#include<matrix.hpp>
+#include<random.hpp>
 
 #include<cmath>
 
