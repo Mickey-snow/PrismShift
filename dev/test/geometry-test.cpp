@@ -53,14 +53,21 @@ TEST_F(Vector2Test, init){
   EXPECT_TRUE(Vec2eq(v2,0.3,-1.2));
 }
 
-TEST(vec3, plus){
+TEST(Vector3Test, plus){
   Vector3 a(42,-12,4), b(0.4,321,8.9);
   Vector3 sum(42.4, 309, 12.9);
   EXPECT_TRUE(Vec3eq(a+b,sum));
+  std::cout<<sum<<std::endl;
 }
 
-TEST(vec3, crossproduct){
+TEST(Vector3Test, crossproduct){
   Vector3 a(1,0,0),b(0,0,1);
   Vector3 cross_product = Vector3::Cross(a,b);
   EXPECT_TRUE(Vec3eq(cross_product, 0,-1,0));
+}
+
+TEST(Vector3Test, explicitConvert){
+  Vector3 a{50,15,21}; Point3 b{32,24,31};
+  auto cross_product = Vector3::Cross(a,(Vector3)b);
+  EXPECT_TRUE(Vec3eq(cross_product, -39,-878,720));
 }
