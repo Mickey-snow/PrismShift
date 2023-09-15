@@ -2,13 +2,12 @@
 
 #include<gtest/gtest.h>
 #include "constant.hpp"
-#include "vec-comparer.hpp"
 
 constexpr int samples = 240000;
 constexpr double LEPS = 0.1;
 
 TEST(cosbxdf, pdf){
-  Vector3 normal(0,1,0);
+  Normal normal(0,1,0);
   CosBxDF bxdf(0,normal);
   
   double sum = 0;
@@ -22,7 +21,7 @@ TEST(cosbxdf, pdf){
 }
 
 TEST(cosbxdf, samplefMedian){
-  Vector3 normal = Vector3(0,1,0);
+  Normal normal(0,1,0);
   CosBxDF bxdf(0,normal);
 
   const double cos_median_val = cos(pi/4);
@@ -40,7 +39,7 @@ TEST(cosbxdf, samplefMedian){
 
 TEST(cosbxdf, samplefMean){
   const double mean_val = pi/4;
-  Vector3 normal = Vector3::Random_Unit();
+  Normal normal = (Normal)Vector3::Random_Unit();
   CosBxDF bxdf(0,normal);
 
   double sum = 0;
@@ -58,12 +57,12 @@ TEST(cosbxdf, integrateByCosDistribution){
   auto f_val = [](double alpha, double theta){
     return cos(theta) * sin(alpha);
   };
-  CosBxDF bxdf(0,Vector3(0,1,0));
+  CosBxDF bxdf(0,Normal(0,1,0));
 
   double sum = 0;
   for(int i=0;i<samples;++i){
     auto [f, w, pdf] = bxdf.Sample_f(Vector3::Random_Unit());
-    w = w.Unit();
+    w = w.Normalize();
     double alpha = atan(w.z()/w.x()), theta = acos(w.y());
     sum += f_val(alpha,theta) / pdf;
   }
@@ -93,7 +92,7 @@ TEST(bsdftest, integrateByCombinedBxdf){
   const double expect_int_f_val = 2*(exp(pi/2)-exp(-pi/2));
 
   auto bsdf = BSDF(std::vector<std::shared_ptr<BxDF>>{
-      std::make_shared<CosBxDF>(BxDFType::Diffuse|BxDFType::Reflection, Vector3(0,1,0)),
+      std::make_shared<CosBxDF>(BxDFType::Diffuse|BxDFType::Reflection, Normal(0,1,0)),
       std::make_shared<RandomDirectionBxDF>(BxDFType::Diffuse|BxDFType::Reflection)});
   double sum = 0;
   for(int i=0;i<samples;++i){
@@ -114,7 +113,7 @@ TEST(bsdftest, intergrateWithSpecialBxdf){
     Color f(const Vector3&, const Vector3&) const override{ return Color(0,0,0); }
     std::tuple<Color,Vector3,double> Sample_f(const Vector3&) const override{
       return std::make_tuple(f(dummy,dummy),
-			     Vector3(1,1,1).Unit(),
+			     Vector3(1,1,1).Normalize(),
 			     1.0);
     }
     double pdf(const Vector3&, const Vector3&) const override{ return 0.0; }
@@ -128,8 +127,8 @@ TEST(bsdftest, intergrateWithSpecialBxdf){
   const double expect_int_f_val = 26.6735636;
 
   auto bsdf = BSDF(std::vector<std::shared_ptr<BxDF>>{
-      std::make_shared<CosBxDF>(BxDFType::Diffuse|BxDFType::Reflection, Vector3(0,1,0)),
-      std::make_shared<CosBxDF>(BxDFType::Diffuse|BxDFType::Reflection, Vector3(0,1,0)),
+      std::make_shared<CosBxDF>(BxDFType::Diffuse|BxDFType::Reflection, Normal(0,1,0)),
+      std::make_shared<CosBxDF>(BxDFType::Diffuse|BxDFType::Reflection, Normal(0,1,0)),
       std::make_shared<StaticSamplerBxDF>(BxDFType::Specular|BxDFType::Reflection)});
   double sum = 0;
   for(int i=0;i<samples;++i){

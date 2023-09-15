@@ -28,7 +28,8 @@ public:
 protected:
   AABB bbox;
   Point3 Q;
-  Vector3 u,v,normal;
+  Vector3 u,v;
+  Normal normal;
 
   std::shared_ptr<Material> material;
   Decomposer3d* decomposer;
@@ -36,7 +37,7 @@ protected:
 
   void Init(void){
     bbox = AABB(Q,Q+u+v).Pad();
-    normal = Vector3::Unit_vector(Vector3::Cross(u,v));
+    normal = (Normal)(Vector3::Normalized(Vector3::Cross(u,v)));
     decomposer = new Decomposer3d(u,v,normal);
   }
 
@@ -48,10 +49,10 @@ protected:
 namespace{
   std::shared_ptr<Visible> CreateParallelogram(Json::Value attribute){
     Json::RequireMember(attribute, "origin", "u", "v");
-    Vector3 Q,u,v;
+    Point3 Q; Vector3 u,v;
     auto qi=attribute["origin"], ui=attribute["u"], vi=attribute["v"];
 
-    Q = Vector3(qi[0].asDouble(), qi[1].asDouble(), qi[2].asDouble());
+    Q = Point3(qi[0].asDouble(), qi[1].asDouble(), qi[2].asDouble());
     u = Vector3(ui[0].asDouble(), ui[1].asDouble(), ui[2].asDouble());
     v = Vector3(vi[0].asDouble(), vi[1].asDouble(), vi[2].asDouble());
 

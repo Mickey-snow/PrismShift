@@ -1,10 +1,7 @@
 #include<gtest/gtest.h>
 #include "constant.hpp"
 
-#include<transform.hpp>
-#include<matrix.hpp>
-#include<random.hpp>
-#include<geometry.hpp>
+#include<util/util.hpp>
 
 #include<cmath>
 #include<format>

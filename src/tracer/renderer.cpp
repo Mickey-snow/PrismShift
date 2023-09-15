@@ -28,7 +28,7 @@ std::vector<Point3> Rand_Pixel_Samples(const Camera::View_Info& view, const int&
 }
 
 void _update_preview_window(Mat canvas);
-void _render_sub_process(const Renderer&, Mat, Interval<int> row, Interval<int> col, const Camera::View_Info&, const Vector3& cam_position, const int& samples_per_pixel);
+void _render_sub_process(const Renderer&, Mat, Interval<int> row, Interval<int> col, const Camera::View_Info&, const Point3& cam_position, const int& samples_per_pixel);
 
 int _finished_render_sub_process_count,_total_render_sub_process_count;
 bool _show_preview_window;
@@ -72,7 +72,7 @@ Mat Renderer::Render(){
   return canvas;
 }
 
-void _render_sub_process(const Renderer& renderer, Mat canvas, Interval<int> row, Interval<int> col, const Camera::View_Info& view, const Vector3& cam_position, const int& samples_per_pixel){
+void _render_sub_process(const Renderer& renderer, Mat canvas, Interval<int> row, Interval<int> col, const Camera::View_Info& view, const Point3& cam_position, const int& samples_per_pixel){
   for(int j=row.begin;j<row.end;++j){
     for(int i=col.begin;i<col.end;++i){
       Color pixel_color = Color(0,0,0);
@@ -110,7 +110,7 @@ Color Renderer::Ray_Color(const Ray& r, int current_recur_depth) const{
   Color col = rec.hitted_obj->Get_Material()->Emission(rec);
   BSDF bsdf(rec.hitted_obj->Get_Material()->CalculateBSDF(rec));
   if(bsdf.bxdf_count >= 1){
-    auto in_direction = r.Direction().Unit();
+    auto in_direction = r.Direction().Normalize();
     auto [f,out_direction,pdf,flag] = bsdf.Sample_f(in_direction);
 
     double scatter_pdf = bsdf.pdf(in_direction, out_direction);

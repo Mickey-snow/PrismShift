@@ -6,7 +6,6 @@
 #include<memory>
 
 #include<gtest/gtest.h>
-#include "vec-comparer.hpp"
 
 TEST(parallelogram, RayHit){
   auto quad = Parallelogram(Point3(0,0,0), Vector3(1,0,0), Vector3(0,1,0));
@@ -18,7 +17,8 @@ TEST(parallelogram, RayHit){
   r = Ray(Point3(0,0,-2), Vector3(0.5,0.5,2));
   rec = quad.Ray_Hit(r, Interval<double>::Positive());
   EXPECT_TRUE(rec.hits);
-  EXPECT_TRUE(Vec3eq(rec.position, 0.5,0.5,0));
+  auto expect_pos = Point3{0.5,0.5,0};
+  EXPECT_EQ(rec.position, expect_pos);
 }
 
 TEST(parallelogram, RayHitinScene){
@@ -29,12 +29,14 @@ TEST(parallelogram, RayHitinScene){
   Ray r = Ray(Orig , Point3(0,9.9,0)-Orig);
   auto rec = world.Ray_Hit(r, Interval<double>::Positive());
   ASSERT_TRUE(rec.hits);
-  EXPECT_TRUE(Vec3eq(rec.position, 0,9.9,0));
+  auto expect_pos = Point3{0,9.9,0};
+  EXPECT_EQ(rec.position, expect_pos);
 
   r = Ray(Orig, Point3(0,0.1,0.1)-Orig);
   rec = world.Ray_Hit(r, Interval<double>::Positive());
   ASSERT_TRUE(rec.hits);
-  EXPECT_TRUE(Vec3eq(rec.position, 0,0.1,0.1));
+  expect_pos = Point3{0,0.1,0.1};
+  EXPECT_EQ(rec.position, expect_pos);
 }
 
 TEST(parallelogram, frontface){
@@ -43,14 +45,16 @@ TEST(parallelogram, frontface){
   Ray r = Ray(Point3(10,10,10), Vector3(0,-1,0));
   Hit_record rec = quad.Ray_Hit(r, Interval<double>::Positive());
   ASSERT_TRUE(rec.hits);
-  EXPECT_TRUE(Vec3eq(rec.position, 10,0,10));
-  EXPECT_TRUE(Vec3eq(rec.normal, 0,1,0));
+  auto expect_pos = Point3{10,0,10};
+  auto expect_norm = Normal{0,1,0};
+  EXPECT_EQ(rec.position, expect_pos);
+  EXPECT_EQ(rec.normal, expect_norm);
   EXPECT_FALSE(rec.front_face);
 
   r = Ray(Point3(10,-10,10), Vector3(0,1,0));
   rec = quad.Ray_Hit(r, Interval<double>::Positive());
   ASSERT_TRUE(rec.hits);
-  EXPECT_TRUE(Vec3eq(rec.normal, 0,-1,0));
+  expect_norm = Normal{0,-1,0};
+  EXPECT_EQ(rec.normal, expect_norm);
   EXPECT_TRUE(rec.front_face);
-
 }

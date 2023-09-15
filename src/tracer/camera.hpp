@@ -23,13 +23,13 @@ public:
     image_width = static_cast<int>(image_height * aspect_ratio);
   }
   
-  void Set_Position(const Vector3& position){
+  void Set_Position(const Point3& position){
     camera_center = position;
   }
   void Adjust_Position(const Vector3& translate){
     camera_center += translate;
   }
-  Vector3 Position(void) const{ return camera_center; }
+  Point3 Position(void) const{ return camera_center; }
   void Set_Looking_point(const Point3& _looking_at){ looking_at = _looking_at; }
 
   void Set_Aspect_ratio(const double& _aspect_ratio){ aspect_ratio = _aspect_ratio; }

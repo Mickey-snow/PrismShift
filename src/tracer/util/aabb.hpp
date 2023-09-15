@@ -1,9 +1,10 @@
 #ifndef AABB_H
 #define AABB_H
 
-#include<util/interval.hpp>
-#include<util/vector3.hpp>
-#include<util/ray.hpp>
+#include "geometry.hpp"
+#include "ray.hpp"
+#include "interval.hpp"
+
 
 #include<cmath>
 

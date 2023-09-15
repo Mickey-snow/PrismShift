@@ -25,7 +25,7 @@ TEST(rayaabbIntersection, hit){
   r = Ray(Point3(0,-2,0), Point3(1.999,0,0)-Point3(0,-2,0));
   EXPECT_TRUE(box.Is_Hit_in_Interval(r, Interval<double>::Positive())) << r.Origin()<<' '<<r.Direction();
 
-  r = Ray(Point3(3,-4,8), Point3(-3,4,-8));
+  r = Ray(Point3(3,-4,8), Vector3(-3,4,-8));
   EXPECT_TRUE(box.Is_Hit_in_Interval(r, Interval<double>::Positive())) << r.Origin()<<' '<<r.Direction();
 }
 
@@ -35,36 +35,36 @@ TEST(rayaabbIntersection, notHit){
   Ray r(Point3(0,-2,0), Point3(2,0,0)-Point3(0,-2,0));
   EXPECT_FALSE(box.Is_Hit_in_Interval(r, Interval<double>::Positive())) << r.Origin()<<' '<<r.Direction();
 
-  r = Ray(Point3(2,2,2), Point3(1,1,1));
+  r = Ray(Point3(2,2,2), Vector3(1,1,1));
   EXPECT_FALSE(box.Is_Hit_in_Interval(r, Interval{0.001, infinity})) << r.Origin()<<' '<<r.Direction();
 
-  r = Ray(Point3(5,5,5), Point3(-1,-1,-1));
+  r = Ray(Point3(5,5,5), Vector3(-1,-1,-1));
   EXPECT_FALSE(box.Is_Hit_in_Interval(r, Interval{0.001, 3.25})) << r.Origin()<<' '<<r.Direction();
 }
 
 TEST(rayaabbIntersection, ParallelRayHit){
   AABB box(Point3(1,1,1), Point3(-1,-1,-1));
 
-  Ray r(Point3(-3,0,0), Point3(-1,0,0));
+  Ray r(Point3(-3,0,0), Vector3(-1,0,0));
   EXPECT_TRUE(box.Is_Hit_in_Interval(r, Interval<double>{-1e10,1e10})) << r.Origin()<<' '<<r.Direction();
 
-  r = Ray(Point3(0,-3,0), Point3(0,1,0));
+  r = Ray(Point3(0,-3,0), Vector3(0,1,0));
   EXPECT_TRUE(box.Is_Hit_in_Interval(r, Interval<double>::Positive())) << r.Origin()<<' '<<r.Direction();
 
-  r = Ray(Point3(0.5,0.5,3), Point3(0,0,-0.5));
+  r = Ray(Point3(0.5,0.5,3), Vector3(0,0,-0.5));
   EXPECT_TRUE(box.Is_Hit_in_Interval(r, Interval<double>::Positive())) << r.Origin()<<' '<<r.Direction();
 }
 
 TEST(rayaabbIntersection, ParallelRayNoHit){
   AABB box(Point3(1,1,1), Point3(-1,-1,-1));
 
-  Ray r(Point3(-3,0,1.001), Point3(-1,0,0));
+  Ray r(Point3(-3,0,1.001), Vector3(-1,0,0));
   EXPECT_FALSE(box.Is_Hit_in_Interval(r, Interval<double>::Positive())) << r.Origin()<<' '<<r.Direction();
 
-  r = Ray(Point3(2,-3,1), Point3(0,1,0));
+  r = Ray(Point3(2,-3,1), Vector3(0,1,0));
   EXPECT_FALSE(box.Is_Hit_in_Interval(r, Interval<double>::Positive())) << r.Origin()<<' '<<r.Direction();
 
-  r = Ray(Point3(1.5,0.5,3), Point3(0,0,-0.5));
+  r = Ray(Point3(1.5,0.5,3), Vector3(0,0,-0.5));
   EXPECT_FALSE(box.Is_Hit_in_Interval(r, Interval<double>::Positive())) << r.Origin()<<' '<<r.Direction();
 }
 
@@ -139,7 +139,8 @@ TEST_P(ValueParameterizedBVHFixture, BatRayHitwithBF){
   Hit_record withbvh=Hit_record::NoHit(),withoutbvh=Hit_record::NoHit();
   const int samples = 65536/spheres.size();
   for(int i=0;i<samples;++i){
-    Ray r(Vector3::Random(-175,-150), Vector3::Random_Unit());
+    Ray r(Point3{random_double(-175,-150), random_double(-175,-150), random_double(-175,-150)},
+	  Vector3::Random_Unit());
     withbvh = world_with_bvh.Ray_Hit(r, Interval<double>::Positive());
     withoutbvh = world_without_bvh.Ray_Hit(r, Interval<double>::Positive());
 

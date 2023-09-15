@@ -8,7 +8,7 @@
 std::vector<std::shared_ptr<BxDF>> Dielectric::CalculateBSDF(const Hit_record& rec){
   class SpecularDielectric : public BxDF{
   public:
-    SpecularDielectric(const Vector3& norm,const double& e) : BxDF(BxDFType::Transmission|BxDFType::Specular), normal(norm),eta(e) {}
+    SpecularDielectric(const Normal& norm,const double& e) : BxDF(BxDFType::Transmission|BxDFType::Specular), normal(norm),eta(e) {}
 
     Color f(const Vector3&, const Vector3&) const override{ return Color(0,0,0); }
     double pdf(const Vector3&,const Vector3&) const override{ return 0.0; }
@@ -18,7 +18,7 @@ std::vector<std::shared_ptr<BxDF>> Dielectric::CalculateBSDF(const Hit_record& r
       return std::make_tuple(Color(1,1,1), out_direction, pdf);
     }
   private:
-    Vector3 normal;
+    Normal normal;
     double eta;
 
     double Reflectance(const double& cosine, const double& iof)const {

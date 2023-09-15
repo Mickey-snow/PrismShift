@@ -1,11 +1,10 @@
 #include<gtest/gtest.h>
-#include "vec-comparer.hpp"
 #include "constant.hpp"
 
 #include<cmath>
 
 #include<util/decomposer.hpp>
-#include<util/vector3.hpp>
+#include<util/geometry.hpp>
 #include<util/random.hpp>
 
 TEST(decomposer, generalDecompose){
@@ -18,7 +17,9 @@ TEST(decomposer, generalDecompose){
     beta = dec.Componentj(p),
     gamma = dec.Componentk(p);
 
-  EXPECT_TRUE(Vec3eq(Vector3(a,b,c), Vector3(alpha,beta,gamma)));
+  EXPECT_NEAR(a,alpha,EPS);
+  EXPECT_NEAR(b,beta,EPS);
+  EXPECT_NEAR(c,gamma,EPS);
 }
 
 TEST(decomposer, planeDecompose){
@@ -31,12 +32,17 @@ TEST(decomposer, planeDecompose){
   auto alpha = dec.Componenti(p),
     beta = dec.Componentj(p),
     gamma = dec.Componentk(p);
-  EXPECT_TRUE(Vec3eq(Vector3(alpha,beta,gamma), a,b,0));
+  EXPECT_NEAR(a,alpha,EPS);
+  EXPECT_NEAR(b,beta,EPS);
+  EXPECT_NEAR(0,gamma,EPS);
+
 
   a = random_uniform_01(); b = random_uniform_01();
   p = a*i+b*j+c*k;
   alpha = dec.Componenti(p); beta = dec.Componentj(p); gamma = dec.Componentk(p);
-  EXPECT_TRUE(Vec3eq(Vector3(alpha,beta,gamma), Vector3(a,b,c)));
+  EXPECT_NEAR(a,alpha,EPS);
+  EXPECT_NEAR(b,beta,EPS);
+  EXPECT_NEAR(c,gamma,EPS);
 }
 
 TEST(decomposer, lineDecompose){

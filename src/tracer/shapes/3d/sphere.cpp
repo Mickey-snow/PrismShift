@@ -28,7 +28,7 @@ Hit_record Sphere::Ray_Hit(const Ray& r, const Interval<double>& time) const{
 
   double t = root;
   Point3 position = r.At(t);
-  Vector3 normal = (position - center) / radius;
+  Normal normal = (Normal)((position - center) / radius);
     
   return Hit_record::MakeHitRecordWith_ORTPN(std::make_shared<Sphere>(*this),
 					     r,

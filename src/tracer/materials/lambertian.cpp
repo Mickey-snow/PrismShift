@@ -8,7 +8,7 @@
 std::vector<std::shared_ptr<BxDF>> Lambertian::CalculateBSDF(const Hit_record& rec){
   class bsdf : public CosBxDF{
   public:
-    bsdf(unsigned int type, Vector3 normal, Color color) : CosBxDF(type,normal),col(color) {}
+    bsdf(unsigned int type, Normal normal, Color color) : CosBxDF(type,normal),col(color) {}
 
     Color f(const Vector3&, const Vector3&) const override{ return col; }
   private:

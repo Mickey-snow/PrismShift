@@ -69,14 +69,14 @@ public:
 
 class CosBxDF : public BxDF{
 public:
-  CosBxDF(const BxDFType& _flag, const Vector3& norm) : BxDF(_flag), normal(norm) {}
+  CosBxDF(const BxDFType& _flag, const Normal& norm) : BxDF(_flag), normal(norm) {}
 
   virtual Color f(const Vector3&, const Vector3&) const override;
   virtual std::tuple<Color,Vector3,double> Sample_f(const Vector3& rin) const override;
   virtual double pdf(const Vector3&, const Vector3&) const override;
   
 private:
-  Vector3 normal;
+  Normal normal;
 };
 
 #endif

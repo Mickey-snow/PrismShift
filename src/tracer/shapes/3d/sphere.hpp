@@ -49,7 +49,7 @@ namespace{
     double y= attribute["center"][1].asDouble();
     double z = attribute["center"][2].asDouble();
 
-    return std::make_shared<Sphere>(Vector3(x,y,z), r);
+    return std::make_shared<Sphere>(Point3(x,y,z), r);
   }
 
   constexpr std::string Sphere_ShapeID = Sphere::name;

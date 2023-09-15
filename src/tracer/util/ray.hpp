@@ -1,7 +1,7 @@
 #ifndef RAY_H
 #define RAY_H
 
-#include "vector3.hpp"
+#include "geometry.hpp"
 
 #include<memory>
 
@@ -17,9 +17,9 @@ public:
 
   double intersectionTimeWithPlane(const Point3&,const Vector3&,const Vector3&) const;
   
-  Vector3 Scatter_Direction(const Vector3& normal) const;
-  Vector3 Reflect_Direction(const Vector3& normal) const;
-  Vector3 Refract_Direction(const Vector3& normal, const double& refractive_index_ratio) const;
+  Vector3 Scatter_Direction(const Normal& normal) const;
+  Vector3 Reflect_Direction(const Normal& normal) const;
+  Vector3 Refract_Direction(const Normal& normal, const double& refractive_index_ratio) const;
 private:
   Point3 origin;
   Vector3 direction;
@@ -34,7 +34,7 @@ public:
 					    const Ray& _Ray,
 					    const double& _Time,
 					    const Point3& _Pos,
-					    const Vector3& _out_Normal){
+					    const Normal& _out_Normal){
     return Hit_record(_hitted_Obj, _Ray, _Time, _Pos, _out_Normal);
   }
 
@@ -45,7 +45,7 @@ private:
 	     const Ray& _ray,
 	     const double& _time,
 	     const Point3& _pos,
-	     const Vector3& _out_normal) :
+	     const Normal& _out_normal) :
     hits(true),hit_counts(1),
     hitted_obj(_hitted_obj),
     position(_pos),
@@ -64,11 +64,11 @@ public:
 					    
   
   Point3 position;	        // hit position
-  Vector3 normal;		// normal vector, at the same side with ray
+  Normal normal;		// normal vector, at the same side with ray
   double time;			// time
   bool front_face;		// is this the front face of the hitted obj?
 
-  void Set_Face_Normal(const Ray& r, const Vector3& outward_normal){
+  void Set_Face_Normal(const Ray& r, const Normal& outward_normal){
     front_face = Vector3::Dot(r.Direction(), outward_normal) < 0;
     normal = front_face ? outward_normal : -outward_normal;
     ray = r;

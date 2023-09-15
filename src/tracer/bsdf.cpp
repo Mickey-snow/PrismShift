@@ -7,7 +7,7 @@ Color CosBxDF::f(const Vector3& in_direction, const Vector3& out_direction) cons
 
 std::tuple<Color,Vector3,double> CosBxDF::Sample_f(const Vector3& in_direction) const{
   Vector3 a = (fabs(normal.x()) > 0.9) ? Vector3(0,1,0) : Vector3(1,0,0);
-  Vector3 v = Vector3::Cross(normal,a).Unit();
+  Vector3 v = Vector3::Cross(normal,a).Normalize();
   Vector3 u = Vector3::Cross(normal,v);
 
   double r1 = random_uniform_01(), r2 = random_uniform_01();
@@ -16,7 +16,7 @@ std::tuple<Color,Vector3,double> CosBxDF::Sample_f(const Vector3& in_direction) 
   double y = sin(phi)*std::sqrt(r2);
   double z = std::sqrt(1-r2);
 
-  Vector3 out_direction =  x*u+y*v+z*normal;
+  Vector3 out_direction =  x*u+y*v+z*(Vector3)normal;
   return std::make_tuple(f(in_direction, out_direction),
 			 out_direction,
 			 pdf(in_direction,out_direction));
