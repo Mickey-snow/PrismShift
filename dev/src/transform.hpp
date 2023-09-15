@@ -22,6 +22,9 @@ public:
   bool operator == (const Transform& rhs) const { return m==rhs.Matrix() && minv==rhs.InvMatrix(); }
   bool operator != (const Transform& rhs) const { return !(*this == rhs); }
 
+  Transform operator * (const Transform& rhs) const { return Transform(m*rhs.m, rhs.minv*minv); }
+  Transform& operator *= (const Transform& rhs){ return *this = *this * rhs; }
+  
   bool isIdentity(void) const { return m==Matrix4::I(); }
 
   Point3 operator () (const Point3&) const;
@@ -30,6 +33,24 @@ public:
   
 private:
   Matrix4 m,minv;
+
+
+
+public:
+  static Transform Translate(const Vector3& p);
+  static Transform Translate(const double& dx, const double& dy, const double& dz);
+
+  static Transform Rotate(Vector3 axis, const double& costheta, const double& sintheta);
+  static Transform Rotate(Vector3 axis, const double& theta);
+  static Transform RotateX(const double& theta);
+  static Transform RotateX(const double& costheta, const double& sintheta);
+  static Transform RotateY(const double& theta);
+  static Transform RotateY(const double& costheta, const double& sintheta);
+  static Transform RotateZ(const double& theta);
+  static Transform RotateZ(const double& costheta, const double& sintheta);
+
+  static Transform Scale(const Vector3& n);
+  static Transform Scale(const Vector3& n, const double& k);
 };
 
 #endif

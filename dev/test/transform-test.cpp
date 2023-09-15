@@ -4,8 +4,10 @@
 #include<transform.hpp>
 #include<matrix.hpp>
 #include<random.hpp>
+#include<geometry.hpp>
 
 #include<cmath>
+#include<format>
 
 TEST(matrix, product){
   Matrix4 I = Matrix4::I();
@@ -52,4 +54,41 @@ TEST(matrix, identity){
   auto abinv = Matrix4::Inverse(a*b);
 
   EXPECT_EQ(Matrix4::Inverse(a), b*abinv);
+}
+
+class TransformTest : public ::testing::Test{
+protected:
+  void SetUp() override{
+    pt = Point3{random_double(-5,5), random_double(-5,5), random_double(-5,5)};
+    vec = Vector3{random_double(-5,5), random_double(-5,5), random_double(-5,5)};
+    norm = Normal{random_double(-5,5), random_double(-5,5), random_double(-5,5)};
+  }
+
+  Point3 pt;
+  Vector3 vec;
+  Normal norm;
+};
+
+TEST_F(TransformTest, translate){
+  double dx=random_double(-10,10), dy=random_double(-10,10), dz=random_double(-10,10);
+  auto translate = Transform::Translate(dx,dy,dz);
+
+  auto translatedpt = translate(pt);
+  auto movedpt = pt + Vector3{dx,dy,dz};
+  EXPECT_EQ(translatedpt, movedpt) << "translation matrix failed for point v=" <<pt<<std::format("and dx={} dy={} dz={}", dx,dy,dz);
+
+  auto translatedvec = translate(vec);
+  EXPECT_EQ(translatedvec, vec) << "translation matrix failed for vector v="<<vec<<std::format("and dx={} dy={} dz={}", dx,dy,dz);
+
+  auto translatedn = translate(norm);
+  EXPECT_EQ(translatedn, norm.Normalize()) << "translation matrix failed for normal v="<<norm<<std::format("and dx={} dy={} dz={}", dx,dy,dz);
+  
+}
+
+TEST_F(TransformTest, scale){
+  auto normal = Normal{1,1,0}.Normalize();
+  auto scale = Transform::Scale(Vector3{2,1,1});
+  auto expect_normal = Normal{1,2,0}.Normalize();
+
+  EXPECT_EQ(scale(normal), expect_normal);
 }
