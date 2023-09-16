@@ -7,6 +7,7 @@
 #include "geometry.hpp"
 #include "matrix.hpp"
 #include "transform.hpp"
+#include "coordinate.hpp"
 #include "decomposer.hpp"
 #include "color.hpp"
 #include "ray.hpp"
