@@ -1,9 +1,10 @@
 #include "transform.hpp"
-
 #include "geometry.hpp"
+#include "ray.hpp"
+
 #include<cmath>
 
-Point3 Transform::operator() (const Point3& p) const{
+Point3 Transformation::operator() (const Point3& p) const{
   double x=p.x(),y=p.y(),z=p.z();
   double xp = m[0][0]*x + m[0][1]*y + m[0][2]*z + m[0][3];
   double yp = m[1][0]*x + m[1][1]*y + m[1][2]*z + m[1][3];
@@ -12,7 +13,7 @@ Point3 Transform::operator() (const Point3& p) const{
   return Point3(xp,yp,zp) / wp;
 }
 
-Vector3 Transform::operator() (const Vector3& p) const{
+Vector3 Transformation::operator() (const Vector3& p) const{
   double x=p.x(),y=p.y(),z=p.z();
   return Vector3(m[0][0]*x + m[0][1]*y + m[0][2]*z,
 		 m[1][0]*x + m[1][1]*y + m[1][2]*z,
@@ -20,7 +21,7 @@ Vector3 Transform::operator() (const Vector3& p) const{
 		 
 }
 
-Normal Transform::operator() (const Normal& p) const{
+Normal Transformation::operator() (const Normal& p) const{
   double x=p.x(),y=p.y(),z=p.z();
   double xp = minv[0][0]*x + minv[1][0]*y + minv[2][0]*z;
   double yp = minv[0][1]*x + minv[1][1]*y + minv[2][1]*z;
@@ -28,10 +29,16 @@ Normal Transform::operator() (const Normal& p) const{
   return Normal(xp,yp,zp).Normalize();
 }
 
+Ray Transformation::operator() (const Ray& r) const{
+  Ray ret = r;
+  ret.SetOrigin(r.Origin().Transform(*this));
+  ret.SetDirection(r.Direction().Transform(*this));
+  return ret;
+}
 
 
-Transform Transform::Translate(const Vector3& p){
-  return Transform(Matrix4{1,0,0,p.x(),
+Transformation Transformation::Translate(const Vector3& p){
+  return Transformation(Matrix4{1,0,0,p.x(),
 			   0,1,0,p.y(),
 			   0,0,1,p.z(),
 			   0,0,0,1},
@@ -40,13 +47,13 @@ Transform Transform::Translate(const Vector3& p){
 	    0,0,1,-p.z(),
 	    0,0,0,1});
 }
-Transform Transform::Translate(const double& dx, const double& dy, const double& dz){
+Transformation Transformation::Translate(const double& dx, const double& dy, const double& dz){
   return Translate(Vector3{dx,dy,dz});
 }
 
 
 
-Transform Transform::Rotate(Vector3 axis, const double& costheta, const double& sintheta){
+Transformation Transformation::Rotate(Vector3 axis, const double& costheta, const double& sintheta){
   axis = axis.Normalize();
     
   auto R = [](const Vector3& axis, const double& costheta, const double& sintheta){
@@ -62,22 +69,39 @@ Transform Transform::Rotate(Vector3 axis, const double& costheta, const double& 
   auto RotateMat = R(axis, costheta, sintheta);
   auto RotateMatInv = R(axis, costheta, -sintheta);
 
-  return Transform(RotateMat, RotateMatInv);
+  return Transformation(RotateMat, RotateMatInv);
 }
-Transform Transform::Rotate(Vector3 axis, const double& theta){
+Transformation Transformation::Rotate(Vector3 axis, const double& theta){
   double costheta = cos(theta);
   double sintheta = sin(theta);
   return Rotate(axis, costheta, sintheta);
 }
-Transform Transform::RotateX(const double& theta){ return Rotate(Vector3{1,0,0}, theta); }
-Transform Transform::RotateX(const double& costheta, const double& sintheta){ return Rotate(Vector3{1,0,0}, costheta, sintheta); }
-Transform Transform::RotateY(const double& theta){ return Rotate(Vector3{0,1,0}, theta); }
-Transform Transform::RotateY(const double& costheta, const double& sintheta){ return Rotate(Vector3{0,1,0}, costheta, sintheta); }
-Transform Transform::RotateZ(const double& theta){ return Rotate(Vector3{0,0,1}, theta); }
-Transform Transform::RotateZ(const double& costheta, const double& sintheta){ return Rotate(Vector3{0,0,1}, costheta, sintheta); }
+Transformation Transformation::RotateX(const double& theta){ return Rotate(Vector3{1,0,0}, theta); }
+Transformation Transformation::RotateX(const double& costheta, const double& sintheta){ return Rotate(Vector3{1,0,0}, costheta, sintheta); }
+Transformation Transformation::RotateY(const double& theta){ return Rotate(Vector3{0,1,0}, theta); }
+Transformation Transformation::RotateY(const double& costheta, const double& sintheta){ return Rotate(Vector3{0,1,0}, costheta, sintheta); }
+Transformation Transformation::RotateZ(const double& theta){ return Rotate(Vector3{0,0,1}, theta); }
+Transformation Transformation::RotateZ(const double& costheta, const double& sintheta){ return Rotate(Vector3{0,0,1}, costheta, sintheta); }
+Transformation Transformation::RotateFrTo(const Vector3& fr, const Vector3& to){
+  Vector3 refl;
+  if(std::abs(fr.x())<0.72 && std::abs(to.x())<0.72f) refl = Vector3{1,0,0};
+  else if(std::abs(fr.y())<0.72 && std::abs(to.y())<0.72) refl = Vector3{0,1,0};
+  else refl = Vector3{0,0,1};
+
+  Vector3 u=refl-fr, v=refl-to;
+  Matrix4 r = Matrix4::I();
+  for(int i=0;i<3;++i)
+    for(int j=0;j<3;++j)
+      r[i][j] = ((i==j)?1:0) -
+	2/u.Dot(u) * u[i] * u[j] -
+	2/v.Dot(v) * v[i] * v[j] +
+	4*u.Dot(v)/(u.Dot(u)*v.Dot(v)) * v[i] * u[j];
+  return Transformation(r, Matrix4::Transpose(r));
+}
 
 
-Transform Transform::Scale(const Vector3& n){
+
+Transformation Transformation::Scale(const Vector3& n){
   auto ScaleMat = [](const double& kx, const double& ky, const double& kz){
     return Matrix4{kx,0,0,0,
 		   0,ky,0,0,
@@ -88,9 +112,9 @@ Transform Transform::Scale(const Vector3& n){
   auto mat = ScaleMat(n.x(),n.y(),n.z());
   auto matinv = ScaleMat(1.0/n.x(), 1.0/n.y(), 1.0/n.z());
 
-  return Transform(mat, matinv);
+  return Transformation(mat, matinv);
 }
-Transform Transform::Scale(const Vector3& n, const double& k){
+Transformation Transformation::Scale(const Vector3& n, const double& k){
   auto ScaleMat = [](const Vector3& n, double k){
     const double nx=n.x(), ny=n.y(), nz=n.z();
     --k;
@@ -105,5 +129,5 @@ Transform Transform::Scale(const Vector3& n, const double& k){
   auto mat = ScaleMat(n,k);
   auto matinv = ScaleMat(n,1.0/k);
 
-  return Transform(mat, matinv);
+  return Transformation(mat, matinv);
 }

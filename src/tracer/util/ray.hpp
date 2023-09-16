@@ -5,6 +5,8 @@
 
 #include<memory>
 
+class Transformation;
+
 class Ray{
 public:
   Ray(){}
@@ -12,6 +14,8 @@ public:
 
   Point3 Origin() const{ return origin; }
   Vector3 Direction() const{ return direction; }
+  Ray& SetOrigin(const Point3& orig){ origin=orig; return *this; }
+  Ray& SetDirection(const Vector3& dir){ direction=dir; return *this; }
 
   Point3 At(const double&) const;
 
@@ -20,6 +24,8 @@ public:
   Vector3 Scatter_Direction(const Normal& normal) const;
   Vector3 Reflect_Direction(const Normal& normal) const;
   Vector3 Refract_Direction(const Normal& normal, const double& refractive_index_ratio) const;
+
+  Ray Transform(const Transformation&) const;
 private:
   Point3 origin;
   Vector3 direction;

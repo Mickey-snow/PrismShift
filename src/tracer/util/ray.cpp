@@ -1,5 +1,7 @@
 #include "geometry.hpp"
+#include "transform.hpp"
 #include "ray.hpp"
+
 
 #include<cmath>
 
@@ -37,3 +39,6 @@ double Ray::intersectionTimeWithPlane(const Point3& Q, const Vector3 &u, const V
   tdown = Vector3::Dot(direction, normal);
   return tup/tdown;
 }
+
+
+Ray Ray::Transform(const Transformation& tr) const{ return tr(*this); }

@@ -6,8 +6,10 @@
 #include<cmath>
 #include<iostream>
 
+class Transformation;
+
 namespace internal{
-  constexpr double EPS = 1e-6;
+  constexpr double EPS = 1e-2;
   
   template<typename Child>
   class BaseVec2{
@@ -149,6 +151,9 @@ public:
   explicit Vector3(const BaseVec3<T>& rhs){ v[0]=rhs.v[0]; v[1]=rhs.v[1]; v[2]=rhs.v[2]; }
 
   static Vector3 Normalized(const Vector3& v);
+
+  double Dot(const Vector3& rhs) const{ return Parent::Dot(*this, rhs); }
+  Vector3 Cross(const Vector3& rhs) const{ return Parent::Cross(*this, rhs); }
   
   static double Dot(const Vector3& lhs, const Vector3& rhs){ return Parent::Dot(lhs,rhs); }
   static Vector3 Cross(const Vector3& lhs, const Vector3& rhs){ return Parent::Cross(lhs,rhs); }
@@ -162,6 +167,8 @@ public:
   }
   
   static Vector3 Random_Unit(void);
+
+  Vector3 Transform(const Transformation&) const;
 };
 
 
@@ -221,6 +228,8 @@ public:
   Vector3 operator - (const Point3& rhs) const { return Vector3(v[0]-rhs[0], v[1]-rhs[1], v[2]-rhs[2]); }
   Point3 operator - (const Vector3& rhs) const { return *this + (-rhs); }
   Point3& operator -= (const Vector3& rhs){ return *this = *this - rhs; }
+
+  Point3 Transform(const Transformation&) const;
 };
 
 
@@ -231,7 +240,9 @@ public:
   using Parent::Parent;
 
   template<typename T>
-  explicit Normal(const BaseVec3<T>& rhs){ v[0]=rhs.v[0]; v[1]=rhs.v[1]; v[2]=rhs.v[2]; }  
+  explicit Normal(const BaseVec3<T>& rhs){ v[0]=rhs.v[0]; v[1]=rhs.v[1]; v[2]=rhs.v[2]; }
+
+  Normal Transform(const Transformation&) const;
 };
     
 

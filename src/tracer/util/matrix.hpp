@@ -5,7 +5,11 @@
 
 class Matrix4{
 public:
-  Matrix4(){ for(int i=0;i<16;++i) v[i]=0; }
+  Matrix4(){
+    v = new double[16];
+    for(int i=0;i<16;++i) v[i]=0;
+  }
+  ~Matrix4(){ delete[] v; }
   Matrix4(std::initializer_list<double> li) : Matrix4(){
     double* cursor = v;
     for(auto it=li.begin();it!=li.end();++it){
@@ -13,13 +17,28 @@ public:
       if(cursor >= v+16) break;
     }
   }
-  Matrix4(const double* const li){ for(int i=0;i<16;++i) v[i]=li[i]; }
-  Matrix4(const double li[4][4]){
+  Matrix4(const double* const li):Matrix4() { for(int i=0;i<16;++i) v[i]=li[i]; }
+  Matrix4(const double li[4][4]):Matrix4() {
     double* cursor = v;
     for(int i=0;i<4;++i)
       for(int j=0;j<4;++j)
 	*cursor++ = li[i][j];
   }
+
+  
+  Matrix4(const Matrix4& cp) : Matrix4(cp.v) {}
+  Matrix4& operator = (const Matrix4& cp){
+    for(int i=0;i<16;++i) v[i] = cp.v[i];
+    return *this;
+  }
+  Matrix4(Matrix4&& mv){ v=mv.v; mv.v=nullptr; }
+  Matrix4& operator = (Matrix4&& mv){
+    delete[] v;
+    v = mv.v;
+    mv.v = nullptr;
+    return *this;
+  }
+  
   
   static Matrix4 I(void){
     return Matrix4{1,0,0,0,
@@ -58,7 +77,9 @@ public:
   double* begin(void){ return v; }
   double* end(void){ return v+16; }
 
-  double v[16];
+private:
+  // data
+  double* v;
 };
 
 #endif

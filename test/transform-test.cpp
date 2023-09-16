@@ -53,7 +53,7 @@ TEST(matrix, identity){
   EXPECT_EQ(Matrix4::Inverse(a), b*abinv);
 }
 
-class TransformTest : public ::testing::Test{
+class TransformationTest : public ::testing::Test{
 protected:
   void SetUp() override{
     pt = Point3{random_double(-5,5), random_double(-5,5), random_double(-5,5)};
@@ -66,9 +66,9 @@ protected:
   Normal norm;
 };
 
-TEST_F(TransformTest, translate){
+TEST_F(TransformationTest, translate){
   double dx=random_double(-10,10), dy=random_double(-10,10), dz=random_double(-10,10);
-  auto translate = Transform::Translate(dx,dy,dz);
+  auto translate = Transformation::Translate(dx,dy,dz);
 
   auto translatedpt = translate(pt);
   auto movedpt = pt + Vector3{dx,dy,dz};
@@ -82,17 +82,38 @@ TEST_F(TransformTest, translate){
   
 }
 
-TEST_F(TransformTest, scale){
+TEST_F(TransformationTest, scale){
   auto normal = Normal{1,1,0}.Normalize();
-  auto scale = Transform::Scale(Vector3{2,1,1});
+  auto scale = Transformation::Scale(Vector3{2,1,1});
   auto expect_normal = Normal{1,2,0}.Normalize();
 
   EXPECT_EQ(scale(normal), expect_normal);
 }
 
-TEST(Transform, chainedTransform){
-  auto trans = Transform::Translate(10,1.5,1.5) *
-    Transform::Scale(Vector3{1.5,1.5,1.5});
+TEST(Transformation, rotateXyzAxisn){
+  auto transform = Transformation::RotateY(-4.636991) *
+    Transformation::RotateZ(2.437875) *
+    Transformation::RotateX(-1.50796);
+  Vector3 v{5,1,7};
+
+  Vector3 vp = transform(v);
+  EXPECT_NEAR(vp.x(), -0.81511, 0.05);
+  EXPECT_NEAR(vp.y(), 2.01684, 0.05);
+  EXPECT_NEAR(vp.z(), -8.3826, 0.05);
+}
+
+TEST(Transformation, rotateFrto){
+  Vector3 fr{random_uniform_01(), random_uniform_01(), random_uniform_01()},
+    to{random_uniform_01(), random_uniform_01(), random_uniform_01()};
+  fr = fr.Normalize(), to = to.Normalize();
+  auto frtoRotate = Transformation::RotateFrTo(fr,to);
+
+  EXPECT_EQ(frtoRotate(fr), to);
+}
+
+TEST(Transformation, chainedTransformation){
+  auto trans = Transformation::Translate(10,1.5,1.5) *
+    Transformation::Scale(Vector3{1.5,1.5,1.5});
 
   Point3 P(2.0/3,2.0/3,1.0/3), P2(11,2.5,2);
   EXPECT_EQ(trans(P), P2);
