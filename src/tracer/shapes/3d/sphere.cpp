@@ -8,7 +8,7 @@
 #include<memory>
 
 
-Hit_record Sphere::Ray_Hit(const Ray& rp, const Interval<double>& time) const{
+Hit_record Sphere::Ray_Hit(const Ray& rp, const Interval<double>& time_interval) const{
   const Ray r = refframe.World2Local(rp);
   constexpr double radius = 1.0;
   
@@ -23,21 +23,21 @@ Hit_record Sphere::Ray_Hit(const Ray& rp, const Interval<double>& time) const{
 
   // Find the nearest root that lies in the acceptable range.
   auto root = (-half_b - sqrtd) / a;
-  if (!time.Surrounds(root)){
+  if (!time_interval.Surrounds(root)){
     root = (-half_b + sqrtd) / a;
-    if (!time.Surrounds(root))
+    if (!time_interval.Surrounds(root))
       return Hit_record::NoHit();
   }
 
-  double t = root;
-  Point3 position = r.At(t);
+  double time = root;
+  Point3 position = r.At(time);
   Normal normal = (Normal)position;
     
   return Hit_record::MakeHitRecordWith_ORTPN(this,
-					     rp,
-					     t,
-					     rp.At(t),
-					     refframe.Local2World(normal));
+					     r,
+					     time,
+					     position,
+					     normal);
 }
 
 

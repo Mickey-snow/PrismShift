@@ -13,17 +13,17 @@ Hit_record Plane::Ray_Hit(const Ray& rw, const Interval<double>& time_interval) 
   if(std::isnan(time)) return Hit_record::NoHit();
   if(!time_interval.Contains(time)) return Hit_record::NoHit();
 
+  const Normal normal{0,0,1};
   return Hit_record::MakeHitRecordWith_ORTPN(this,
-					     rw,
+					     r,
 					     time,
-					     rw.At(time),
+					     r.At(time),
 					     normal);
 }
 
 
 Point2 Plane::Map_Texture(const Hit_record& rec) const{
-  Vector3 p = rec.position-Q;
-  auto alpha = decomposer->Componenti(p);
-  auto beta = decomposer->Componentj(p);
+  auto alpha = rec.position.x();
+  auto beta = rec.position.y();
   return Point2(beta-floor(beta), alpha-floor(alpha));
 }

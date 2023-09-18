@@ -12,27 +12,23 @@ Hit_record Triangle::Ray_Hit(const Ray& rw, const Interval<double>& time_interva
   if(std::isnan(time)) return Hit_record::NoHit();
   if(!time_interval.Surrounds(time)) return Hit_record::NoHit();
 
-  auto intersection = rw.At(time);
-  Vector3 p = intersection - Q;
-  auto alpha = planeDec->Componenti(p);
-  auto beta = planeDec->Componentj(p);
-  if(!On_Object(alpha,beta)) return Hit_record::NoHit();
-
-  auto ww = normalDec->Componenti(intersection);
-  auto wu = normalDec->Componentj(intersection);
-  auto wv = normalDec->Componentk(intersection);
-  auto weightedNormal = (nw*ww+nu*wu+nv*wv) / (ww+wu+wv);
+  auto hit_point = r.At(time);
+  if(!On_Object(hit_point.x(), hit_point.y())) return Hit_record::NoHit();
+  
+  auto wu = hit_point.x();
+  auto wv = hit_point.y();
+  auto ww = 1 - wu - wv;
+  auto weightedNormal = (nw*ww+nu*wu+nv*wv);
     
   return Hit_record::MakeHitRecordWith_ORTPN(this,
-					     rw,
+					     r,
 					     time,
-					     intersection,
+					     hit_point,
 					     weightedNormal);
 }
 
 Point2 Triangle::Map_Texture(const Hit_record& rec) const{
-  Vector3 p = rec.position - Q;
-  auto alpha = planeDec->Componenti(p);
-  auto beta = planeDec->Componentj(p);
+  auto alpha = rec.position.x();
+  auto beta = rec.position.y();
   return Point2(alpha,beta);
 }

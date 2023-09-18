@@ -110,12 +110,15 @@ Color Renderer::Ray_Color(const Ray& r, int current_recur_depth) const{
   Color col = rec.hitted_obj->Get_Material()->Emission(rec);
   BSDF bsdf(rec.hitted_obj->Get_Material()->CalculateBSDF(rec));
   if(bsdf.bxdf_count >= 1){
-    auto in_direction = r.Direction().Normalize();
+    auto in_direction = rec.ray.Direction().Normalize();
     auto [f,out_direction,pdf,flag] = bsdf.Sample_f(in_direction);
 
     double scatter_pdf = bsdf.pdf(in_direction, out_direction);
     if((flag&BxDFType::Specular) != BxDFType::None) scatter_pdf = 1;
-    col += f*scatter_pdf*Ray_Color(Ray(rec.position,out_direction),
+
+    auto ray_o = Ray(rec.position, out_direction);
+    auto ray_wo = rec.hitted_obj->refframe.Local2World(ray_o);
+    col += f*scatter_pdf*Ray_Color(ray_wo,
 		     current_recur_depth + 1) / pdf;
   }
   
