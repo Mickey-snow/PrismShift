@@ -5,12 +5,14 @@
 #include<cmath>
 
 
-Hit_record Triangle::Ray_Hit(const Ray& r, const Interval<double>& time_interval) const{
-  double time = r.intersectionTimeWithPlane(Q,u,v);
+Hit_record Triangle::Ray_Hit(const Ray& rw, const Interval<double>& time_interval) const{
+  const Ray r = refframe.World2Local(rw);
+
+  double time = -r.Origin().z() / r.Direction().z();
   if(std::isnan(time)) return Hit_record::NoHit();
   if(!time_interval.Surrounds(time)) return Hit_record::NoHit();
-  auto intersection = r.At(time);
 
+  auto intersection = rw.At(time);
   Vector3 p = intersection - Q;
   auto alpha = planeDec->Componenti(p);
   auto beta = planeDec->Componentj(p);
@@ -22,7 +24,7 @@ Hit_record Triangle::Ray_Hit(const Ray& r, const Interval<double>& time_interval
   auto weightedNormal = (nw*ww+nu*wu+nv*wv) / (ww+wu+wv);
     
   return Hit_record::MakeHitRecordWith_ORTPN(std::make_shared<Triangle>(*this),
-					     r,
+					     rw,
 					     time,
 					     intersection,
 					     weightedNormal);

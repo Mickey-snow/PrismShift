@@ -1,13 +1,18 @@
 #ifndef OBJECTS_H
 #define OBJECTS_H
 
-#include "util/util.hpp"
+#include<util/coordinate.hpp>
 
 #include<memory>
 #include<string>
 
 
 class AABB;
+class Ray;
+class Hit_record;
+template<typename T>class Interval;
+class Point2;
+
 class Shape{
 public:
   virtual ~Shape() = default;
@@ -23,14 +28,20 @@ public:
 };
 
 class Material;
+
 class Visible : public Shape{
 public:
+  Visible() = default;
+  Visible(const Coordinate3& local_reference_frame) : refframe(local_reference_frame) {}
   virtual ~Visible() = default;
 
   virtual void Set_Material(std::shared_ptr<Material>) = 0;
   virtual std::shared_ptr<Material> Get_Material(void) = 0;
   
   virtual Point2 Map_Texture(const Hit_record&) const = 0;
+
+// protected:
+  Coordinate3 refframe;
 };
 
 

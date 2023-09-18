@@ -3,22 +3,20 @@
 #include<util/util.hpp>
 #include<utility>
 
-Hit_record Parallelogram::Ray_Hit(const Ray& r, const Interval<double>& time_interval) const{
-  double time = r.intersectionTimeWithPlane(Q,u,v);
+Hit_record Parallelogram::Ray_Hit(const Ray& rw, const Interval<double>& time_interval) const{
+  const Ray r = refframe.World2Local(rw);
 
+  double time = -r.Origin().z() / r.Direction().z();
   if(std::isnan(time)) return Hit_record::NoHit();
   if(!time_interval.Surrounds(time)) return Hit_record::NoHit();
-  auto intersection = r.At(time);
 
-  Vector3 p = intersection - Q;
-  auto alpha = decomposer->Componenti(p);
-  auto beta = decomposer->Componentj(p);
-  if(!On_Object(alpha,beta)) return Hit_record::NoHit();
+  auto intersection = r.At(time);
+  if(!On_Object(intersection.x(), intersection.y())) return Hit_record::NoHit();
 
   return Hit_record::MakeHitRecordWith_ORTPN(std::make_shared<Parallelogram>(*this),
-					     r,
+					     rw,
 					     time,
-					     intersection,
+					     refframe.Local2World(intersection),
 					     normal);
 }
 

@@ -17,9 +17,13 @@ public:
   static constexpr std::string name{"triangle"};
   std::string Get_Name(void) const override{ return name; }
 
-  Triangle(const Point3& _Q, const Vector3& _u, const Vector3& _v) : Q(_Q),u(_u),v(_v) { has_normal=false; Init(); }
+  Triangle(const Point3& _Q, const Vector3& _u, const Vector3& _v) :
+    Q(_Q),u(_u),v(_v),
+    Visible(Coordinate3().Set_Translation(Coordinate3::Origin(_Q)).Set_Rotation(Coordinate3::AlignXY(_u,_v))){
+    has_normal=false; Init(); }
   Triangle(const std::array<Point3,3>& p,const std::array<Normal,3>& n){
     Q = p[0]; u = p[1]-p[0]; v = p[2]-p[0];
+    refframe = Coordinate3().Set_Translation(Coordinate3::Origin(Q)).Set_Rotation(Coordinate3::AlignXY(u,v));
     nw = n[0]; nu = n[1]; nv = n[2];
     has_normal=true; Init();
   }

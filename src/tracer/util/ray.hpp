@@ -19,6 +19,7 @@ public:
 
   Point3 At(const double&) const;
 
+  [[deprecated]]
   double intersectionTimeWithPlane(const Point3&,const Vector3&,const Vector3&) const;
   
   Vector3 Scatter_Direction(const Normal& normal) const;
@@ -79,6 +80,9 @@ public:
     normal = front_face ? outward_normal : -outward_normal;
     ray = r;
   }
+
+  [[deprecated("remove this method later")]]
+  Hit_record _ToWorld() const;
 };
 
 #endif

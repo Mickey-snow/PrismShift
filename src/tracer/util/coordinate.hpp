@@ -38,6 +38,9 @@ private:
 
 public:
   static Transformation AlignXYZ(const Vector3&, const Vector3&, const Vector3&);
+  static Transformation AlignXY(const Vector3&, const Vector3&);
+  static Transformation AlignYZ(const Vector3&, const Vector3&);
+  static Transformation AlignXZ(const Vector3&, const Vector3&);
   static Transformation Origin(const Point3&);
 
 };

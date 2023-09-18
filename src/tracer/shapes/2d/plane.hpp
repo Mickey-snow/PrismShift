@@ -18,7 +18,10 @@ public:
   static constexpr std::string name{"plane"};
   virtual std::string Get_Name(void) const override{ return name; }
 
-  Plane(Point3 _Q, Vector3 _u, Vector3 _v) : Q(_Q),v(_v),u(_u){ Init(); }
+  Plane(Point3 _Q, Vector3 _u, Vector3 _v) :
+    Q(_Q),v(_v),u(_u),
+    Visible(Coordinate3().Set_Translation(Coordinate3::Origin(_Q)).Set_Rotation(Coordinate3::AlignXY(_u,_v))){
+    Init(); }
 
   void Set_Material(std::shared_ptr<Material> mat) override{ material = mat; }
   std::shared_ptr<Material> Get_Material(void) override{ return material; }

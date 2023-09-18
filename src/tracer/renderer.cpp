@@ -43,7 +43,7 @@ void Write_Color(Mat& canvas, const int& i,const int &j, Color pixel_color){
 
 Mat Renderer::Render(){
   std::shared_ptr<Material> material = std::make_shared<Dielectric>(1.5);
-  world->Add(std::make_shared<Sphere>(Point3(7,2,7), 2.0, material));
+  world->Add(std::make_shared<Sphere>(Point3(7,2,11.2), 2.0, material));
   world->Build_BVH();
   
   _show_preview_window = show_preview_window;

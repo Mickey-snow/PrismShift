@@ -16,7 +16,9 @@ public:
   static constexpr std::string name{"sphere"};
 
   Sphere(const Point3& _center, const double& r):Sphere(_center,r,nullptr) {}
-  Sphere(const Point3& _center, const double& r, std::shared_ptr<Material> _material) : center(_center), radius(r), material(_material) {
+  Sphere(const Point3& _center, const double& r, std::shared_ptr<Material> _material):
+    Visible(Coordinate3().Set_Translation(Coordinate3::Origin(_center)).Set_Scale(r,r,r)),
+    center(_center), radius(r), material(_material) {
     double r_abs = fabs(r);
     Vector3 r_vec(r_abs,r_abs,r_abs);
     bbox = AABB(_center + r_vec, _center - r_vec);

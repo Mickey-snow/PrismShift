@@ -26,7 +26,20 @@ Transformation Coordinate3::AlignXYZ(const Vector3& i, const Vector3& j, const V
 
   return Transformation(mat_rotate_toworld);
 }
-
+Transformation Coordinate3::AlignXY(const Vector3& i,const Vector3& j){
+  Vector3 k = Vector3::Cross(i,j);
+  return Coordinate3::AlignXYZ(i,j,k);
+}
+Transformation Coordinate3::AlignXZ(const Vector3& i,const Vector3& k){
+  Vector3 j = Vector3::Cross(k,i);
+  return Coordinate3::AlignXYZ(i,j,k);
+}
+Transformation Coordinate3::AlignYZ(const Vector3& j,const Vector3& k){
+  Vector3 i = Vector3::Cross(j,k);
+  return Coordinate3::AlignXYZ(i,j,k);
+}
+  
 Transformation Coordinate3::Origin(const Point3& o){
   return Transformation::Translate((Vector3)o);
 }
+

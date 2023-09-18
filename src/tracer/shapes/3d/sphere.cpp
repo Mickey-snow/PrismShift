@@ -8,8 +8,11 @@
 #include<memory>
 
 
-Hit_record Sphere::Ray_Hit(const Ray& r, const Interval<double>& time) const{
-  Vector3 oc = r.Origin() - center;
+Hit_record Sphere::Ray_Hit(const Ray& rp, const Interval<double>& time) const{
+  const Ray r = refframe.World2Local(rp);
+  constexpr double radius = 1.0;
+  
+  Vector3 oc = (Vector3)r.Origin();
   auto a = r.Direction().Length_squared();
   auto half_b = Vector3::Dot(oc, r.Direction());
   auto c = oc.Length_squared() - radius*radius;
@@ -28,15 +31,19 @@ Hit_record Sphere::Ray_Hit(const Ray& r, const Interval<double>& time) const{
 
   double t = root;
   Point3 position = r.At(t);
-  Normal normal = (Normal)((position - center) / radius);
+  Normal normal = (Normal)position;
     
+  // return Hit_record::MakeHitRecordWith_ORTPN(std::make_shared<Sphere>(*this),
+  // 					     r,
+  // 					     t,
+  // 					     position,
+  // 					     normal);
+					     
   return Hit_record::MakeHitRecordWith_ORTPN(std::make_shared<Sphere>(*this),
-					     r,
+					     rp,
 					     t,
-					     position,
-					     normal);
-					     
-					     
+					     rp.At(t),
+					     refframe.Local2World(normal));
 }
 
 

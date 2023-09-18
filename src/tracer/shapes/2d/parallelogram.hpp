@@ -16,7 +16,10 @@ public:
   static constexpr std::string name{"parallelogram"};
   std::string Get_Name(void) const override{ return name; }
   
-  Parallelogram(const Point3& _Q, const Vector3& _u, const Vector3& _v) : Q(_Q),u(_u),v(_v) { Init(); }
+  Parallelogram(const Point3& _Q, const Vector3& _u, const Vector3& _v) :
+    Q(_Q),u(_u),v(_v),
+    Visible(Coordinate3().Set_Translation(Coordinate3::Origin(_Q)).Set_Rotation(Coordinate3::AlignXY(_u,_v))){
+    Init(); }
   
   virtual Hit_record Ray_Hit(const Ray&, const Interval<double>&) const override;
   Point2 Map_Texture(const Hit_record&) const override;
