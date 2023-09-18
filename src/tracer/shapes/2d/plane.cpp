@@ -13,7 +13,7 @@ Hit_record Plane::Ray_Hit(const Ray& rw, const Interval<double>& time_interval) 
   if(std::isnan(time)) return Hit_record::NoHit();
   if(!time_interval.Contains(time)) return Hit_record::NoHit();
 
-  return Hit_record::MakeHitRecordWith_ORTPN(std::make_shared<Plane>(*this),
+  return Hit_record::MakeHitRecordWith_ORTPN(this,
 					     rw,
 					     time,
 					     rw.At(time),

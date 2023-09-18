@@ -33,13 +33,7 @@ Hit_record Sphere::Ray_Hit(const Ray& rp, const Interval<double>& time) const{
   Point3 position = r.At(t);
   Normal normal = (Normal)position;
     
-  // return Hit_record::MakeHitRecordWith_ORTPN(std::make_shared<Sphere>(*this),
-  // 					     r,
-  // 					     t,
-  // 					     position,
-  // 					     normal);
-					     
-  return Hit_record::MakeHitRecordWith_ORTPN(std::make_shared<Sphere>(*this),
+  return Hit_record::MakeHitRecordWith_ORTPN(this,
 					     rp,
 					     t,
 					     rp.At(t),

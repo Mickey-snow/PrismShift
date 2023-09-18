@@ -37,7 +37,7 @@ class Visible;
 class Hit_record{		// Records with a ray hits a visible Shape object
 public:
   Hit_record() = delete;
-  static Hit_record MakeHitRecordWith_ORTPN(std::shared_ptr<Visible> _hitted_Obj,
+  static Hit_record MakeHitRecordWith_ORTPN(Visible const* _hitted_Obj,
 					    const Ray& _Ray,
 					    const double& _Time,
 					    const Point3& _Pos,
@@ -48,7 +48,7 @@ public:
   static Hit_record NoHit(void){ return Hit_record(nullptr); }
 
 private:
-  Hit_record(std::shared_ptr<Visible> _hitted_obj,
+  Hit_record(Visible const* _hitted_obj,
 	     const Ray& _ray,
 	     const double& _time,
 	     const Point3& _pos,
@@ -66,7 +66,7 @@ private:
 public:
   bool hits;
   int hit_counts;
-  std::shared_ptr<Visible> hitted_obj;
+  Visible const* hitted_obj;
   Ray ray;
 					    
   

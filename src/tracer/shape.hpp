@@ -36,7 +36,7 @@ public:
   virtual ~Visible() = default;
 
   virtual void Set_Material(std::shared_ptr<Material>) = 0;
-  virtual std::shared_ptr<Material> Get_Material(void) = 0;
+  virtual std::shared_ptr<Material> Get_Material(void) const = 0;
   
   virtual Point2 Map_Texture(const Hit_record&) const = 0;
 

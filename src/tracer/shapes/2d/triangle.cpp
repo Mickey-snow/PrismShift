@@ -23,7 +23,7 @@ Hit_record Triangle::Ray_Hit(const Ray& rw, const Interval<double>& time_interva
   auto wv = normalDec->Componentk(intersection);
   auto weightedNormal = (nw*ww+nu*wu+nv*wv) / (ww+wu+wv);
     
-  return Hit_record::MakeHitRecordWith_ORTPN(std::make_shared<Triangle>(*this),
+  return Hit_record::MakeHitRecordWith_ORTPN(this,
 					     rw,
 					     time,
 					     intersection,

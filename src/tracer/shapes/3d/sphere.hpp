@@ -33,7 +33,7 @@ public:
   
   std::string Get_Name(void) const override{ return name; }
   void Set_Material(std::shared_ptr<Material> mat) override{ material = mat; }
-  std::shared_ptr<Material> Get_Material(void) override{ return material; }
+  std::shared_ptr<Material> Get_Material(void)const override{ return material; }
   
 private:
   Point3 center;
