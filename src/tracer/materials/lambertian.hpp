@@ -10,6 +10,8 @@
 #include<string>
 #include<memory>
 
+class BSDF;
+
 class Lambertian : public Material{
 public:
   static constexpr std::string name{"lambertian"};
@@ -17,7 +19,7 @@ public:
   Lambertian(const Color& col){ texture = std::make_shared<SolidColor>(col); }
   Lambertian(std::shared_ptr<Texture> tex) : texture(tex) {}
 
-  virtual std::vector<std::shared_ptr<BxDF>> CalculateBSDF(const Hit_record&) override;
+  virtual BSDF CalculateBSDF(const Hit_record&) override;
   virtual Color Emission(const Hit_record&) override{ return Color(0,0,0); }
   
 protected:

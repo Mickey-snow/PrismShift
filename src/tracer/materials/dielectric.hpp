@@ -13,12 +13,14 @@ class Dielectric : public Material{
 public:
   static constexpr std::string name{"dielectric"};
 
-  Dielectric(const double& index_of_refraction) : eta(index_of_refraction) {}
+  Dielectric(const double& index_of_refraction,const double& f=0) : eta(index_of_refraction),fuzz(fabs(f)){
+    assert(0<=fuzz && fuzz<=1);
+  }
 
-  virtual std::vector<std::shared_ptr<BxDF>> CalculateBSDF(const Hit_record&) override;
+  virtual BSDF CalculateBSDF(const Hit_record&) override;
 
 private:
-  double eta;
+  double eta,fuzz;
 };
 
 namespace{

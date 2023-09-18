@@ -1,14 +1,17 @@
 #ifndef MATERIAL_H
 #define MATERIAL_H
 
-#include "util/util.hpp"
+#include<util/color.hpp>
+#include<memory>
 
-class BxDF;
+class BSDF;
+class Hit_record;
+
 class Material{
 public:
   ~Material() = default;
 
-  virtual std::vector<std::shared_ptr<BxDF>> CalculateBSDF(const Hit_record&) = 0;
+  virtual BSDF CalculateBSDF(const Hit_record&) = 0;
 
   virtual Color Emission(const Hit_record&){ return Color(0,0,0); }
 };

@@ -18,7 +18,7 @@ public:
   Metal(std::shared_ptr<Texture> tex) : Metal(tex, 0.0) {}
   Metal(std::shared_ptr<Texture> tex, const double& f) : texture(tex) { fuzz=fabs(f)>1?1.0:fabs(f); }
 
-  virtual std::vector<std::shared_ptr<BxDF>> CalculateBSDF(const Hit_record&) override;
+  virtual BSDF CalculateBSDF(const Hit_record&) override;
 
 private:
   std::shared_ptr<Texture> texture;

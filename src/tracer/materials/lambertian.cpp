@@ -1,23 +1,12 @@
 #include "lambertian.hpp"
 
 #include<util/util.hpp>
-#include<renderer.hpp>
 #include<shape.hpp>
 #include<bsdf.hpp>
+#include<bxdfs/lambertian.hpp>
 
-std::vector<std::shared_ptr<BxDF>> Lambertian::CalculateBSDF(const Hit_record& rec){
-  class bsdf : public CosBxDF{
-  public:
-    bsdf(unsigned int type, Normal normal, Color color) : CosBxDF(type,normal),col(color) {}
-
-    Color f(const Vector3&, const Vector3&) const override{ return col; }
-  private:
-    Color col;
-  };
-
-  return std::vector<std::shared_ptr<BxDF>>{
-    std::make_shared<bsdf>(BxDFType::Glossy|BxDFType::Diffuse,
-				rec.normal,
-				this->texture->ColorAt(rec.hitted_obj->Map_Texture(rec)))
-  };
+BSDF Lambertian::CalculateBSDF(const Hit_record& rec){
+  auto bxdf = std::make_shared<Lambertian_BRDF>(this->texture->ColorAt(rec.hitted_obj->Map_Texture(rec)));
+  return BSDF(bxdf)
+    .SetCoord(Coordinate3().Set_Translation(Coordinate3::Origin(rec.position)).Set_Rotation(Transformation::RotateFrTo(Vector3{0,0,1}, (Vector3)rec.normal)));
 }

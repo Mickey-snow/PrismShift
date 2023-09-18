@@ -80,9 +80,6 @@ public:
     normal = front_face ? outward_normal : -outward_normal;
     ray = r;
   }
-
-  [[deprecated("remove this method later")]]
-  Hit_record _ToWorld() const;
 };
 
 #endif

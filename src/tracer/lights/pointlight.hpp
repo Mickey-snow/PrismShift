@@ -4,11 +4,12 @@
 #include<util/util.hpp>
 #include<material.hpp>
 #include<factory.hpp>
+#include<bsdf.hpp>
 
 #include<sstream>
 #include<string>
 
-class BxDF;
+
 class Pointlight : public Material{
 public:
   static constexpr std::string name{"pointlight"};
@@ -16,9 +17,7 @@ public:
   Pointlight(double r,double g,double b) : Pointlight(Color(r,g,b)) {}
   Pointlight(const Color& col) : color(col) {}
 
-  virtual std::vector<std::shared_ptr<BxDF>> CalculateBSDF(const Hit_record&) override{
-    return std::vector<std::shared_ptr<BxDF>>{};
-  }
+  virtual BSDF CalculateBSDF(const Hit_record&) override{ return {}; }
 
   Color Emission(const Hit_record&) override{ return color; }
 private:

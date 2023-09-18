@@ -88,7 +88,7 @@ void jsonImporter::ImportScene(Json::Value scene_arr){
 
 void jsonImporter::ImportCamera(Json::Value camval){
   Json::RequireMember(camval, "position","lookat","image_height","aspect_ratio","view_angle");
-  
+
   Point3 position,lookat;
   int imageheight;
   double aspectratio, viewangle;

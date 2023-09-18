@@ -42,22 +42,3 @@ double Ray::intersectionTimeWithPlane(const Point3& Q, const Vector3 &u, const V
 
 
 Ray Ray::Transform(const Transformation& tr) const{ return tr(*this); }
-
-
-#include "../shape.hpp"
-Hit_record Hit_record::_ToWorld() const{
-  auto rec = Hit_record::NoHit();
-
-  rec.hits = true;
-  rec.hit_counts = hit_counts;
-  rec.hitted_obj = hitted_obj;
-  
-  rec.ray = hitted_obj->refframe.Local2World(ray);
-  rec.position = hitted_obj->refframe.Local2World(position);
-  rec.normal = hitted_obj->refframe.Local2World(normal);
-
-  rec.time = time;
-  rec.front_face = front_face;
-
-  return rec;
-}

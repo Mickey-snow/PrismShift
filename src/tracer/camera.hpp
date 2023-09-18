@@ -10,11 +10,12 @@ class Renderer;
 class Camera{
 public:
   Camera(const Point3& center_position = Point3(0,0,0),
-	 const Point3& looking_at = Point3(0,0,0),
+	 const Point3& looking_at_ = Point3(0,0,0),
 	 const int& image_height_ = 1080,
 	 const double& aspect_ratio_ = 16.0/9.0,
 	 const double& view_angle_vertical_ = 65):
     camera_center(center_position),
+    looking_at(looking_at_),
     aspect_ratio(aspect_ratio_),
     image_height(image_height_),
     view_angle_vertical(view_angle_vertical_)

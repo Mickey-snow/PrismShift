@@ -111,6 +111,24 @@ TEST(Transformation, rotateFrto){
   EXPECT_EQ(frtoRotate(fr), to);
 }
 
+TEST(Transformation, rotateNormalFrTo){
+  Normal norm = (Normal)Vector3::Random_Unit();
+  Vector3 in_direction = Vector3::Random(-10,10);
+
+  auto deprecated_ray_reflect_direction = [](const Normal& n, const Vector3& ri){
+    Vector3 nv = (Vector3)n;
+    Vector3 scaled_normal = nv * (-Vector3::Dot(ri, nv));
+    return ri + 2*scaled_normal;
+  };
+  Vector3 out_direction = deprecated_ray_reflect_direction(norm, in_direction);
+
+  auto frtoRotate = Transformation::RotateFrTo((Vector3)norm, Vector3{0,0,1});
+  in_direction = frtoRotate(in_direction);
+  Vector3 out_direction_local = Vector3{in_direction.x(), in_direction.y(), -in_direction.z()};
+
+  EXPECT_EQ(out_direction, frtoRotate.Inverse()(out_direction_local));
+}
+
 TEST(Transformation, chainedTransformation){
   auto trans = Transformation::Translate(10,1.5,1.5) *
     Transformation::Scale(Vector3{1.5,1.5,1.5});

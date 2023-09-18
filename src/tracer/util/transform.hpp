@@ -2,6 +2,7 @@
 #define UTIL_TRANSFORM_H
 
 #include "matrix.hpp"
+#include<utility>
 
 class Point3;
 class Vector3;
@@ -54,6 +55,20 @@ public:
   
   static Transformation Scale(const Vector3& n);
   static Transformation Scale(const Vector3& n, const double& k);
+
+
+public:
+  Transformation(const Transformation& rhs) : m(rhs.m), minv(rhs.minv) {}
+  Transformation(Transformation&& rhs) : m(std::move(rhs.m)), minv(std::move(rhs.minv)) {}
+
+  Transformation& operator = (const Transformation& rhs){
+    m = rhs.m; minv = rhs.minv;
+    return *this;
+  }
+  Transformation& operator = (Transformation&& rhs){
+    m = std::move(rhs.m); minv = std::move(rhs.minv);
+    return *this;
+  }
 };
 
 #endif

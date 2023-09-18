@@ -11,6 +11,7 @@
 #include<future>
 
 #include<shapes/3d/sphere.hpp>
+#include<shapes/2d/parallelogram.hpp>
 #include<materials/dielectric.hpp>
 
 std::vector<Point3> Rand_Pixel_Samples(const Camera::View_Info& view, const int& row, const int& column, const int& total_samples){
@@ -42,8 +43,28 @@ void Write_Color(Mat& canvas, const int& i,const int &j, Color pixel_color){
 
 
 Mat Renderer::Render(){
-  std::shared_ptr<Material> material = std::make_shared<Dielectric>(1.5);
-  world->Add(std::make_shared<Sphere>(Point3(7,2,11.2), 2.0, material));
+  std::shared_ptr<Material> dielectric_mat = std::make_shared<Dielectric>(1.5,0.31);
+  world->Add(std::make_shared<Sphere>(Point3(7,2,11.2), 2.0, dielectric_mat));
+  std::shared_ptr<Material> rough_glass = std::make_shared<Dielectric>(1.001, 0.3075);
+  auto face = std::make_shared<Parallelogram>(Point3(11,0,3.2), Vector3(0,0,-0.2), Vector3(0,2,0));
+  face->Set_Material(rough_glass);
+  world->Add(face);
+  face = std::make_shared<Parallelogram>(Point3(11,0,3.2),Vector3(0,0,-0.2), Vector3(-3,0,0));
+  face->Set_Material(rough_glass);
+  world->Add(face);
+  face = std::make_shared<Parallelogram>(Point3(11,0,3.2),Vector3(0,2,0),Vector3(-3,0,0));
+  face->Set_Material(rough_glass);
+  world->Add(face);
+  face = std::make_shared<Parallelogram>(Point3(8,2,3),Vector3(0,0,0.2),Vector3(0,-2,0));
+  face->Set_Material(rough_glass);
+  world->Add(face);
+  face = std::make_shared<Parallelogram>(Point3(8,2,3),Vector3(0,0,0.2),Vector3(3,0,0));
+  face->Set_Material(rough_glass);
+  world->Add(face);
+  face = std::make_shared<Parallelogram>(Point3(8,2,3),Vector3(0,-2,0),Vector3(3,0,0));
+  face->Set_Material(rough_glass);
+  world->Add(face);
+  
   world->Build_BVH();
   
   _show_preview_window = show_preview_window;
@@ -108,18 +129,19 @@ Color Renderer::Ray_Color(const Ray& r, int current_recur_depth) const{
 
 
   Color col = rec.hitted_obj->Get_Material()->Emission(rec);
-  BSDF bsdf(rec.hitted_obj->Get_Material()->CalculateBSDF(rec));
-  if(bsdf.bxdf_count >= 1){
-    auto in_direction = rec.ray.Direction().Normalize();
-    auto [f,out_direction,pdf,flag] = bsdf.Sample_f(in_direction);
+  BSDF bsdf = rec.hitted_obj->Get_Material()->CalculateBSDF(rec);
 
-    double scatter_pdf = bsdf.pdf(in_direction, out_direction);
-    if((flag&BxDFType::Specular) != BxDFType::None) scatter_pdf = 1;
+  auto in_direction = rec.ray.Direction().Normalize();
+  auto sample = bsdf.Sample_f(in_direction);
 
-    auto ray_o = Ray(rec.position, out_direction);
+  if(sample.bxdf != nullptr){
+    double scatter_pdf = bsdf.pdf(in_direction, sample.out_direction);
+    if((sample.bxdf->GetFlags()&BxDFType::Specular) != BxDFType::None) scatter_pdf = 1;
+
+    auto ray_o = Ray(rec.position, sample.out_direction);
     auto ray_wo = rec.hitted_obj->refframe.Local2World(ray_o);
-    col += f*scatter_pdf*Ray_Color(ray_wo,
-		     current_recur_depth + 1) / pdf;
+    col += sample.col*scatter_pdf*Ray_Color(ray_wo,
+		     current_recur_depth + 1) / sample.pdf;
   }
   
   return col;

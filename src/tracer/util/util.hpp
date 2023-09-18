@@ -16,6 +16,7 @@
 #include "random.hpp"
 #include "mat.hpp"
 #include "aabb.hpp"
+#include "sampling.hpp"
 
 // Utility Functions
 inline double Degree2Rad(const double& degrees){
