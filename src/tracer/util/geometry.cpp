@@ -33,3 +33,7 @@ Vector3 Vector3::Transform(const Transformation& tr) const{ return tr(*this); }
 Point3 Point3::Transform(const Transformation& tr) const{ return tr(*this); }
 Normal Normal::Transform(const Transformation& tr) const{ return tr(*this); }
 
+
+Vector3 Vector3::Random(const double& min, const double& max){
+  return Vector3{random_double(min,max), random_double(min,max), random_double(min,max)};
+}

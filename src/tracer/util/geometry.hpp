@@ -167,6 +167,7 @@ public:
   }
   
   static Vector3 Random_Unit(void);
+  static Vector3 Random(const double& min, const double& max);
 
   Vector3 Transform(const Transformation&) const;
 };

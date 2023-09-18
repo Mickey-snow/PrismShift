@@ -51,7 +51,7 @@ public:
   static Transformation RotateZ(const double& theta);
   static Transformation RotateZ(const double& costheta, const double& sintheta);
   static Transformation RotateFrTo(const Vector3& fr, const Vector3& to);
-
+  
   static Transformation Scale(const Vector3& n);
   static Transformation Scale(const Vector3& n, const double& k);
 };
