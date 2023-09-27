@@ -1,12 +1,12 @@
 #include "metal.hpp"
+
+#include<bsdf.hpp>
+#include<bxdfs/conductor.hpp>
 #include<shape.hpp>
 
-#include<renderer.hpp>
-#include<util/util.hpp>
+BSDF Metal::CalculateBSDF(const Hit_record& rec){
+  auto bxdf = std::make_shared<Conductor_BRDF>(this->texture->ColorAt(rec.hitted_obj->Map_Texture(rec)), fuzz);
 
-Color Metal::Ray_Color(const Hit_record& rec) const {
-  Vector3 reflected_direction = rec.ray.Reflect_Direction(rec.normal);
-  reflected_direction = reflected_direction + fuzz*Vector3::Random_Unit();
-  auto attenuation = texture->ColorAt(rec.hitted_obj->Map_Texture(rec));
-  return attenuation * Renderer::Instance()->Ray_Color(Ray(rec.position, reflected_direction), rec.hit_counts);
+  return BSDF(bxdf)
+    .SetCoord(Coordinate3().Set_Translation(Coordinate3::Origin(rec.position)).Set_Rotation(Transformation::RotateFrTo(Vector3{0,0,1}, (Vector3)rec.normal)));
 }

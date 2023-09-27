@@ -8,7 +8,9 @@
 #include<textures/solidcolor.hpp>
 
 #include<string>
-#include<sstream>
+#include<memory>
+
+class BSDF;
 
 class Lambertian : public Material{
 public:
@@ -17,7 +19,8 @@ public:
   Lambertian(const Color& col){ texture = std::make_shared<SolidColor>(col); }
   Lambertian(std::shared_ptr<Texture> tex) : texture(tex) {}
 
-  virtual Color Ray_Color(const Hit_record& rec) const override;
+  virtual BSDF CalculateBSDF(const Hit_record&) override;
+  virtual Color Emission(const Hit_record&) override{ return Color(0,0,0); }
   
 protected:
   std::shared_ptr<Texture> texture;

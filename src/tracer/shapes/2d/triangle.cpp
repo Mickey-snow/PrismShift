@@ -4,37 +4,31 @@
 
 #include<cmath>
 
-Color Triangle::Ray_Color(const Hit_record &rec) const{
-  if(material == nullptr) return Color(1,0,0);
-  else return material->Ray_Color(rec);
-}
 
-Hit_record Triangle::Ray_Hit(const Ray& r, const Interval<double>& time_interval) const{
-  double time = r.intersectionTimeWithPlane(Q,u,v);
+Hit_record Triangle::Ray_Hit(const Ray& rw, const Interval<double>& time_interval) const{
+  const Ray r = refframe.World2Local(rw);
+
+  double time = -r.Origin().z() / r.Direction().z();
   if(std::isnan(time)) return Hit_record::NoHit();
   if(!time_interval.Surrounds(time)) return Hit_record::NoHit();
-  auto intersection = r.At(time);
 
-  Vector3 p = intersection - Q;
-  auto alpha = planeDec->Componenti(p);
-  auto beta = planeDec->Componentj(p);
-  if(!On_Object(alpha,beta)) return Hit_record::NoHit();
-
-  auto ww = normalDec->Componenti(intersection);
-  auto wu = normalDec->Componentj(intersection);
-  auto wv = normalDec->Componentk(intersection);
-  auto weightedNormal = (nw*ww+nu*wu+nv*wv) / (ww+wu+wv);
+  auto hit_point = r.At(time);
+  if(!On_Object(hit_point.x(), hit_point.y())) return Hit_record::NoHit();
+  
+  auto wu = hit_point.x();
+  auto wv = hit_point.y();
+  auto ww = 1 - wu - wv;
+  auto weightedNormal = (nw*ww+nu*wu+nv*wv);
     
-  return Hit_record::MakeHitRecordWith_ORTPN(std::make_shared<Triangle>(*this),
+  return Hit_record::MakeHitRecordWith_ORTPN(this,
 					     r,
 					     time,
-					     intersection,
+					     hit_point,
 					     weightedNormal);
 }
 
 Point2 Triangle::Map_Texture(const Hit_record& rec) const{
-  Vector3 p = rec.position - Q;
-  auto alpha = planeDec->Componenti(p);
-  auto beta = planeDec->Componentj(p);
+  auto alpha = rec.position.x();
+  auto beta = rec.position.y();
   return Point2(alpha,beta);
 }

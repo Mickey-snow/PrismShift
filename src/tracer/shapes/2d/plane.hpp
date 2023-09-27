@@ -18,13 +18,15 @@ public:
   static constexpr std::string name{"plane"};
   virtual std::string Get_Name(void) const override{ return name; }
 
-  Plane(Point3 _Q, Vector3 _u, Vector3 _v) : Q(_Q),v(_v),u(_u){ Init(); }
+  Plane(Point3 _Q, Vector3 _u, Vector3 _v) :
+    Q(_Q),v(_v),u(_u),
+    Visible(Coordinate3().Set_Translation(Coordinate3::Origin(_Q)).Set_Rotation(Coordinate3::AlignXY(_u,_v))){
+    Init(); }
 
-  void Set_material(std::shared_ptr<Material> mat) override{ material = mat; }
-
+  void Set_Material(std::shared_ptr<Material> mat) override{ material = mat; }
+  std::shared_ptr<Material> Get_Material(void)const override{ return material; }
+  
   AABB Get_Bounding_box(void) const override{ return bbox; }
-
-  virtual Color Ray_Color(const Hit_record& rec) const override;
 
   virtual Hit_record Ray_Hit(const Ray& r, const Interval<double>& time) const override;
 
@@ -33,13 +35,14 @@ public:
 protected:
   AABB bbox;
   Point3 Q;
-  Vector3 u,v,normal;
+  Vector3 u,v;
+  Normal normal;
 
   std::shared_ptr<Material> material;
   Decomposer3d *decomposer;
 
   virtual void Init(void){
-    normal = Vector3::Unit_vector(Vector3::Cross(u,v));
+    normal = (Normal)(Vector3::Normalized(Vector3::Cross(u,v)));
     bbox = AABB(Interval<double>::Universe(), Interval<double>::Universe(), Interval<double>::Universe());
     decomposer = new Decomposer3d(u,v,normal);
   }
@@ -48,10 +51,10 @@ protected:
 namespace{
   std::shared_ptr<Visible> CreatePlane(Json::Value attribute){
     Json::RequireMember(attribute, "origin", "u", "v");
-    Vector3 Q,u,v;
+    Point3 Q; Vector3 u,v;
     auto qi=attribute["origin"], ui=attribute["u"], vi=attribute["v"];
 
-    Q = Vector3(qi[0].asDouble(), qi[1].asDouble(), qi[2].asDouble());
+    Q = Point3(qi[0].asDouble(), qi[1].asDouble(), qi[2].asDouble());
     u =Vector3(ui[0].asDouble(), ui[1].asDouble(), ui[2].asDouble());
     v = Vector3(vi[0].asDouble(), vi[1].asDouble(), vi[2].asDouble());
 

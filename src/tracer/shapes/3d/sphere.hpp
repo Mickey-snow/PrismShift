@@ -16,7 +16,9 @@ public:
   static constexpr std::string name{"sphere"};
 
   Sphere(const Point3& _center, const double& r):Sphere(_center,r,nullptr) {}
-  Sphere(const Point3& _center, const double& r, std::shared_ptr<Material> _material) : center(_center), radius(r), material(_material) {
+  Sphere(const Point3& _center, const double& r, std::shared_ptr<Material> _material):
+    Visible(Coordinate3().Set_Translation(Coordinate3::Origin(_center)).Set_Scale(r,r,r)),
+    center(_center), radius(r), material(_material) {
     double r_abs = fabs(r);
     Vector3 r_vec(r_abs,r_abs,r_abs);
     bbox = AABB(_center + r_vec, _center - r_vec);
@@ -24,15 +26,14 @@ public:
 
   AABB Get_Bounding_box(void) const override{ return bbox; }
 
-  virtual Color Ray_Color(const Hit_record& rec) const override;
-  
   virtual Hit_record Ray_Hit(const Ray& r, const Interval<double>& time) const override;
 
   virtual Point2 Map_Texture(const Hit_record& rec) const override;
 
   
   std::string Get_Name(void) const override{ return name; }
-  void Set_material(std::shared_ptr<Material> mat) override{ material = mat; }
+  void Set_Material(std::shared_ptr<Material> mat) override{ material = mat; }
+  std::shared_ptr<Material> Get_Material(void)const override{ return material; }
   
 private:
   Point3 center;
@@ -50,7 +51,7 @@ namespace{
     double y= attribute["center"][1].asDouble();
     double z = attribute["center"][2].asDouble();
 
-    return std::make_shared<Sphere>(Vector3(x,y,z), r);
+    return std::make_shared<Sphere>(Point3(x,y,z), r);
   }
 
   constexpr std::string Sphere_ShapeID = Sphere::name;

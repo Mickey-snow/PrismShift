@@ -4,8 +4,10 @@
 #include<cassert>
 
 // Headers
-#include "vector3.hpp"
-#include "vector2.hpp"
+#include "geometry.hpp"
+#include "matrix.hpp"
+#include "transform.hpp"
+#include "coordinate.hpp"
 #include "decomposer.hpp"
 #include "color.hpp"
 #include "ray.hpp"
@@ -14,10 +16,14 @@
 #include "random.hpp"
 #include "mat.hpp"
 #include "aabb.hpp"
+#include "sampling.hpp"
 
 // Utility Functions
 inline double Degree2Rad(const double& degrees){
   return degrees * pi / 180.0;
+}
+inline double Rad2Degree(const double& rad){
+  return rad / 180.0 * pi;
 }
 
 #endif

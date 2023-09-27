@@ -4,6 +4,7 @@
 #include "color.hpp"
 #include "interval.hpp"
 
+
 inline double Linear2Gamma(const double& linear_component){
   return std::sqrt(linear_component);
 }

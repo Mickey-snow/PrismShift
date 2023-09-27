@@ -1,13 +1,19 @@
 #ifndef MATERIAL_H
 #define MATERIAL_H
 
-#include "util/util.hpp"
+#include<util/color.hpp>
+#include<memory>
+
+class BSDF;
+class Hit_record;
 
 class Material{
 public:
   ~Material() = default;
 
-  virtual Color Ray_Color(const Hit_record&) const = 0;
+  virtual BSDF CalculateBSDF(const Hit_record&) = 0;
+
+  virtual Color Emission(const Hit_record&){ return Color(0,0,0); }
 };
 
 
