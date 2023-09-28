@@ -2,11 +2,23 @@
 #include<material.hpp>
 #include<shape.hpp>
 #include<util/util.hpp>
-#include<renderer.hpp>
+
 
 #include<cmath>
 #include<memory>
 
+
+Sphere::Sphere() : material(nullptr), Visible() {}
+
+Sphere& Sphere::Set_Position(const Point3& origin){
+  refframe.Set_Translation(Coordinate3::Origin(origin));
+  return *this;
+}
+
+Sphere& Sphere::Set_Radius(const double& r){
+  refframe.Set_Scale(r,r,r);
+  return *this;
+}
 
 Hit_record Sphere::Ray_Hit(const Ray& rp, const Interval<double>& time_interval) const{
   const Ray r = refframe.World2Local(rp);

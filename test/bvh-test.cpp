@@ -112,11 +112,12 @@ class ValueParameterizedBVHFixture : public TestWithParam<dataFactory*>{
 protected:
   
   void SetUp() override{
-    for(const auto& it : ((*GetParam())()))
-      spheres.push_back(std::make_shared<Sphere>(it.first, it.second));
-  }
-
-  void TearDown() override{
+    for(const auto& it : ((*GetParam())())){
+      auto s = std::make_shared<Sphere>();
+      s->Set_Position(it.first);
+      s->Set_Radius(it.second);
+      spheres.push_back(s);
+    }
   }
 
   std::vector<std::shared_ptr<Shape>> spheres;

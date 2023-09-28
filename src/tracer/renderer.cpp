@@ -43,28 +43,6 @@ void Write_Color(Mat& canvas, const int& i,const int &j, Color pixel_color){
 
 
 Mat Renderer::Render(){
-  std::shared_ptr<Material> dielectric_mat = std::make_shared<Dielectric>(1.5,0.31);
-  world->Add(std::make_shared<Sphere>(Point3(7,2,11.2), 2.0, dielectric_mat));
-  std::shared_ptr<Material> rough_glass = std::make_shared<Dielectric>(1.001, 0.3075);
-  auto face = std::make_shared<Parallelogram>(Point3(11,0,3.2), Vector3(0,0,-0.2), Vector3(0,2,0));
-  face->Set_Material(rough_glass);
-  world->Add(face);
-  face = std::make_shared<Parallelogram>(Point3(11,0,3.2),Vector3(0,0,-0.2), Vector3(-3,0,0));
-  face->Set_Material(rough_glass);
-  world->Add(face);
-  face = std::make_shared<Parallelogram>(Point3(11,0,3.2),Vector3(0,2,0),Vector3(-3,0,0));
-  face->Set_Material(rough_glass);
-  world->Add(face);
-  face = std::make_shared<Parallelogram>(Point3(8,2,3),Vector3(0,0,0.2),Vector3(0,-2,0));
-  face->Set_Material(rough_glass);
-  world->Add(face);
-  face = std::make_shared<Parallelogram>(Point3(8,2,3),Vector3(0,0,0.2),Vector3(3,0,0));
-  face->Set_Material(rough_glass);
-  world->Add(face);
-  face = std::make_shared<Parallelogram>(Point3(8,2,3),Vector3(0,-2,0),Vector3(3,0,0));
-  face->Set_Material(rough_glass);
-  world->Add(face);
-  
   world->Build_BVH();
   
   _show_preview_window = show_preview_window;

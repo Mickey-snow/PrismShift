@@ -1,8 +1,12 @@
 #include "transform.hpp"
 #include "geometry.hpp"
 #include "ray.hpp"
+#include "aabb.hpp"
 
 #include<cmath>
+#include<functional>
+#include<vector>
+#include<algorithm>
 
 Point3 Transformation::operator() (const Point3& p) const{
   double x=p.x(),y=p.y(),z=p.z();
@@ -36,6 +40,20 @@ Ray Transformation::operator() (const Ray& r) const{
   return ret;
 }
 
+AABB Transformation::operator () (const AABB& box) const{
+  std::vector<Point3> v;
+  std::function<double(const Interval<double>&)> vertex_component[] = {
+    [](const Interval<double>& i){ return i.begin; },
+    [](const Interval<double>& i){ return i.end; }
+  };
+  for(int i=0;i<2;++i) for(int j=0;j<2;++j) for(int k=0;k<2;++k) v.emplace_back(Point3{vertex_component[i](box.Axis(0)), vertex_component[j](box.Axis(1)), vertex_component[k](box.Axis(2)) });
+
+  std::transform(v.cbegin(), v.cend(), v.begin(), (*this));
+
+  return AABB(AABB(AABB(v[0],v[1]),AABB(v[2],v[3])),AABB(AABB(v[4],v[5]),AABB(v[6],v[7])));
+}
+
+  
 
 Transformation Transformation::Translate(const Vector3& p){
   return Transformation(Matrix4{1,0,0,p.x(),

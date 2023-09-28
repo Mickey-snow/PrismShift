@@ -8,6 +8,7 @@ class Point3;
 class Vector3;
 class Normal;
 class Ray;
+class AABB;
 
 class Transformation{
 public:
@@ -33,6 +34,7 @@ public:
   Vector3 operator () (const Vector3&) const;
   Normal operator () (const Normal&) const;
   Ray operator () (const Ray&) const;
+  AABB operator () (const AABB&) const;
   
 private:
   Matrix4 m,minv;

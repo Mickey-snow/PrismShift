@@ -13,7 +13,7 @@ public:
 	 const Point3& looking_at_ = Point3(0,0,0),
 	 const int& image_height_ = 1080,
 	 const double& aspect_ratio_ = 16.0/9.0,
-	 const double& view_angle_vertical_ = 65):
+	 const double& view_angle_vertical_ = 30):
     camera_center(center_position),
     looking_at(looking_at_),
     aspect_ratio(aspect_ratio_),
@@ -26,9 +26,6 @@ public:
   
   void Set_Position(const Point3& position){
     camera_center = position;
-  }
-  void Adjust_Position(const Vector3& translate){
-    camera_center += translate;
   }
   Point3 Position(void) const{ return camera_center; }
   void Set_Looking_point(const Point3& _looking_at){ looking_at = _looking_at; }

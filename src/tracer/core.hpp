@@ -10,7 +10,6 @@
 #include "factory.hpp"
 #include "renderer.hpp"
 #include "scene.hpp"
-#include "arch.hpp"
 
 #include "materials/material.hpp"
 #include "shapes/shape.hpp"

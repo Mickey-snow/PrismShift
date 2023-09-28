@@ -14,8 +14,10 @@ class Pointlight : public Material{
 public:
   static constexpr std::string name{"pointlight"};
 
-  Pointlight(double r,double g,double b) : Pointlight(Color(r,g,b)) {}
-  Pointlight(const Color& col) : color(col) {}
+  Pointlight();
+
+  Pointlight& Set_Color(const double&, const double&, const double&);
+  Pointlight& Set_Color(const Color&);
 
   virtual BSDF CalculateBSDF(const Hit_record&) override{ return {}; }
 
@@ -25,13 +27,25 @@ private:
 };
 
 namespace{
-  std::shared_ptr<Material> CreatePointlight(Json::Value attribute){
-    Json::RequireMember(attribute, "rgb");
+  std::shared_ptr<Material> CreatePointlight(const std::vector<Attribute>& attributes){
+    auto ret = std::make_shared<Pointlight>();
+
+    for(const auto& attr : attributes)
+      if(attr.name == "rgb"){
+	try{
+	  auto rgb_arr = std::any_cast<std::array<double,3>>(attr.val);
+	  ret->Set_Color(rgb_arr[0], rgb_arr[1], rgb_arr[2]);
+	  continue;
+	} catch(std::bad_cast& e){}
+	try{
+	  auto col = std::any_cast<Color>(attr.val);
+	  ret->Set_Color(col);
+	  continue;
+	} catch(std::bad_cast& e){}
+	throw std::runtime_error("at CreatePointlight: value type for attribute rgb is unknown");
+      }
     
-    double r = attribute["rgb"][0].asDouble();
-    double g = attribute["rgb"][1].asDouble();
-    double b = attribute["rgb"][2].asDouble();
-    return std::make_shared<Pointlight>(r,g,b);
+    return ret;
   }
   constexpr std::string Pointlight_MaterialID = Pointlight::name;
   const bool pointlight_registered = MaterialFactory::Instance()->Register(Pointlight_MaterialID, CreatePointlight);

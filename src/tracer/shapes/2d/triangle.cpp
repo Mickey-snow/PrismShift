@@ -4,8 +4,29 @@
 
 #include<cmath>
 
+Triangle::Triangle() : bbox(AABB(Point3(0,0,0), Point3(1,1,0)).Pad()),
+	     Visible(){
+  nu = nv = nw = Normal{0,0,1};
+}
+	     
+Triangle& Triangle::Set_Position(const Point3& Q, const Point3& A, const Point3& B){
+  Vector3 u=A-Q, v=B-Q;
+  refframe = Coordinate3().Set_Translation(Coordinate3::Origin(Q)).Set_Rotation(Coordinate3::AlignXY(u,v));
+  bbox = refframe.Local2World(AABB(Point3(0,0,0), Point3(1,1,0)).Pad());
+  return *this;
+}
+
+Triangle& Triangle::Set_Normals(const Normal& u, const Normal& v, const Normal& w){
+  nu=u; nv=v; nw=w;
+  return *this;
+}
+
 
 Hit_record Triangle::Ray_Hit(const Ray& rw, const Interval<double>& time_interval) const{
+  auto On_Object = [](const double& a,const double& b){
+    return (a+b)<=1 && 0<=a && 0<=b;
+  };
+  
   const Ray r = refframe.World2Local(rw);
 
   double time = -r.Origin().z() / r.Direction().z();

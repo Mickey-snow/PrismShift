@@ -1,47 +1,44 @@
 #ifndef LAMBERTIAN_H
 #define LAMBERTIAN_H
 
-#include<util/util.hpp>
 #include<material.hpp>
 #include<factory.hpp>
-#include<texture.hpp>
-#include<textures/solidcolor.hpp>
 
 #include<string>
 #include<memory>
 
+class Hit_record;
+class Texture;
 class BSDF;
 
 class Lambertian : public Material{
 public:
   static constexpr std::string name{"lambertian"};
-  
-  Lambertian(const Color& col){ texture = std::make_shared<SolidColor>(col); }
-  Lambertian(std::shared_ptr<Texture> tex) : texture(tex) {}
+
+  Lambertian();
+
+  Lambertian& Set_Color(const Color&);
+  Lambertian& Set_Texture(std::shared_ptr<Texture>);
 
   virtual BSDF CalculateBSDF(const Hit_record&) override;
-  virtual Color Emission(const Hit_record&) override{ return Color(0,0,0); }
   
 protected:
   std::shared_ptr<Texture> texture;
 };
 
 namespace{
-  std::shared_ptr<Material> CreateLambertian(Json::Value attribute){
-    if(attribute.isMember("texture")){
-	Json::Value texture_attr = attribute["texture"];
-	std::string texture_type = texture_attr["type"].asString();
+  std::shared_ptr<Material> CreateLambertian(const std::vector<Attribute>& attributes){
+    auto ret = std::make_shared<Lambertian>();
 
-	auto texture = (TextureFactory::Instance()->GetCreateFn(texture_type))(texture_attr["attribute"]);
-	return std::make_shared<Lambertian>(texture);
-    } else {
-      Json::RequireMember(attribute, "rgb");
-      double r = attribute["rgb"][0].asDouble();
-      double g = attribute["rgb"][1].asDouble();
-      double b = attribute["rgb"][2].asDouble();
-      return std::make_shared<Lambertian>(Color(r,g,b));
-    }
+    for(const auto& attr : attributes)
+      if(attr.name == "rgb")
+	ret->Set_Color(std::any_cast<Color>(attr.val));
+      else if(attr.name == "texture")
+	ret->Set_Texture(std::any_cast<std::shared_ptr<Texture>>(attr.val));
+    
+    return ret;
   }
+  
   constexpr std::string Lambertian_MaterialID = Lambertian::name;
   const bool lambertian_registered = MaterialFactory::Instance()->Register(Lambertian_MaterialID, CreateLambertian);
 }

@@ -8,16 +8,15 @@
 
 #include "tracer/core.hpp"
 
+#include "imp.hpp"
+
 argparse::ArgumentParser parser;
 std::string output_file;
-std::vector<std::string> input_files;
 bool use_timer;
 Renderer renderer;
 
 void Add_Arguments(){
-  parser.add_argument("-i", "--input-files")
-    .nargs(argparse::nargs_pattern::at_least_one);
-  parser.add_argument("output_file")
+  parser.add_argument("-o", "--output-file")
     .required()
     .default_value("out.ppm");
 
@@ -50,8 +49,7 @@ void Set_Config(){
   renderer.Set_Preview_switch(parser.get<bool>("-nw"));
   renderer.Set_Threads(parser.get<int>("-j"));
 
-  output_file = parser.get<decltype(output_file)>("output_file");
-  input_files = parser.get<decltype(input_files)>("-i");
+  output_file = parser.get<decltype(output_file)>("-o");
   use_timer = parser.get<decltype(use_timer)>("-nt");
 }
 
@@ -65,29 +63,16 @@ int main(int argc, char* argv[])
   Parse_Arguments(argc,argv);
   Set_Config();
 
-  std::shared_ptr<Scene> world = std::make_shared<Scene>();
-  std::shared_ptr<Camera> camera;
-
-  for(const auto& input_source : input_files){
-    Importer ifs(input_source);
-    
-    world->Add(ifs.GetScene());
-    if(ifs.GetCamera() != nullptr) camera = ifs.GetCamera();
-  }
-
-  if(camera == nullptr){
-    std::cerr << "No camera provided" << std::endl;
-    std::exit(1);
-  }
+  std::shared_ptr<Scene> world = Get_World();
+  std::shared_ptr<Camera> camera = Get_Camera();
   
   // Add objects to the scene
   renderer.Set_World(world);
   renderer.Set_Camera(camera);
   
   // Render
-  auto canvas = renderer.Render();
-  Mat output;
-  canvas.convertTo(output, CV_8UC3, 256);
+  auto output = renderer.Render();
+  output.convertTo(output, CV_8UC3, 256);
   cv::imwrite(output_file.c_str(), output);
 
   

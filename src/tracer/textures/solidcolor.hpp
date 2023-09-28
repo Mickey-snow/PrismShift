@@ -1,18 +1,26 @@
 #ifndef SOLIDCOLOR_H
 #define SOLIDCOLOR_H
 
-#include<util/util.hpp>
+
 #include<texture.hpp>
 #include<factory.hpp>
 
 #include<memory>
+#include<string>
+#include<vector>
+
+class Point2;
 
 class SolidColor : public Texture{
 public:
   static constexpr std::string name{"solidcolor"};
+
+  SolidColor();
+  SolidColor(const Color& col){ Set_Color(col); }
+  SolidColor(const double& r, const double& g, const double& b){ Set_Color(r,g,b); }
   
-  SolidColor(const Color& c) : color(c) {}
-  SolidColor(double r,double g,double b) : color(r,g,b) {}
+  SolidColor& Set_Color(const Color&);
+  SolidColor& Set_Color(const double&, const double&, const double&);
 
   virtual Color ColorAt(const Point2&) override;
 private:
@@ -20,12 +28,25 @@ private:
 };
 
 namespace{
-  std::shared_ptr<Texture> CreateSolidColor(Json::Value attribute){
-    Json::RequireMember(attribute, "rgb");
-    double r = attribute["rgb"][0].asDouble();
-    double g = attribute["rgb"][1].asDouble();
-    double b = attribute["rgb"][2].asDouble();
-    return std::make_shared<SolidColor>(r,g,b);
+  std::shared_ptr<Texture> CreateSolidColor(const std::vector<Attribute>& attributes){
+    auto ret = std::make_shared<SolidColor>();
+
+    for(const auto& attr : attributes)
+      if(attr.name == "rgb"){
+	try{
+	  auto rgb_arr = std::any_cast<std::array<double,3>>(attr.val);
+	  ret->Set_Color(rgb_arr[0], rgb_arr[1], rgb_arr[2]);
+	  continue;
+	} catch(std::bad_cast& e){}
+	try{
+	  auto col = std::any_cast<Color>(attr.val);
+	  ret->Set_Color(col);
+	  continue;
+	} catch(std::bad_cast& e){}
+	throw std::runtime_error("at CreateSolidColor: value type for attribute rgb is unknown");
+      }
+
+    return ret;
   }
   
   constexpr std::string SolidColor_TextureID = SolidColor::name;

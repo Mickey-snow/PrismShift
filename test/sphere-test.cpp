@@ -14,11 +14,12 @@ TEST(sphere, registerfactory){
 
 
 TEST(sphere, instantiateUsingFactory){
-  Json::Value ss, center;
-  center[0] = 0; center[1] = 0; center[2] = 0;
-  ss["r"] = 1;
-  ss["center"] = center;
-  std::shared_ptr<Shape> ball = (ShapeFactory::Instance()->GetCreateFn(sphere_shapeid))(ss);
+  std::vector<Attribute> attr{
+    {"position", Point3(1,1,1)},
+    {"radius", 1.0}
+  };
 
-  EXPECT_EQ(ball->Get_Bounding_box(), AABB(Point3(1,1,1), Point3(-1,-1,-1)));
+  std::shared_ptr<Shape> ball = (ShapeFactory::Instance()->GetCreateFn(sphere_shapeid))(attr);
+
+  EXPECT_EQ(ball->Get_Bounding_box(), AABB(Point3(2,2,2), Point3(0,0,0)));
 }

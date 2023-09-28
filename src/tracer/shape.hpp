@@ -16,9 +16,9 @@ class Point2;
 class Shape{
 public:
   virtual ~Shape() = default;
-
-  virtual std::string Get_Name(void) const = 0;
   
+  virtual std::string Get_Name(void) const = 0;
+
   // An alternative Hit method
   // Accepts Ray r and Interval time as parameters
   // Returns a Hit_record encapuslates the first object Ray r hits.
@@ -40,7 +40,6 @@ public:
   
   virtual Point2 Map_Texture(const Hit_record&) const = 0;
 
-// protected:
   Coordinate3 refframe;
 };
 

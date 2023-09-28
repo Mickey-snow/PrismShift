@@ -9,17 +9,15 @@
 #include<string>
 #include<sstream>
 
-#include "plane.hpp"
 
 class Parallelogram : public Visible{
 public:
   static constexpr std::string name{"parallelogram"};
   std::string Get_Name(void) const override{ return name; }
+
+  Parallelogram();
   
-  Parallelogram(const Point3& _Q, const Vector3& _u, const Vector3& _v) :
-    Q(_Q),u(_u),v(_v),
-    Visible(Coordinate3().Set_Translation(Coordinate3::Origin(_Q)).Set_Rotation(Coordinate3::AlignXY(_u,_v))){
-    Init(); }
+  Parallelogram& Set_Position(const Point3&, const Point3&, const Point3&);
   
   virtual Hit_record Ray_Hit(const Ray&, const Interval<double>&) const override;
   Point2 Map_Texture(const Hit_record&) const override;
@@ -30,36 +28,24 @@ public:
 
 protected:
   AABB bbox;
-  Point3 Q;
-  Vector3 u,v;
-  Normal normal;
 
   std::shared_ptr<Material> material;
-  Decomposer3d* decomposer;
-  
-
-  void Init(void){
-    bbox = AABB(Q,Q+u+v).Pad();
-    normal = (Normal)(Vector3::Normalized(Vector3::Cross(u,v)));
-    decomposer = new Decomposer3d(u,v,normal);
-  }
-
-  bool On_Object(const double& a,const double& b) const{
-    return 0<=a&&a<=1 && 0<=b&&b<=1;
-  }
 };
 
 namespace{
-  std::shared_ptr<Visible> CreateParallelogram(Json::Value attribute){
-    Json::RequireMember(attribute, "origin", "u", "v");
-    Point3 Q; Vector3 u,v;
-    auto qi=attribute["origin"], ui=attribute["u"], vi=attribute["v"];
+  std::shared_ptr<Visible> CreateParallelogram(const std::vector<Attribute>& attributes){
+    auto ret = std::make_shared<Parallelogram>();
 
-    Q = Point3(qi[0].asDouble(), qi[1].asDouble(), qi[2].asDouble());
-    u = Vector3(ui[0].asDouble(), ui[1].asDouble(), ui[2].asDouble());
-    v = Vector3(vi[0].asDouble(), vi[1].asDouble(), vi[2].asDouble());
-
-    return std::make_shared<Parallelogram>(Q,u,v);
+    for(const auto& attr : attributes)
+      if(attr.name == "position"){
+	auto v = std::any_cast<std::array<Point3, 3>>(attr.val);
+	ret->Set_Position(v[0],v[1],v[2]);
+      }
+      else if(attr.name == "material")
+	ret->Set_Material(std::any_cast<std::shared_ptr<Material>>(attr.val));
+      else std::cerr<<"at CreateParallelogram: Unknown attribute "<<attr.name<<std::endl;
+    
+    return ret;
   }
 
   constexpr std::string Parallelogram_ShapeID = Parallelogram::name;

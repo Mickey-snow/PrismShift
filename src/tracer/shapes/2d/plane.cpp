@@ -6,6 +6,18 @@
 #include<utility>
 #include<cmath>
 
+Plane::Plane() : bbox(AABB(Point3(1e10,1e10,0),Point3(-1e10,-1e10,0)).Pad()),
+	  Visible(),
+	  material(nullptr) {}
+
+Plane& Plane::Set_Position(const Point3& Q, const Point3& A, const Point3& B){
+  Vector3 u=A-Q, v=B-Q;
+  refframe = Coordinate3().Set_Translation(Coordinate3::Origin(Q)).Set_Rotation(Coordinate3::AlignXY(u,v));
+  bbox = refframe.Local2World(AABB(Point3(1e10,1e10,0),Point3(-1e10,-1e10,0)).Pad());
+  return *this;
+}
+
+
 Hit_record Plane::Ray_Hit(const Ray& rw, const Interval<double>& time_interval) const{
   const Ray r = refframe.World2Local(rw);
 

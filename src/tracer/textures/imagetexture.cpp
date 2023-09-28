@@ -5,7 +5,9 @@
 #include<opencv2/core.hpp>
 #include<opencv2/imgcodecs.hpp>
 
-ImageTexture::ImageTexture(std::string filename){
+ImageTexture::ImageTexture(){}
+
+ImageTexture& ImageTexture::Set_Imgfile(std::string filename){
   cv::samples::addSamplesDataSearchPath("./");
   cv::samples::addSamplesDataSearchPath("../");
   cv::samples::addSamplesDataSearchPath("../image/");
@@ -19,6 +21,8 @@ ImageTexture::ImageTexture(std::string filename){
   if(img_8u.empty()) throw std::runtime_error(std::format("FILE ERROR: cannot open {} for image source {}", filepath, filename));
 
   img_8u.convertTo(img, CV_64FC3, 1.0/255);
+
+  return *this;
 }
 
 

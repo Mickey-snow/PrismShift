@@ -11,17 +11,14 @@
 #include<string>
 #include<sstream>
 
-class Parallelogram;
-class Triangle;
+
 class Plane : public Visible{
 public:
   static constexpr std::string name{"plane"};
-  virtual std::string Get_Name(void) const override{ return name; }
+  std::string Get_Name(void) const override{ return name; }
 
-  Plane(Point3 _Q, Vector3 _u, Vector3 _v) :
-    Q(_Q),v(_v),u(_u),
-    Visible(Coordinate3().Set_Translation(Coordinate3::Origin(_Q)).Set_Rotation(Coordinate3::AlignXY(_u,_v))){
-    Init(); }
+  Plane();
+  Plane& Set_Position(const Point3&, const Point3&, const Point3&);
 
   void Set_Material(std::shared_ptr<Material> mat) override{ material = mat; }
   std::shared_ptr<Material> Get_Material(void)const override{ return material; }
@@ -34,31 +31,25 @@ public:
 
 protected:
   AABB bbox;
-  Point3 Q;
-  Vector3 u,v;
-  Normal normal;
 
   std::shared_ptr<Material> material;
-  Decomposer3d *decomposer;
-
-  virtual void Init(void){
-    normal = (Normal)(Vector3::Normalized(Vector3::Cross(u,v)));
-    bbox = AABB(Interval<double>::Universe(), Interval<double>::Universe(), Interval<double>::Universe());
-    decomposer = new Decomposer3d(u,v,normal);
-  }
 };
 
 namespace{
-  std::shared_ptr<Visible> CreatePlane(Json::Value attribute){
-    Json::RequireMember(attribute, "origin", "u", "v");
-    Point3 Q; Vector3 u,v;
-    auto qi=attribute["origin"], ui=attribute["u"], vi=attribute["v"];
+  std::shared_ptr<Visible> CreatePlane(const std::vector<Attribute>& attributes){
+    auto ret = std::make_shared<Plane>();
 
-    Q = Point3(qi[0].asDouble(), qi[1].asDouble(), qi[2].asDouble());
-    u =Vector3(ui[0].asDouble(), ui[1].asDouble(), ui[2].asDouble());
-    v = Vector3(vi[0].asDouble(), vi[1].asDouble(), vi[2].asDouble());
-
-    return std::make_shared<Plane>(Q,u,v);
+    for(const auto& attr : attributes)
+      if(attr.name == "material")
+	ret->Set_Material(std::any_cast<std::shared_ptr<Material>>(attr.val));
+      else if(attr.name == "position"){
+	auto v = std::any_cast<std::array<Point3,3>>(attr.val);
+	ret->Set_Position(v[0],v[1],v[2]);
+      }
+      else std::cerr<<"at CreatePlane: Unknown attribute "<<attr.name<<std::endl;
+	
+    
+    return ret;
   }
 
   constexpr std::string Plane_ShapeID = Plane::name;

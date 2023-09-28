@@ -6,20 +6,29 @@
 #include<map>
 #include<string>
 #include<format>
+#include<any>
+#include<functional>
 
-#include<jsoncpp.h>
+struct Attribute{
+  std::string name;
+  std::any val;
+};
+
+struct Attribute_List{
+  std::vector<Attribute> attributes;
+};
 
 template<typename idtype, typename productType>
 class _Factory{
 public:
-  typedef productType (*Create_Callback)(Json::Value);
+  using Callback = std::function<productType(const std::vector<Attribute>&)>;
 private:
-  using CallbackMap = std::map<idtype, Create_Callback>;
+  using CallbackMap = std::map<idtype, Callback>;
   CallbackMap _callbacks;
     
 public:
   // Returns true iff suffessfully register creating function to factory
-  bool Register(idtype id, Create_Callback CreateFn){
+  bool Register(idtype id, Callback CreateFn){
     return _callbacks.insert(std::pair{id, CreateFn}).second;
   }
 
@@ -27,7 +36,7 @@ public:
     return _callbacks.find(id) != _callbacks.end();
   }
 
-  Create_Callback GetCreateFn(idtype shapeid){
+  Callback GetCreateFn(idtype shapeid){
     auto it = _callbacks.find(shapeid);
     if(it == _callbacks.end())
       throw std::runtime_error(std::format("Unknown Shape ID: {}", shapeid));
