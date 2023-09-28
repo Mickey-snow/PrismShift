@@ -15,11 +15,6 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 
 include_directories("External")
 
-set(JSONCPP_LIB_DIR "External/jsoncpp")
-include_directories(${JSONCPP_LIB_DIR})
-file(GLOB_RECURSE JSONCPP_SOURCES "${JSONCPP_LIB_DIR}/*.cpp")
-add_library(jsoncpp STATIC ${JSONCPP_SOURCES})
-
 set(TINYOBJ_LIB_DIR "External/tinyobj")
 include_directories(${TINYOBJ_LIB_DIR})
 file(GLOB_RECURSE TINYOBJ_SOURCES "${TINYOBJ_LIB_DIR}/*.cc")
@@ -34,7 +29,6 @@ add_library(raylib STATIC
 target_include_directories(raylib PUBLIC ${TRACER_LIB_DIR})
 target_link_libraries(raylib
 			${OpenCV_LIBS}
-			jsoncpp
 			tinyobj
 			)
 
@@ -68,7 +62,6 @@ target_link_libraries(unit_test
 	GTest::gtest_main
 	${OpenCV_LIBS}
 	raylib
-	jsoncpp
 	)
 
 
