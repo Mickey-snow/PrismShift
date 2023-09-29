@@ -2,6 +2,7 @@
 #define UTIL_MATRIX_H
 
 #include<initializer_list>
+#include<ostream>
 
 class Matrix4{
 public:
@@ -80,6 +81,18 @@ public:
 private:
   // data
   double* v;
+
+public:
+  friend std::ostream& operator << (std::ostream& os, const Matrix4& m){
+    os<<'[';
+    for(int i=0;i<4;++i){
+      os<<'[';
+      os << m.v[i*4] << ',' << m.v[i*4+1] << ',' << m.v[i*4+2] << ',' << m.v[i*4+3];
+      os<<']';
+    }
+    os<<']';
+    return os;
+  }
 };
 
 #endif

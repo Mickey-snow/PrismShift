@@ -6,41 +6,68 @@
 #include<cmath>
 #include<format>
 
-TEST(matrix, product){
-  Matrix4 I = Matrix4::I();
+
+class MatrixTest : public ::testing::Test{
+protected:
+  void SetUp() override{
+    I = Matrix4::I();
+
+    for(int i=0;i<4;++i)
+      for(int j=0;j<4;++j)
+	mat[i][j] = i+j*i+4;
+
+    for(int i=0;i<4;++i)
+      for(int j=0;j<4;++j)
+	randMat[i][j] = random_uniform_01();
+
+    det0mat = det20mat;
+    for(int i=0;i<4;++i){ det0mat[1][i]=i; det0mat[2][i]=5*i; }
+  }
+
+  Matrix4 I;
+  Matrix4 emptymat;
   Matrix4 mat;
-  for(int i=0;i<4;++i)
-    for(int j=0;j<4;++j)
-      mat[i][j] = i+j*i+4;
+  Matrix4 randMat;
+  Matrix4 det20mat{5,-7,2,2,0,3,0,-4,-5,-8,0,3,0,5,0,-6};
+  Matrix4 det0mat;
+  
+  const double EPS = 1e-5;
+};
 
-  EXPECT_EQ(mat, mat*I);
-  EXPECT_EQ(mat, I*mat);
+TEST_F(MatrixTest, unchangedAfterTimesIdentityMat){
+  for(const auto& m : {I,emptymat,mat,randMat,det20mat}){
+    EXPECT_EQ(m, m*I);
+    EXPECT_EQ(m, I*m);
+  }
 }
 
-TEST(matrix, determinant){
-  Matrix4 m{5,-7,2,2,0,3,0,-4,-5,-8,0,3,0,5,0,-6};
-  EXPECT_NEAR(m.Det(),20,EPS);
+TEST_F(MatrixTest, determinant){
+  EXPECT_NEAR(det20mat.Det(),20,EPS);
+  EXPECT_NEAR(I.Det(), 1, EPS);
 }
 
-TEST(matrix, transpose){
-  Matrix4 m;
-  for(int i=0;i<4;++i) for(int j=0;j<4;++j) m[i][j] = random_uniform_01();
-  auto mtrans = Matrix4::Transpose(m);
-  EXPECT_NEAR(m.Det(), mtrans.Det(), EPS);
+TEST_F(MatrixTest, detUnchangeAfterTranspose){
+  for(const auto& m : {I,emptymat,mat,randMat,det20mat}){
+    auto mtrans = Matrix4::Transpose(m);
+    EXPECT_NEAR(m.Det(), mtrans.Det(), EPS);
+  }
 }
 
 
-TEST(matrix, inverse){
-  Matrix4 m;
-  for(int i=0;i<4;++i)
-    for(int j=0;j<4;++j) m[i][j] = random_double(-10,10);
-  Matrix4 minv = Matrix4::Inverse(m);
+TEST_F(MatrixTest, productWithInverseIsIdentityMat){
+  for(const auto& m : {I,randMat,det20mat}){
+    Matrix4 minv = Matrix4::Inverse(m);
 
-  EXPECT_EQ(m*minv, Matrix4::I());
-  EXPECT_EQ(minv*m, Matrix4::I());
+    EXPECT_EQ(m*minv, Matrix4::I());
+    EXPECT_EQ(minv*m, Matrix4::I());
+  }
+}
 
-  for(int i=0;i<4;++i){ m[1][i]=i; m[2][i]=5*i; }
-  EXPECT_THROW(Matrix4::Inverse(m), std::runtime_error);
+TEST_F(MatrixTest, inverseDet0MatrixThrowsError){
+  for(const auto& m : {det0mat, emptymat}){
+    ASSERT_DOUBLE_EQ(m.Det(), 0) << "at Matrix4::Det(): matrix "<< m <<" has determinant differ than 0";
+    EXPECT_THROW(Matrix4::Inverse(m), std::runtime_error) << "at Matrix4::Inverse(): calculated the inverse of matrix "<<m<<" without throwing an error";
+  }
 }
 
 TEST(matrix, identity){

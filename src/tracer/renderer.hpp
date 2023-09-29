@@ -2,10 +2,13 @@
 #define RENDERER_PANEL_H
 
 #include<memory>
-#include<util/util.hpp>
+#include<util/mat.hpp>
 
 class Camera;
 class Scene;
+class Color;
+class Ray;
+
 class Renderer{
   public:
   Renderer() = default;

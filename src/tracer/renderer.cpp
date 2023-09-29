@@ -4,15 +4,12 @@
 #include<bsdf.hpp>
 #include<shape.hpp>
 #include<camera.hpp>
+#include<util/util.hpp>
 
 #include "opencv2/highgui.hpp"
 
 #include<queue>
 #include<future>
-
-#include<shapes/3d/sphere.hpp>
-#include<shapes/2d/parallelogram.hpp>
-#include<materials/dielectric.hpp>
 
 std::vector<Point3> Rand_Pixel_Samples(const Camera::View_Info& view, const int& row, const int& column, const int& total_samples){
   std::vector<Point3> samples;
