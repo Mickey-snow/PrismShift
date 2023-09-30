@@ -33,8 +33,9 @@ public:
   Point3 operator () (const Point3&) const;
   Vector3 operator () (const Vector3&) const;
   Normal operator () (const Normal&) const;
-  Ray operator () (const Ray&) const;
-  AABB operator () (const AABB&) const;
+
+  template<typename T>
+  T operator () (const T& t) const{ return t.Transform(*this); }
   
 private:
   Matrix4 m,minv;

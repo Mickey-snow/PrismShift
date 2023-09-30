@@ -27,6 +27,7 @@ public:
   Vector3 Refract_Direction(const Normal& normal, const double& refractive_index_ratio) const;
 
   Ray Transform(const Transformation&) const;
+  
 private:
   Point3 origin;
   Vector3 direction;

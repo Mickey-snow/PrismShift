@@ -2,7 +2,6 @@
 #include "transform.hpp"
 #include "ray.hpp"
 
-
 #include<cmath>
 
 Point3 Ray::At(const double& time) const{
@@ -41,4 +40,9 @@ double Ray::intersectionTimeWithPlane(const Point3& Q, const Vector3 &u, const V
 }
 
 
-Ray Ray::Transform(const Transformation& tr) const{ return tr(*this); }
+Ray Ray::Transform(const Transformation& tr) const{
+  Ray ret = *this;
+  ret.SetOrigin(tr(Origin()));
+  ret.SetDirection(tr(Direction()));
+  return ret;
+}

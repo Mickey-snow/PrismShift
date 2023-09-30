@@ -9,10 +9,10 @@
 class Transformation;
 
 namespace internal{
-  constexpr double EPS = 1e-2;
-  
   template<typename Child>
   class BaseVec2{
+  protected:
+    static constexpr double EPS = 1e-3;    
   public:
     // constructors
     BaseVec2(){ v[0]=v[1]=0; }
@@ -53,7 +53,9 @@ namespace internal{
     double Length() const{ return std::sqrt(Length_squared()); }
     double Length_squared() const{ return v[0]*v[0]+v[1]*v[1]; }
 
+    [[deprecated("use normalized instead")]]
     Child Normalize() const{ return *this / Length(); }
+    Child Normalized() const{ return *this / Length(); }
 
     static double Dot(const Child& lhs, const Child& rhs){ return lhs.v[0]*rhs.v[0] + lhs.v[1]*rhs.v[1]; }
     double Dot(const Child& rhs) const{ return BaseVec2<Child>::Dot(*this, rhs); }
@@ -65,6 +67,8 @@ namespace internal{
   
   template<typename Child>
   class BaseVec3{
+  protected:
+    static constexpr double EPS = 1e-3;
   public:
     // constructors
     BaseVec3(){ v[0]=v[1]=v[2]=0; }
@@ -104,10 +108,14 @@ namespace internal{
     bool hasnans(void) const{ return std::isnan(v[0]) || std::isnan(v[1]) || std::isnan(v[2]); }
     bool isvalid(void) const{ return !hasnans(); }
 
+    bool isUnit(void) const{ return fabs(Length_squared()-1) < EPS; }
+
     double Length() const{ return std::sqrt(Length_squared()); }
     double Length_squared() const{ return v[0]*v[0]+v[1]*v[1]+v[2]*v[2]; }
 
+    [[deprecated("use normalized instead")]]
     Child Normalize() const{ return *this / Length(); }
+    Child Normalized() const{ return *this / Length(); }
 
     static double Dot(const Child& lhs, const Child& rhs){ return lhs.v[0]*rhs.v[0] + lhs.v[1]*rhs.v[1] + lhs.v[2]*rhs.v[2]; }
     double Dot(const Child& rhs) const{ return BaseVec3<Child>::Dot(*this, rhs); }
@@ -151,6 +159,7 @@ public:
   explicit Vector3(const BaseVec3<T>& rhs){ v[0]=rhs.v[0]; v[1]=rhs.v[1]; v[2]=rhs.v[2]; }
 
   static Vector3 Normalized(const Vector3& v);
+  Vector3 Normalized(void) const{ return Vector3::Normalized(*this); }
 
   double Dot(const Vector3& rhs) const{ return Parent::Dot(*this, rhs); }
   Vector3 Cross(const Vector3& rhs) const{ return Parent::Cross(*this, rhs); }
@@ -164,6 +173,18 @@ public:
   template<typename T, typename U>
   static Vector3 Cross(const internal::BaseVec3<T>& lhs, const internal::BaseVec3<U>& rhs){
     return Parent::Cross((Vector3)lhs, (Vector3)rhs);
+  }
+
+  static bool isPerpendicular(const Vector3& a,const Vector3& b){
+    return fabs(Vector3::Dot(a,b)) < EPS;
+  }
+
+  static bool Same_Direction(const Vector3& a,const Vector3& b){
+    if(a.Near_Zero() || b.Near_Zero()) return true;
+    double t;
+    for(int i=0;i<3;++i)
+      if(b[i] != 0) { t = a[i]/b[i]; break; }
+    return b*t == a;
   }
   
   static Vector3 Random_Unit(void);

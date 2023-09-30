@@ -8,6 +8,8 @@
 
 #include<cmath>
 
+class Transformation;
+
 class AABB{
   // Approximate an visible object to a cube
   // All rays miss this cube thus miss the object
@@ -36,6 +38,8 @@ public:
 
   AABB Pad() const;
 
+  AABB Transform(const Transformation&) const;
+  
   class Componentbased_Comparer{
   public:
     Componentbased_Comparer(const int& _component) : component(_component) {}

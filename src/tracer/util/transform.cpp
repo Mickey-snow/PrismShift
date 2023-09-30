@@ -4,9 +4,6 @@
 #include "aabb.hpp"
 
 #include<cmath>
-#include<functional>
-#include<vector>
-#include<algorithm>
 
 Point3 Transformation::operator() (const Point3& p) const{
   double x=p.x(),y=p.y(),z=p.z();
@@ -31,26 +28,6 @@ Normal Transformation::operator() (const Normal& p) const{
   double yp = minv[0][1]*x + minv[1][1]*y + minv[2][1]*z;
   double zp = minv[0][2]*x + minv[1][2]*y + minv[2][2]*z;
   return Normal(xp,yp,zp).Normalize();
-}
-
-Ray Transformation::operator() (const Ray& r) const{
-  Ray ret = r;
-  ret.SetOrigin(r.Origin().Transform(*this));
-  ret.SetDirection(r.Direction().Transform(*this));
-  return ret;
-}
-
-AABB Transformation::operator () (const AABB& box) const{
-  std::vector<Point3> v;
-  std::function<double(const Interval<double>&)> vertex_component[] = {
-    [](const Interval<double>& i){ return i.begin; },
-    [](const Interval<double>& i){ return i.end; }
-  };
-  for(int i=0;i<2;++i) for(int j=0;j<2;++j) for(int k=0;k<2;++k) v.emplace_back(Point3{vertex_component[i](box.Axis(0)), vertex_component[j](box.Axis(1)), vertex_component[k](box.Axis(2)) });
-
-  std::transform(v.cbegin(), v.cend(), v.begin(), (*this));
-
-  return AABB(AABB(AABB(v[0],v[1]),AABB(v[2],v[3])),AABB(AABB(v[4],v[5]),AABB(v[6],v[7])));
 }
 
   
@@ -100,9 +77,13 @@ Transformation Transformation::RotateY(const double& theta){ return Rotate(Vecto
 Transformation Transformation::RotateY(const double& costheta, const double& sintheta){ return Rotate(Vector3{0,1,0}, costheta, sintheta); }
 Transformation Transformation::RotateZ(const double& theta){ return Rotate(Vector3{0,0,1}, theta); }
 Transformation Transformation::RotateZ(const double& costheta, const double& sintheta){ return Rotate(Vector3{0,0,1}, costheta, sintheta); }
+
 Transformation Transformation::RotateFrTo(const Vector3& fr, const Vector3& to){
+  // requires fr and to to be both unit vectors
+  assert(fr.isUnit() && to.isUnit());
+  
   Vector3 refl;
-  if(std::abs(fr.x())<0.72 && std::abs(to.x())<0.72f) refl = Vector3{1,0,0};
+  if(std::abs(fr.x())<0.72 && std::abs(to.x())<0.72) refl = Vector3{1,0,0};
   else if(std::abs(fr.y())<0.72 && std::abs(to.y())<0.72) refl = Vector3{0,1,0};
   else refl = Vector3{0,0,1};
 
