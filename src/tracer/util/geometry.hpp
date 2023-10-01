@@ -57,8 +57,7 @@ namespace internal{
     Child Normalize() const{ return *this / Length(); }
     Child Normalized() const{ return *this / Length(); }
 
-    static double Dot(const Child& lhs, const Child& rhs){ return lhs.v[0]*rhs.v[0] + lhs.v[1]*rhs.v[1]; }
-    double Dot(const Child& rhs) const{ return BaseVec2<Child>::Dot(*this, rhs); }
+    double Dot(const Child& rhs) const{ return v[0]*rhs.v[0] + v[1]*rhs.v[1];  }
     
     double v[2];
   };
