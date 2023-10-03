@@ -1,31 +1,28 @@
 #ifndef AABB_H
 #define AABB_H
 
-#include "geometry.hpp"
-#include "ray.hpp"
+#include<cmath>
+#include<ostream>
+
 #include "interval.hpp"
 
 
-#include<cmath>
-
+class Ray;
 class Transformation;
+class Point3;
 
 class AABB{
   // Approximate an visible object to a cube
   // All rays miss this cube thus miss the object
 public:
-  AABB():x_interval(Interval<double>::Empty()), y_interval(Interval<double>::Empty()), z_interval(Interval<double>::Empty()) {}
+  explicit AABB():x_interval(Interval<double>::Empty()), y_interval(Interval<double>::Empty()), z_interval(Interval<double>::Empty()) {}
   AABB(const Interval<double>& x,const Interval<double>& y, const Interval<double>& z) : x_interval(x), y_interval(y), z_interval(z) {}
-  AABB(const Point3& a, const Point3& b){
-    x_interval = Interval(fmin(a.x(),b.x()), fmax(a.x(),b.x()));
-    y_interval = Interval(fmin(a.y(),b.y()), fmax(a.y(),b.y()));
-    z_interval = Interval(fmin(a.z(),b.z()), fmax(a.z(),b.z()));
-  }
-  AABB(const AABB& a,const AABB& b):
-    x_interval(Interval(a.x_interval,b.x_interval)),
-    y_interval(Interval(a.y_interval,b.y_interval)),
-    z_interval(Interval(a.z_interval,b.z_interval)) {}
 
+  AABB(std::initializer_list<AABB> li);
+  AABB(std::initializer_list<Point3> li);
+  AABB(const AABB& a, const AABB& b);
+  AABB(const Point3& a,const Point3& b);
+  
   bool operator == (const AABB& rhs) const{
     return x_interval == rhs.Axis(0) &&
       y_interval == rhs.Axis(1) &&
@@ -34,7 +31,8 @@ public:
   
   const Interval<double>& Axis(const int& n) const;
 
-  bool Is_Hit_in_Interval(const Ray&, Interval<double>) const;
+  bool isHitIn(const Ray&, Interval<double>) const;
+  bool Contains(const Point3&) const;
 
   AABB Pad() const;
 
@@ -49,6 +47,14 @@ public:
   private:
     int component;
   };
+
+  friend std::ostream& operator << (std::ostream& os, const AABB& box){
+    os << 'x' << box.x_interval << ' ';
+    os << 'y' << box.y_interval << ' ';
+    os << 'z' << box.z_interval << ' ';
+    return os;
+  }
+  
 private:
   Interval<double> x_interval,y_interval,z_interval;
 };

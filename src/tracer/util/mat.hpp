@@ -1,9 +1,9 @@
-#ifndef MAT_H
-#define MAT_H
+#ifndef OPENCV_MAT_H
+#define OPENCV_MAT_H
 
-// proxy for opencv::Mat
-
+#pragma GCC system_header
 #include<opencv2/core.hpp>
+
 
 using cv::Mat;
 

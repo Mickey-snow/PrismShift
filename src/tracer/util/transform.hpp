@@ -1,8 +1,10 @@
 #ifndef UTIL_TRANSFORM_H
 #define UTIL_TRANSFORM_H
 
-#include "matrix.hpp"
 #include<utility>
+#include<ostream>
+
+#include "matrix.hpp"
 
 class Point3;
 class Vector3;
@@ -36,6 +38,11 @@ public:
 
   template<typename T>
   T operator () (const T& t) const{ return t.Transform(*this); }
+
+  friend std::ostream& operator << (std::ostream& os, const Transformation& tr){
+    os << "m=" << tr.m << " minv=" << tr.minv;
+    return os;
+  }
   
 private:
   Matrix4 m,minv;

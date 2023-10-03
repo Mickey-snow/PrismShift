@@ -38,7 +38,7 @@ bvh_node::bvh_node(std::vector<std::shared_ptr<Shape>>& src_obj, size_t start, s
     rch = std::make_shared<bvh_node>(src_obj, mid, end, next_axis);
   } else throw std::runtime_error(std::format("Array offset error while constructing bvt. start={}, end={}, span={}", start,end,object_span));
 
-  bbox = AABB(lch->Get_Bounding_box(), rch->Get_Bounding_box());
+  bbox = AABB{lch->Get_Bounding_box(), rch->Get_Bounding_box()};
 }
 
 
@@ -46,7 +46,7 @@ bvh_node::bvh_node(std::vector<std::shared_ptr<Shape>>& src_obj, size_t start, s
 Hit_record bvh_node::Ray_Hit(const Ray& r, const Interval<double>& time) const{
   double closest_hit_time = time.end;
   
-  if(not bbox.Is_Hit_in_Interval(r,time)) return Hit_record::NoHit(); // missed
+  if(not bbox.isHitIn(r,time)) return Hit_record::NoHit(); // missed
 
   // Deffer query to children
   Hit_record temp_rec = lch->Ray_Hit(r,time);

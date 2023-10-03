@@ -1,6 +1,5 @@
 #include<util/util.hpp>
 
-#include "constant.hpp"
 #include<gtest/gtest.h>
 
 

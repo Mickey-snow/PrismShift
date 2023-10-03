@@ -1,7 +1,7 @@
 #include<bsdf.hpp>
 
 #include<gtest/gtest.h>
-#include "constant.hpp"
+
 
 // constexpr int samples = 240000;
 // constexpr double LEPS = 0.1;

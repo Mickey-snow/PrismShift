@@ -4,6 +4,7 @@
 #include "geometry.hpp"
 
 #include<memory>
+#include<ostream>
 
 class Transformation;
 
@@ -21,12 +22,20 @@ public:
 
   [[deprecated]]
   double intersectionTimeWithPlane(const Point3&,const Vector3&,const Vector3&) const;
-  
+
+  [[deprecated]]
   Vector3 Scatter_Direction(const Normal& normal) const;
+  [[deprecated]]
   Vector3 Reflect_Direction(const Normal& normal) const;
+  [[deprecated]]
   Vector3 Refract_Direction(const Normal& normal, const double& refractive_index_ratio) const;
 
   Ray Transform(const Transformation&) const;
+
+  friend std::ostream& operator << (std::ostream& os, const Ray& r){
+    os << "O"<<r.Origin()<<" d"<<r.Direction();
+    return os;
+  }
   
 private:
   Point3 origin;
@@ -35,6 +44,7 @@ private:
 
 
 class Visible;
+
 class Hit_record{		// Records with a ray hits a visible Shape object
 public:
   Hit_record() = delete;

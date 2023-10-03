@@ -3,17 +3,15 @@
 
 #include<util/util.hpp>
 #include<shape.hpp>
-#include<material.hpp>
 
 #include<vector>
 #include<memory>
-#include<iostream>
-
+#include<string>
 
 class bvh_node : public Shape{
   // A bvh node class, representing a subtree from a KDT
   // It holds a AABB Bounding Box property which fully encloses all objects in the KDT
-  // Colored visible objects are at leaves
+  // Concrete visible objects are at leaves
 public:
   bvh_node(const std::vector<std::shared_ptr<Shape>>& src){
     std::vector<std::shared_ptr<Shape>> src_obj_copy(src);

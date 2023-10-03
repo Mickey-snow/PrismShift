@@ -84,13 +84,13 @@ private:
 
 public:
   friend std::ostream& operator << (std::ostream& os, const Matrix4& m){
-    os<<'[';
+    os<<'(';
     for(int i=0;i<4;++i){
       os<<'[';
       os << m.v[i*4] << ',' << m.v[i*4+1] << ',' << m.v[i*4+2] << ',' << m.v[i*4+3];
       os<<']';
     }
-    os<<']';
+    os<<')';
     return os;
   }
 };

@@ -5,10 +5,12 @@
 
 template<typename T>
 class Interval{
+private:
+  static constexpr double EPS = 1e-8;
 public:
   T begin,end;
   
-  Interval():begin(0),end(0) {}
+  explicit Interval():begin(0),end(0) {}
   Interval(const T& _min, const T& _max) : begin(_min), end(_max) {}
   Interval(const Interval& a, const Interval& b){
     begin = a.begin < b.begin ? a.begin : b.begin;
@@ -17,7 +19,6 @@ public:
   ~Interval() = default;
 
   bool operator == (const Interval& rhs) const{
-    static double EPS = 1e-8;
     return (begin-EPS<rhs.begin && rhs.begin<begin+EPS) &&
       (end-EPS<rhs.end && rhs.end<end+EPS);
   }
@@ -37,7 +38,7 @@ public:
   bool In(const Interval& a) const{ return a.begin<=begin and end<=a.end; }
   
   bool Contains(const T& x) const{
-    return begin<=x and x<=end;
+    return begin-EPS<x and x<end+EPS;
   }
   bool Surrounds(const T& x) const{
     return begin<x and x<end;
