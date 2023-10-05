@@ -31,6 +31,7 @@ public:
   
   const Interval<double>& Axis(const int& n) const;
 
+  bool isEmpty() const;
   bool isHitIn(const Ray&, Interval<double>) const;
   bool Contains(const Point3&) const;
 

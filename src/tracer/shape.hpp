@@ -2,6 +2,7 @@
 #define OBJECTS_H
 
 #include<util/coordinate.hpp>
+#include<util/transform.hpp>
 
 #include<memory>
 #include<string>
@@ -65,7 +66,7 @@ public:
     m_bbox_rec = nullptr;
     return *this;
   }
-  ConcreteShape& Set_Frame(const Coordinate3& frame){
+  ConcreteShape& Set_Frame(const Transformation& frame){
     m_frame = frame;
     m_bbox_rec = nullptr;
     return *this;
@@ -73,7 +74,7 @@ public:
 
 private:
   IShape const *m_shape;
-  Coordinate3 m_frame;
+  Transformation m_frame;
   mutable std::unique_ptr<AABB> m_bbox_rec;
 };
 

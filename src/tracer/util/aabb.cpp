@@ -103,6 +103,10 @@ bool AABB::Contains(const Point3& p) const{
   return x_interval.Contains(x) && y_interval.Contains(y) && z_interval.Contains(z);
 }
 
+bool AABB::isEmpty(void) const{
+  return x_interval.isEmpty() && y_interval.isEmpty() && z_interval.isEmpty();
+}
+
 
 AABB AABB::Pad() const{
   static double EPS = 1e-3;
