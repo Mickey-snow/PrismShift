@@ -12,6 +12,7 @@ class Ray;
 class Hit_record;
 template<typename T>class Interval;
 class Point2;
+class Material;
 
 class Shape{
 public:
@@ -27,8 +28,6 @@ public:
   virtual AABB Get_Bounding_box(void) const = 0;
 };
 
-class Material;
-
 class Visible : public Shape{
 public:
   Visible() = default;
@@ -43,5 +42,39 @@ public:
   Coordinate3 refframe;
 };
 
+
+class IShape{
+public:
+  virtual ~IShape() = default;
+
+  virtual Hit_record Hit(const Ray&, const Interval<double>&) const = 0;
+  virtual AABB Get_Bbox(void) const = 0;
+};
+
+
+class ConcreteShape : public IShape{
+public:
+  ConcreteShape();
+  ~ConcreteShape();
+
+  virtual Hit_record Hit(const Ray&, const Interval<double>&) const override;
+  virtual AABB Get_Bbox(void) const override;
+
+  ConcreteShape& Set_Shape(IShape const *shape){
+    m_shape = shape;
+    m_bbox_rec = nullptr;
+    return *this;
+  }
+  ConcreteShape& Set_Frame(const Coordinate3& frame){
+    m_frame = frame;
+    m_bbox_rec = nullptr;
+    return *this;
+  }
+
+private:
+  IShape const *m_shape;
+  Coordinate3 m_frame;
+  mutable std::unique_ptr<AABB> m_bbox_rec;
+};
 
 #endif

@@ -32,6 +32,11 @@ public:
 
   Ray Transform(const Transformation&) const;
 
+  bool operator == (const Ray& rhs) const {
+    return origin==rhs.Origin() && direction==rhs.Direction();
+  }
+  bool operator != (const Ray& rhs) const { return !(*this==rhs); }
+  
   friend std::ostream& operator << (std::ostream& os, const Ray& r){
     os << "O"<<r.Origin()<<" d"<<r.Direction();
     return os;
