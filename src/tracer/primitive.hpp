@@ -3,9 +3,13 @@
 
 #include<memory>
 
+class IMaterial;
 class Hit_record;
 class IShape;
 template<typename> class Interval;
+class Ray;
+class BSDF;
+class AABB;
 
 class Primitive{
 public:
@@ -17,6 +21,7 @@ public:
     m_shape = shape;
     return *this;
   }
+  AABB Get_Bbox(void);
   
   BSDF CalcBSDF(const Hit_record&) const;
   Primitive& Set_Material(std::shared_ptr<IMaterial> material){

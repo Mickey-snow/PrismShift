@@ -68,7 +68,10 @@ protected:
 };
 
 
-class IAggregator;
+class IAggregate;
+class Primitive;
+class AABB;
+
 class PrimitiveList : IShape{
   PrimitiveList() : m_shapes{}, m_aggregator(nullptr) {}
   ~PrimitiveList() = default;
@@ -81,8 +84,10 @@ class PrimitiveList : IShape{
   
 private:
   std::vector<std::shared_ptr<Primitive>> m_shapes;
-  std::unique_ptr<IAggregator> m_aggregator;
-  std::unique_ptr<AABB> m_bbox;
+  mutable std::unique_ptr<IAggregate> m_aggregator;
+
+  void Make_Aggregator(void) const;
+
 };
 
 #endif

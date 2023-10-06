@@ -3,6 +3,7 @@
 
 #include<util/util.hpp>
 #include<shape.hpp>
+#include<primitive.hpp>
 
 #include<vector>
 #include<memory>
@@ -25,8 +26,10 @@ public:
   // However it never set itself as the hitted object
   Hit_record Ray_Hit(const Ray&,const Interval<double>&)const override;
 
+  [[deprecated]]
   AABB Get_Bounding_box(void) const override{ return bbox; }
-
+  AABB Get_Bbox(void) const { return bbox; }
+  
   virtual std::string Get_Name(void) const override{
     return std::string{"BVH Node"};
   }
@@ -34,5 +37,51 @@ private:
   std::shared_ptr<Shape> lch,rch;
   AABB bbox;
 };
+
+
+
+
+class IAggregate{
+public:
+  virtual ~IAggregate() = default;
+
+  virtual AABB Get_Bbox(void) const = 0;
+  virtual Hit_record Hit(const Ray&, const Interval<double>&) const = 0;
+};
+
+class BVT : public IAggregate{
+private:
+  class Node : public Primitive{
+  public:
+    Node(const std::vector<std::shared_ptr<Primitive>>& src){
+      std::vector<std::shared_ptr<Primitive>> src_obj_copy(src);
+      *this = Node(src_obj_copy, 0, src_obj_copy.size(), 0);
+    }
+    Node(std::vector<std::shared_ptr<Primitive>>& src_obj, size_t start, size_t end, int axis=0);
+    
+    Hit_record Hit(const Ray&,const Interval<double>&)const;
+    AABB Get_Bbox(void) const { return bbox; }
+
+    Primitive& Set_Shape(std::shared_ptr<IShape>) = delete;
+    BSDF CalcBSDF(const Hit_record&) const = delete;
+    Primitive& Set_Material(std::shared_ptr<IMaterial>) = delete;
+    
+  private:
+    std::shared_ptr<Primitive> lch,rch;
+    AABB bbox;
+    friend BVT;
+  };
+  
+public:
+  BVT(const std::vector<std::shared_ptr<Primitive>>& li);
+
+  AABB Get_Bbox(void) const override{ return bbox; }
+  Hit_record Hit(const Ray&, const Interval<double>&) const override;
+  
+private:
+  AABB bbox;
+  std::unique_ptr<Node> root;
+};
+
 
 #endif
