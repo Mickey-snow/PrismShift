@@ -17,4 +17,12 @@ public:
 };
 
 
+
+class IMaterial{
+public:
+  virtual ~IMaterial() = default;
+
+  virtual BSDF CalcBSDF(const Hit_record&) const = 0;
+};
+
 #endif

@@ -39,6 +39,11 @@ public:
   template<typename T>
   T operator () (const T& t) const{ return t.Transform(*this); }
 
+  template<typename T>
+  T doTransform(const T& t) const{ return (*this)(t); }
+  template<typename T>
+  T undoTransform(const T& t) const{ return (this->Inverse())(t); }
+
   friend std::ostream& operator << (std::ostream& os, const Transformation& tr){
     os << "m=" << tr.m << " minv=" << tr.minv;
     return os;

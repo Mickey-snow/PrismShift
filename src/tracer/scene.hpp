@@ -68,4 +68,21 @@ protected:
 };
 
 
+class IAggregator;
+class PrimitiveList : IShape{
+  PrimitiveList() : m_shapes{}, m_aggregator(nullptr) {}
+  ~PrimitiveList() = default;
+
+  Hit_record Hit(const Ray&, const Interval<double>&) const override;
+  AABB Get_Bbox(void) const override;
+
+  PrimitiveList& Add(const std::shared_ptr<Primitive> shape);
+
+  
+private:
+  std::vector<std::shared_ptr<Primitive>> m_shapes;
+  std::unique_ptr<IAggregator> m_aggregator;
+  std::unique_ptr<AABB> m_bbox;
+};
+
 #endif
