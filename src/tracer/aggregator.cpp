@@ -1,7 +1,8 @@
-#include "bvh.hpp"
+#include "aggregator.hpp"
 
 #include<util/util.hpp>
 #include<shape.hpp>
+#include<primitive.hpp>
 
 #include<stdexcept>
 #include<format>
@@ -66,7 +67,7 @@ Hit_record bvh_node::Ray_Hit(const Ray& r, const Interval<double>& time) const{
 
 
 
-BVT::BVT(const std::vector<std::shared_ptr<Primitive>>& li){
+BVT::BVT(const std::vector<std::shared_ptr<IPrimitive>>& li){
   root = std::make_unique<Node>(li);
   bbox = root->Get_Bbox();
 }
@@ -76,11 +77,11 @@ Hit_record BVT::Hit(const Ray& r, const Interval<double>& time_interval) const {
 }
 
 
-BVT::Node::Node(std::vector<std::shared_ptr<Primitive>>& src_obj, size_t start, size_t end, int axis){
+BVT::Node::Node(std::vector<std::shared_ptr<IPrimitive>>& src_obj, size_t start, size_t end, int axis){
   class __final_comparer{
   public:
     __final_comparer(const AABB::Componentbased_Comparer& cp) : component_comparer(cp) {}
-    bool operator () (std::shared_ptr<Primitive> a, std::shared_ptr<Primitive> b){
+    bool operator () (std::shared_ptr<IPrimitive> a, std::shared_ptr<IPrimitive> b){
       return component_comparer(a->Get_Bbox(), b->Get_Bbox());
     }
   private:

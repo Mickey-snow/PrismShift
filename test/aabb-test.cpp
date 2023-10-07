@@ -8,9 +8,7 @@
 #include<functional>
 #include<ranges>
 
-#include <bvh.hpp>
-#include <util/util.hpp>
-
+#include<util/util.hpp>
 #include<common/transformations.hpp>
 
 

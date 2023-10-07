@@ -2,9 +2,9 @@
 
 #include<primitive.hpp>
 #include<util/util.hpp>
-#include<bvh.hpp>
+#include<aggregator.hpp>
 
-PrimitiveList& PrimitiveList::Add(const std::shared_ptr<Primitive> shape){
+PrimitiveList& PrimitiveList::Add(const std::shared_ptr<IPrimitive> shape){
   m_shapes.push_back(shape);
   m_aggregator = nullptr;
   return *this;

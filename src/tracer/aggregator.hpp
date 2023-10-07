@@ -1,5 +1,5 @@
-#ifndef BVF_H
-#define BVF_H
+#ifndef AGGREGATOR_H
+#define AGGREGATOR_H
 
 #include<util/util.hpp>
 #include<shape.hpp>
@@ -51,29 +51,25 @@ public:
 
 class BVT : public IAggregate{
 private:
-  class Node : public Primitive{
+  class Node : public IShape{
   public:
-    Node(const std::vector<std::shared_ptr<Primitive>>& src){
-      std::vector<std::shared_ptr<Primitive>> src_obj_copy(src);
+    Node(const std::vector<std::shared_ptr<IPrimitive>>& src){
+      std::vector<std::shared_ptr<IPrimitive>> src_obj_copy(src);
       *this = Node(src_obj_copy, 0, src_obj_copy.size(), 0);
     }
-    Node(std::vector<std::shared_ptr<Primitive>>& src_obj, size_t start, size_t end, int axis=0);
+    Node(std::vector<std::shared_ptr<IPrimitive>>& src_obj, size_t start, size_t end, int axis=0);
     
     Hit_record Hit(const Ray&,const Interval<double>&)const;
     AABB Get_Bbox(void) const { return bbox; }
-
-    Primitive& Set_Shape(std::shared_ptr<IShape>) = delete;
-    BSDF CalcBSDF(const Hit_record&) const = delete;
-    Primitive& Set_Material(std::shared_ptr<IMaterial>) = delete;
     
   private:
-    std::shared_ptr<Primitive> lch,rch;
+    std::shared_ptr<IShape> lch,rch;
     AABB bbox;
     friend BVT;
   };
   
 public:
-  BVT(const std::vector<std::shared_ptr<Primitive>>& li);
+  BVT(const std::vector<std::shared_ptr<IPrimitive>>& li);
 
   AABB Get_Bbox(void) const override{ return bbox; }
   Hit_record Hit(const Ray&, const Interval<double>&) const override;

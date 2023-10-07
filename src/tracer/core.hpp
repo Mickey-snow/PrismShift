@@ -4,7 +4,7 @@
 #include "util/util.hpp"
 
 #include "shape.hpp"
-#include "bvh.hpp"
+#include "aggregator.hpp"
 #include "camera.hpp"
 #include "material.hpp"
 #include "factory.hpp"

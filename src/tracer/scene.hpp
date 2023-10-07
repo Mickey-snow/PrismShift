@@ -1,12 +1,15 @@
 #ifndef SCENE_H
 #define SCENE_H
 
-#include "shape.hpp"
-#include "bvh.hpp"
 
 #include<iostream>
 #include<memory>
 #include<vector>
+
+#include<shape.hpp>
+#include<aggregator.hpp>
+
+
 
 class Scene: public Shape{
 public:
@@ -79,11 +82,11 @@ class PrimitiveList : IShape{
   Hit_record Hit(const Ray&, const Interval<double>&) const override;
   AABB Get_Bbox(void) const override;
 
-  PrimitiveList& Add(const std::shared_ptr<Primitive> shape);
+  PrimitiveList& Add(const std::shared_ptr<IPrimitive> shape);
 
   
 private:
-  std::vector<std::shared_ptr<Primitive>> m_shapes;
+  std::vector<std::shared_ptr<IPrimitive>> m_shapes;
   mutable std::unique_ptr<IAggregate> m_aggregator;
 
   void Make_Aggregator(void) const;
