@@ -11,7 +11,7 @@ Primitive::~Primitive() = default;
 
 
 Hit_record Primitive::Hit(const Ray& r, const Interval<double>& t) const{
-  if(m_shape == nullptr) return Hit_record::NoHit();
+  if(m_shape == nullptr) return Hit_record{};
   else return m_shape->Hit(r,t);
 }
 

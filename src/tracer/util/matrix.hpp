@@ -52,7 +52,7 @@ public:
   bool operator != (const Matrix4& rhs) const { return !(*this == rhs); }
 
   double* operator [](const int& idx){ return v + idx*4; }
-  const double* operator [](const int& idx)const{ return v + idx*4; }
+  double const* const operator [](const int& idx)const{ return v + idx*4; }
 
   
   static Matrix4 Mul(const Matrix4& lhs, const Matrix4& rhs){

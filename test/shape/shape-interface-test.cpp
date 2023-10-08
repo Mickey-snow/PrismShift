@@ -20,7 +20,7 @@ protected:
       .WillRepeatedly(Return(AABB()));
     EXPECT_CALL(*minvisible, Hit)
       .Times(AnyNumber())
-      .WillRepeatedly(Return(Hit_record::NoHit()));
+      .WillRepeatedly(Return(Hit_record{}));
 
     shape.Set_Shape(mshape);
     invisible.Set_Shape(minvisible);
@@ -67,10 +67,10 @@ TEST_P(ConcreteShapeTest, forwardsHit){
 
   EXPECT_CALL(*mshape, Hit(r.Transform(tr), t))
     .Times(1)
-    .WillOnce(Return(Hit_record::NoHit()));
+    .WillOnce(Return(Hit_record{}));
 
   auto rec = shape.Hit(r,t);
-  EXPECT_FALSE(rec.hits);
+  EXPECT_FALSE(rec.isHit());
 }
 
 INSTANTIATE_TEST_SUITE_P(ConcreteShapeTr, ConcreteShapeTest,

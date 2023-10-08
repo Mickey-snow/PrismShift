@@ -34,7 +34,8 @@ public:
   bool isEmpty() const;
   bool isHitIn(const Ray&, Interval<double>) const;
   bool Contains(const Point3&) const;
-
+  bool Contains(const AABB&) const;
+  
   AABB Pad() const;
 
   AABB Transform(const Transformation&) const;

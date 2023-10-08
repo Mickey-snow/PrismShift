@@ -18,8 +18,8 @@ public:
   Transformation(const Matrix4& _m) : m(_m), minv(Matrix4::Inverse(_m)) {}
   Transformation(const Matrix4& _m, const Matrix4 _minv) : m(_m),minv(_minv) {}
 
-  Matrix4 Matrix(void) const { return m; }
-  Matrix4 InvMatrix(void) const { return minv; }
+  Matrix4 const Matrix(void) const { return m; }
+  Matrix4 const InvMatrix(void) const { return minv; }
   
   static Transformation Inverse(const Transformation& t){ return Transformation(t.InvMatrix(), t.Matrix()); }
   Transformation Inverse(void) const { return Transformation(minv,m); }

@@ -1,7 +1,8 @@
 #ifndef OBJECTS_H
 #define OBJECTS_H
 
-#include<util/coordinate.hpp>
+#include<util/geometry.hpp>
+#include<util/ray.hpp>
 #include<util/transform.hpp>
 
 #include<memory>
@@ -13,35 +14,6 @@ class Ray;
 class Hit_record;
 template<typename T>class Interval;
 class Point2;
-class Material;
-
-class Shape{
-public:
-  virtual ~Shape() = default;
-  
-  virtual std::string Get_Name(void) const = 0;
-
-  // An alternative Hit method
-  // Accepts Ray r and Interval time as parameters
-  // Returns a Hit_record encapuslates the first object Ray r hits.
-  virtual Hit_record Ray_Hit(const Ray& r, const Interval<double>& time) const = 0;
-
-  virtual AABB Get_Bounding_box(void) const = 0;
-};
-
-class Visible : public Shape{
-public:
-  Visible() = default;
-  Visible(const Coordinate3& local_reference_frame) : refframe(local_reference_frame) {}
-  virtual ~Visible() = default;
-
-  virtual void Set_Material(std::shared_ptr<Material>) = 0;
-  virtual std::shared_ptr<Material> Get_Material(void) const = 0;
-  
-  virtual Point2 Map_Texture(const Hit_record&) const = 0;
-
-  Coordinate3 refframe;
-};
 
 
 class IShape{
@@ -76,6 +48,39 @@ private:
   IShape const *m_shape;
   Transformation m_frame;
   mutable std::unique_ptr<AABB> m_bbox_rec;
+};
+
+
+struct Hit_record{
+  Hit_record() : hitted_obj(nullptr) {}
+  Hit_record(IShape const* obj, const Ray& r, const double& t, const Normal& n) :
+    hitted_obj(obj),time(t),position(r.At(t)){ Set_Face_Normal(r,n); }
+
+  
+  IShape const* hitted_obj;
+  double time;
+  Point3 position;
+  
+  Ray ray;
+  Normal normal;		// normal is at the same side with ray
+  bool front_face;
+
+  
+  void Set_Face_Normal(const Ray& r, const Normal& outward_normal){
+    front_face = Vector3::Dot(r.Direction(), outward_normal) < 0;
+    normal = front_face ? outward_normal : -outward_normal;
+    ray = r;
+  }
+
+  bool isHit(void) const noexcept{
+    return hitted_obj != nullptr;
+  }
+  
+  template<typename... Ts>
+  static Hit_record ORTN(Ts&&... params){
+    static_assert(sizeof...(Ts) > 0);
+    return Hit_record(std::forward<Ts>(params)...);
+  }
 };
 
 #endif

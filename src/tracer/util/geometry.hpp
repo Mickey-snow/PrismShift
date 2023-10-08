@@ -26,9 +26,9 @@ namespace internal{
     // data access
     double& x() { return v[0]; }
     double& y() { return v[1]; }
-    double x()  const{ return v[0]; }
-    double y()  const{ return v[1]; }
-    double operator[] (const int& i) const{ return v[i]; }
+    double const x()  const{ return v[0]; }
+    double const y()  const{ return v[1]; }
+    double const operator[] (const int& i) const{ return v[i]; }
     double& operator[] (const int& i){ return v[i]; }
 
     // arithmetics
@@ -82,10 +82,10 @@ namespace internal{
     double& x() { return v[0]; }
     double& y() { return v[1]; }
     double& z() { return v[2]; }
-    double x()  const{ return v[0]; }
-    double y()  const{ return v[1]; }
-    double z()  const{ return v[2]; }
-    double operator[] (const int& i) const{ return v[i]; }
+    double const x()  const{ return v[0]; }
+    double const y()  const{ return v[1]; }
+    double const z()  const{ return v[2]; }
+    double const operator[] (const int& i) const{ return v[i]; }
     double& operator[] (const int& i){ return v[i]; }
 
     // arithmetics
