@@ -1,9 +1,8 @@
-#include "shape-interface-test.hpp"
-
 #include<gtest/gtest.h>
 #include<gmock/gmock.h>
 
 #include<common/transformations.hpp>
+#include<common/mshape.hpp>
 
 using ::testing::Return;
 using ::testing::_;
@@ -12,8 +11,8 @@ using ::testing::AnyNumber;
 class ConcreteShapeTest : public ::testing::TestWithParam<Transformation>{
 protected:
   void SetUp() override{
-    mshape = new MockShape();
-    minvisible = new MockShape();
+    mshape = new mShape();
+    minvisible = new mShape();
 
     EXPECT_CALL(*minvisible, Get_Bbox)
       .Times(AnyNumber())
@@ -34,7 +33,7 @@ protected:
     delete minvisible;
   }
 
-  MockShape *mshape, *minvisible;
+  mShape *mshape, *minvisible;
   ConcreteShape shape,invisible;
   Transformation tr;
 };

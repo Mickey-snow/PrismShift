@@ -11,7 +11,7 @@
 
 class AABB;
 class Ray;
-class Hit_record;
+struct Hit_record;
 template<typename T>class Interval;
 class Point2;
 
