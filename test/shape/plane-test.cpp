@@ -80,7 +80,6 @@ TYPED_TEST(PlaneTest, rayHit){
 
     auto rec = this->shape->Hit(r, Interval<double>::Positive());
     ASSERT_TRUE(rec.isHit());
-    EXPECT_EQ(rec.hitted_obj, this->shape);
     EXPECT_EQ(rec.ray, r);
     EXPECT_DOUBLE_EQ(rec.time, time);
     if(r.Origin().z() > 0) EXPECT_TRUE(rec.front_face);

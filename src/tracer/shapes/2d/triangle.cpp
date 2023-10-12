@@ -23,8 +23,7 @@ Hit_record Triangle::Hit(const Ray& r, const Interval<double>& time_interval) co
   if(!On_Object(hit_point.x(), hit_point.y())) return Hit_record{};
 
   static const Normal normal{0,0,1};
-  return Hit_record::ORTN(
-			  this,
+  return Hit_record::RTN(
 			  r,
 			  time,
 			  normal

@@ -72,5 +72,14 @@ TEST_P(ConcreteShapeTest, forwardsHit){
   EXPECT_FALSE(rec.isHit());
 }
 
+TEST_P(ConcreteShapeTest, throwAtShapeisNull){
+  shape.Set_Shape(nullptr);
+  auto r = Ray((Point3)Vector3::Random_Unit(), Vector3::Random_Unit());
+
+  EXPECT_ANY_THROW(shape.Hit(r,Interval<double>::Universe()));
+  EXPECT_TRUE(shape.Get_Bbox().isEmpty());
+}
+
+
 INSTANTIATE_TEST_SUITE_P(ConcreteShapeTr, ConcreteShapeTest,
 			 testing::ValuesIn(my_transformations));

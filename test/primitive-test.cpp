@@ -13,7 +13,7 @@ class PrimitiveTest : public ::testing::Test{
 protected:
   void SetUp() override{
     EXPECT_CALL(always_hit_shape, Hit).Times(AnyNumber())
-      .WillRepeatedly(Return(Hit_record::ORTN(&always_hit_shape, _dummyr, 0, Normal{0,1,0})));
+      .WillRepeatedly(Return(Hit_record::RTN(_dummyr, 0, Normal{0,1,0})));
     EXPECT_CALL(never_hit_shape, Hit).Times(AnyNumber())
       .WillRepeatedly(Return(Hit_record{}));
 
@@ -44,6 +44,14 @@ TEST_F(PrimitiveTest, recordsPrimitiveAtHit){
   EXPECT_TRUE(hitted_obj == &prim);
 }
 
+TEST_F(PrimitiveTest, recordedPointerIsPrimitivePtr){
+  prim.Set_Shape(always_hit_s);
+  auto rec = prim.Hit(_dummyr, Interval<double>::Positive());
+
+  auto issame = std::is_same<decltype(rec.hitted_obj), IPrimitive const*>::value;
+  EXPECT_TRUE(issame);
+}
+
 TEST_F(PrimitiveTest, recordsNullAtNoHit){
   prim.Set_Shape(never_hit_s);
   auto rec = prim.Hit(_dummyr, Interval<double>::Universe());
@@ -51,5 +59,3 @@ TEST_F(PrimitiveTest, recordsNullAtNoHit){
   EXPECT_TRUE(rec.hitted_obj == nullptr);
   EXPECT_FALSE(rec.isHit());
 }
-
-// TODO: ConcreteShape::Hit causes a RE when the underlying shape is nullptr

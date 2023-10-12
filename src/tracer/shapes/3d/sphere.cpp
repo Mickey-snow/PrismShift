@@ -37,5 +37,5 @@ Hit_record Sphere::Hit(const Ray& r, const Interval<double>& time_interval) cons
   Point3 position = r.At(time);
   Normal normal = (Normal)position;
 
-  return Hit_record::ORTN(this, r, time, normal);
+  return Hit_record::RTN(r, time, normal);
 }
