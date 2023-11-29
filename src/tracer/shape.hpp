@@ -14,7 +14,6 @@ class AABB;
 class Ray;
 struct Hit_record;
 template<typename T>class Interval;
-class Point2;
 class IPrimitive;
 
 class IShape{

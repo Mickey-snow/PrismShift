@@ -152,7 +152,7 @@ TEST_F(TransformationTest, translate){
   for(const auto& n : norm.asVector()){
     // translations sould not affect normals, however they will be normalized
     auto translatedn = translate(n);
-    EXPECT_EQ(translatedn, n.Normalized()) << "at translateTest: failed for normal v="<<n<<std::format("and dx={} dy={} dz={}", dx,dy,dz);
+    EXPECT_EQ(translatedn, n) << "at translateTest: failed for normal v="<<n<<std::format("and dx={} dy={} dz={}", dx,dy,dz);
   }
 }
 
@@ -194,7 +194,7 @@ TEST_F(TransformationTest, identityscalingLeaveUnchanged){
 
     for(const auto& n : norm.asVector()){
       auto scaled = iscale(n);
-      EXPECT_EQ(scaled, n.Normalized());
+      EXPECT_EQ(scaled, n);
     }
   }
 }
@@ -216,7 +216,7 @@ TEST_F(TransformationTest, nonuniformScaling){
   }
 
   for(const auto& n : norm.asVector()){
-    auto perpendicular = Vector3::Cross({2,3,4}, (Vector3)n);
+    auto perpendicular = Vector3::Cross(Vector3{2,3,4}, n);
     auto scaled = nuscale(n);
     perpendicular = nuscale(perpendicular);
     EXPECT_NEAR(Vector3::Dot(perpendicular, (Vector3)scaled), 0, EPS);

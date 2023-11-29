@@ -4,10 +4,9 @@
 #include<utility>
 #include<ostream>
 
+#include "util/geometry_fwd.hpp"
 #include "matrix.hpp"
 
-class Point3;
-class Vector3;
 class Normal;
 class Ray;
 class AABB;

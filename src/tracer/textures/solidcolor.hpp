@@ -1,15 +1,14 @@
 #ifndef SOLIDCOLOR_H
 #define SOLIDCOLOR_H
 
-
-#include<texture.hpp>
-#include<factory.hpp>
-
 #include<memory>
 #include<string>
 #include<vector>
 
-class Point2;
+#include "../texture.hpp"
+#include "factory.hpp"
+#include "util/geometry_fwd.hpp"
+#include "util/color.hpp"
 
 class SolidColor : public Texture{
 public:

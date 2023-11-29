@@ -58,9 +58,9 @@ Hit_record BVT::Node::Hit(const Ray& r, const Interval<double>& time) const{
   double closest_hit_time = time.end;
   
   if(not bbox.isHitIn(r,time)) return Hit_record{};
-
-  Hit_record temp_rec = lch->Hit(r,time);
   Hit_record rec = Hit_record{};
+  
+  Hit_record temp_rec = lch->Hit(r,time);
   if(temp_rec.isHit()){
     rec = temp_rec;
     closest_hit_time = temp_rec.time;

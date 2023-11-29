@@ -9,7 +9,8 @@ message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 set(CMAKE_CXX_FLAGS "-O3 -Wall")
 set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 -Wall")
 
-
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/tracer)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/external)
 add_subdirectory(external)
 add_subdirectory(src)
 add_subdirectory(test)
