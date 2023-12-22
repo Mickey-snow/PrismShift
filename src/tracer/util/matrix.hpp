@@ -118,7 +118,7 @@ private:			// helper functions for rref()
       if(!pivrow.has_value()) continue;
       
       mat.RowExchange(pivrow.value(), toprow);
-      zero_out_pivcol(mat, toprow+1,ROWS,pivrow.value(), pivcol);
+      zero_out_pivcol(mat, toprow+1,ROWS, toprow, pivcol);
       
       ++toprow;
     }
@@ -126,8 +126,9 @@ private:			// helper functions for rref()
   // Backward phase: Normalizes each pivot row and zeroes out elements above the pivot.
   static void do_rref_bkwd_phase(Matrix<ROWS,COLUMNS>& mat){
     for(int i=ROWS-1;i>=0;--i){
+      static constexpr auto EPS = 1e-8;
       for(std::size_t j=0;j<COLUMNS;++j)
-	if(mat.v[i][j] != 0){
+	if(fabs(mat.v[i][j]) > EPS){
 	  mat.RowScale(i, 1.0/mat.v[i][j]);
 	  zero_out_pivcol(mat, 0,i, i,j);
 	  break;
@@ -161,9 +162,6 @@ public:
 	ret.v[j][i] = v[i][j];
     return ret;
   }
-  [[deprecated]]
-  static auto Transpose(const auto& it) ->decltype(auto) { return it.T(); }
-
 
 public:
   /**
@@ -256,8 +254,6 @@ public:
       return ans;
     }
   }
-  [[deprecated]]
-  static auto Inverse(const auto& it) -> decltype(auto){ return inv(it); }
 
 public:				// several useful factory methods
   static Matrix<ROWS,COLUMNS> I(void) noexcept{
