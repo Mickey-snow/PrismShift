@@ -3,105 +3,14 @@
 
 #include<initializer_list>
 #include<ostream>
+#include<sstream>
 #include<iterator>
 #include<optional>
 #include<cmath>
 #include<limits>
 #include<cstddef>
-
-class Matrix4{
-public:
-  Matrix4(){
-    v = new double[16];
-    for(int i=0;i<16;++i) v[i]=0;
-  }
-  ~Matrix4(){ delete[] v; }
-  Matrix4(std::initializer_list<double> li) : Matrix4(){
-    double* cursor = v;
-    for(auto it=li.begin();it!=li.end();++it){
-      *cursor++ = *it;
-      if(cursor >= v+16) break;
-    }
-  }
-  Matrix4(const double* const li):Matrix4() { for(int i=0;i<16;++i) v[i]=li[i]; }
-  Matrix4(const double li[4][4]):Matrix4() {
-    double* cursor = v;
-    for(int i=0;i<4;++i)
-      for(int j=0;j<4;++j)
-	*cursor++ = li[i][j];
-  }
-
-  
-  Matrix4(const Matrix4& cp) : Matrix4(cp.v) {}
-  Matrix4& operator = (const Matrix4& cp){
-    for(int i=0;i<16;++i) v[i] = cp.v[i];
-    return *this;
-  }
-  Matrix4(Matrix4&& mv){ v=mv.v; mv.v=nullptr; }
-  Matrix4& operator = (Matrix4&& mv){
-    delete[] v;
-    v = mv.v;
-    mv.v = nullptr;
-    return *this;
-  }
-  
-  
-  static Matrix4 I(void){
-    return Matrix4{1,0,0,0,
-      0,1,0,0,
-      0,0,1,0,
-      0,0,0,1};
-  }
-
-  bool operator == (const Matrix4& rhs) const;
-  bool operator != (const Matrix4& rhs) const { return !(*this == rhs); }
-
-  double* operator [](const int& idx){ return v + idx*4; }
-  double const* const operator [](const int& idx)const{ return v + idx*4; }
-
-  
-  static Matrix4 Mul(const Matrix4& lhs, const Matrix4& rhs){
-    Matrix4 r;
-    for(int i=0;i<4;++i)
-      for(int j=0;j<4;++j)
-	r[i][j] = lhs[i][0]*rhs[0][j] + lhs[i][1]*rhs[1][j] + lhs[i][2]*rhs[2][j] + lhs[i][3]*rhs[3][j];
-    return r;
-  }
-  Matrix4 operator * (const Matrix4& rhs) const{ return Matrix4::Mul(*this, rhs); }
-  Matrix4& operator *= (const Matrix4& rhs){ return *this = *this * rhs; }
-
-  static double Det(const Matrix4&);
-  double Det(void) const;
-  static Matrix4 Transpose(const Matrix4&);
-  Matrix4& Transpose(void);
-  static Matrix4 Inverse(const Matrix4&);
-  Matrix4& Inverse(void);
-
-  bool isvalid(void) const;
-  bool hasnans(void) const;
-
-  double* begin(void){ return v; }
-  double* end(void){ return v+16; }
-
-private:
-  // data
-  double* v;
-
-public:
-  friend std::ostream& operator << (std::ostream& os, const Matrix4& m){
-    os<<'(';
-    for(int i=0;i<4;++i){
-      os<<'[';
-      os << m.v[i*4] << ',' << m.v[i*4+1] << ',' << m.v[i*4+2] << ',' << m.v[i*4+3];
-      os<<']';
-    }
-    os<<')';
-    return os;
-  }
-};
-// deprecated code above
-
-
+#include<stdexcept>
+#include<span>
 
 
 template<std::size_t N, std::size_t M>
@@ -110,8 +19,13 @@ public:
   static constexpr auto ROWS = N;
   static constexpr auto COLUMNS = M;
 
-  // data
+  // data & data access
   std::array<std::array<double,COLUMNS>, ROWS> v;
+  std::array<double,COLUMNS>& operator [](const std::size_t& idx){ return v[idx]; }
+  auto operator [](const std::size_t& idx) const -> decltype(auto) {
+    return std::span<const double>(v[idx]);
+  }
+  
 
   Matrix() : v{} {}
   explicit Matrix(std::initializer_list<double> li) : Matrix(){
@@ -149,6 +63,22 @@ public:
     return *this;
   }
 
+
+public:
+  template<std::size_t K>
+  Matrix<ROWS,K> operator * (const Matrix<COLUMNS,K>& rhs) const {
+    Matrix<ROWS,K> ans;
+    for(std::size_t i=0;i<ROWS;++i)
+      for(std::size_t j=0;j<COLUMNS;++j)
+	for(std::size_t k=0;k<K;++k)
+	  ans.v[i][k] += v[i][j] * rhs.v[j][k];
+    return ans;
+  }
+  template<std::size_t K>
+  Matrix<ROWS,K>& operator *=(const Matrix<COLUMNS,K>& rhs){
+    return *this = *this * rhs;
+  }
+
   
 public:
   /**
@@ -176,7 +106,7 @@ private:			// helper functions for rref()
     std::size_t toprow = 0;
     for(std::size_t pivcol=0;pivcol < COLUMNS; ++pivcol){
       auto search_pivot_elem = [&](){
-	static constexpr auto EPS = std::numeric_limits<double>::epsilon();
+	static constexpr auto EPS = 1e-8;
 	for(std::size_t i=toprow;i<ROWS;++i)
 	  if(fabs(mat.v[i][pivcol]) > EPS) // the non-zero element
 	    return std::optional<std::size_t>{i};
@@ -231,6 +161,8 @@ public:
 	ret.v[j][i] = v[i][j];
     return ret;
   }
+  [[deprecated]]
+  static auto Transpose(const auto& it) ->decltype(auto) { return it.T(); }
 
 
 public:
@@ -241,7 +173,7 @@ public:
    * 'mat' to the right side of the current matrix.
    */
   template<std::size_t K>
-  auto AppendRight(const Matrix<ROWS,K>& mat) -> decltype(auto) {
+  auto AppendRight(const Matrix<ROWS,K>& mat) const -> decltype(auto) {
     using result_t = Matrix<ROWS, COLUMNS+K>;
     result_t res;
     for(std::size_t i=0;i<ROWS;++i){
@@ -258,7 +190,7 @@ public:
    *   to the bottom of the current matrix.
    */
   template<std::size_t K>
-  auto AppendBottom(const Matrix<K,COLUMNS>& mat) -> decltype(auto) {
+  auto AppendBottom(const Matrix<K,COLUMNS>& mat) const -> decltype(auto) {
     using result_t = Matrix<ROWS+K, COLUMNS>;
     result_t res;
     for(std::size_t i=0;i<ROWS;++i) std::copy(v[i].cbegin(), v[i].cend(), res.v[i].begin());
@@ -268,11 +200,74 @@ public:
 
 
 public:
-  auto inv() -> decltype(auto){ return Matrix<ROWS,COLUMNS>::inv(*this); }
-  static auto inv(Matrix<ROWS,COLUMNS> mat) -> decltype(auto) {
-    return mat;
+  /**
+ * @brief Calculates the inverse of a square matrix.
+ *
+ * Computes the inverse of a square matrix using the
+ * row-reduced echelon form (RREF) approach. It appends an identity matrix to 
+ * the right of the original matrix and then applies the RREF algorithm. The 
+ * right half of the resultant matrix is the inverse of the original matrix.
+ *
+ * @pre The matrix must be square (N x N). If the matrix is not square, the
+ * method throws a std::runtime_error.
+ *
+ * @post If the matrix is singular (i.e., does not have an inverse), the method
+ * throws a std::runtime_error indicating that the matrix is non-invertible.
+ *
+ * @return Matrix<N,N> The inverse of the input matrix.
+ *
+ * @throws std::runtime_error if the matrix is not square or is singular.
+ *
+ * @example
+ * Matrix<3,3> matrix; // Initialize matrix
+ * Matrix<3,3> inverseMatrix = matrix.inv();
+ */
+  auto inv() const -> decltype(auto){ return Matrix<ROWS,COLUMNS>::inv(*this); }
+  static auto inv(const Matrix<ROWS,COLUMNS>& mat) -> decltype(auto) {
+    if constexpr(ROWS != COLUMNS){
+      throw std::runtime_error("MatrixInvert only works with square matrices");
+    } else {
+      static constexpr auto K = ROWS;
+      auto I_n = Matrix<K,K>::I();
+    
+      auto augmat = mat.AppendRight(I_n);
+      augmat = augmat.rref();
+
+      auto lside_is_In = [](const Matrix<K,K+K>& mat){
+	static constexpr auto EPS = 1e-8;
+	for(std::size_t i=0;i<K;++i)
+	  for(std::size_t j=0;j<K;++j){
+	    double expect = i==j ? 1 : 0;
+	    if(fabs(mat.v[i][j]-expect) > EPS) return false;
+	  } return true;
+      };
+      if(not lside_is_In(augmat)) {
+	std::ostringstream ss;
+	ss << "Singular matrix in MatirxInvert";
+	ss << ", with mat=" << mat;
+	ss << " augmat=" << augmat;
+	throw std::runtime_error(ss.str());
+      }
+
+      Matrix<K,K> ans;
+      for(std::size_t i=0;i<K;++i)
+	for(std::size_t j=0;j<K;++j)
+	  ans.v[i][j] = augmat.v[i][j+K];
+      return ans;
+    }
   }
- 
+  [[deprecated]]
+  static auto Inverse(const auto& it) -> decltype(auto){ return inv(it); }
+
+public:				// several useful factory methods
+  static Matrix<ROWS,COLUMNS> I(void) noexcept{
+    Matrix<ROWS,COLUMNS> In;
+    for(std::size_t i=0;i<ROWS&&i<COLUMNS;++i)
+      In.v[i][i] = 1;
+    return In;
+  }
+    
+  
 public:
   friend std::ostream& operator << (std::ostream& os, const Matrix<ROWS,COLUMNS> m){
     os << '(';
@@ -287,5 +282,6 @@ public:
   }
 };
 
+using Matrix4 = Matrix<4,4>;
 
 #endif

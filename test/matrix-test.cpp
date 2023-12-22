@@ -143,4 +143,51 @@ TEST(MatrixTest, Inverse){
       3.0/2,-1.0/2};
     EXPECT_EQ(mat.inv(), expected);
   }
+  {
+    Matrix<2,2> mat{4,7,2,6};
+    Matrix<2,2> expected{0.6,-0.7,-0.2,0.4};
+    EXPECT_EQ(mat.inv(), expected);
+  }
+  {
+    Matrix<3,3> mat{3,0,2,2,0,-2,0,1,1};
+    Matrix<3,3> expected{0.2,0.2,0,-0.2,0.3,1,0.2,-0.3,0};
+    EXPECT_EQ(mat.inv(), expected);
+  }
+  {
+    Matrix<4,4> mat{0.794645,0.613787,0.0587482,0.493943,0.222896,0.882244,0.828312,0.504613,0.44324,0.945123,0.774638,0.65932,0.434762,0.8777,0.855092,0.253013};
+    EXPECT_NO_THROW(mat.inv());
+  }
+  
+  // Test with identity matrix
+  {
+    Matrix<23,23> mat = Matrix<23,23>::I();
+    EXPECT_EQ(mat.inv(), mat);
+    // inverse of an identity matrix should be the identity matrix itself
+  }
+
+  // Test with non-invertable matrix
+  {
+    Matrix<3,3> zeromat;
+    EXPECT_ANY_THROW(zeromat.inv());
+  }
+  {
+    Matrix<2,2> mat{1,2,2,4};
+    EXPECT_ANY_THROW(mat.inv());
+  }
+  {
+    Matrix<1,3> notSquaremat{1,2,3};
+    EXPECT_ANY_THROW(notSquaremat.inv());
+  }
+
+  // Test special cases
+  {
+    Matrix<2,2> symmetricMat{1,2,2,3};
+    Matrix<2,2> expected{-3,2,2,-1};
+    EXPECT_EQ(symmetricMat.inv(), expected);
+  }
+  {
+    Matrix<2,2> diagonalMat{5,0,0,4};
+    Matrix<2,2> expected{1.0/5,0,0,1.0/4};
+    EXPECT_EQ(diagonalMat.inv(), expected);
+  }
 }

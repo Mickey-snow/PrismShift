@@ -32,10 +32,6 @@ protected:
     for(int i=0;i<4;++i)
       for(int j=0;j<4;++j)
 	ASSERT_DOUBLE_EQ(emptymat[i][j], 0);
-
-    ASSERT_DOUBLE_EQ(det20mat.Det(), 20);
-
-    ASSERT_DOUBLE_EQ(det0mat.Det(), 0);
   }
 
   Matrix4 I;
@@ -55,32 +51,13 @@ TEST_F(Matrix4Test, unchangedAfterTimesIdentityMat){
   }
 }
 
-TEST_F(Matrix4Test, determinant){
-  EXPECT_NEAR(det20mat.Det(),20,EPS);
-  EXPECT_NEAR(I.Det(), 1, EPS);
-}
-
-TEST_F(Matrix4Test, detUnchangeAfterTranspose){
-  for(const auto& m : {I,emptymat,randiMat,randfMat,det20mat}){
-    auto mtrans = Matrix4::Transpose(m);
-    EXPECT_NEAR(m.Det(), mtrans.Det(), EPS);
-  }
-}
-
 
 TEST_F(Matrix4Test, productWithInverseIsIdentityMat){
   for(const auto& m : {I,randfMat,det20mat}){
-    Matrix4 minv = Matrix4::Inverse(m);
+    Matrix4 minv = m.inv();
 
     EXPECT_EQ(m*minv, Matrix4::I());
     EXPECT_EQ(minv*m, Matrix4::I());
-  }
-}
-
-TEST_F(Matrix4Test, inverseDet0MatrixThrowsError){
-  for(const auto& m : {det0mat, emptymat}){
-    ASSERT_DOUBLE_EQ(m.Det(), 0) << "at Matrix4::Det(): matrix "<< m <<" has determinant differ than 0";
-    EXPECT_THROW(Matrix4::Inverse(m), std::runtime_error) << "at Matrix4::Inverse(): calculated the inverse of matrix "<<m<<" without throwing an error";
   }
 }
 
