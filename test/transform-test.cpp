@@ -6,7 +6,7 @@
 #include<format>
 
 
-class MatrixTest : public ::testing::Test{
+class Matrix4Test : public ::testing::Test{
 protected:
   void SetUp() override{
     I = Matrix4::I();
@@ -48,19 +48,19 @@ protected:
   const double EPS = 1e-5;
 };
 
-TEST_F(MatrixTest, unchangedAfterTimesIdentityMat){
+TEST_F(Matrix4Test, unchangedAfterTimesIdentityMat){
   for(const auto& m : {I,emptymat,randiMat,randfMat,det20mat}){
     EXPECT_EQ(m, m*I);
     EXPECT_EQ(m, I*m);
   }
 }
 
-TEST_F(MatrixTest, determinant){
+TEST_F(Matrix4Test, determinant){
   EXPECT_NEAR(det20mat.Det(),20,EPS);
   EXPECT_NEAR(I.Det(), 1, EPS);
 }
 
-TEST_F(MatrixTest, detUnchangeAfterTranspose){
+TEST_F(Matrix4Test, detUnchangeAfterTranspose){
   for(const auto& m : {I,emptymat,randiMat,randfMat,det20mat}){
     auto mtrans = Matrix4::Transpose(m);
     EXPECT_NEAR(m.Det(), mtrans.Det(), EPS);
@@ -68,7 +68,7 @@ TEST_F(MatrixTest, detUnchangeAfterTranspose){
 }
 
 
-TEST_F(MatrixTest, productWithInverseIsIdentityMat){
+TEST_F(Matrix4Test, productWithInverseIsIdentityMat){
   for(const auto& m : {I,randfMat,det20mat}){
     Matrix4 minv = Matrix4::Inverse(m);
 
@@ -77,7 +77,7 @@ TEST_F(MatrixTest, productWithInverseIsIdentityMat){
   }
 }
 
-TEST_F(MatrixTest, inverseDet0MatrixThrowsError){
+TEST_F(Matrix4Test, inverseDet0MatrixThrowsError){
   for(const auto& m : {det0mat, emptymat}){
     ASSERT_DOUBLE_EQ(m.Det(), 0) << "at Matrix4::Det(): matrix "<< m <<" has determinant differ than 0";
     EXPECT_THROW(Matrix4::Inverse(m), std::runtime_error) << "at Matrix4::Inverse(): calculated the inverse of matrix "<<m<<" without throwing an error";
