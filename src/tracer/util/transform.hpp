@@ -4,10 +4,9 @@
 #include<utility>
 #include<ostream>
 
+#include "util/geometry_fwd.hpp"
 #include "matrix.hpp"
 
-class Point3;
-class Vector3;
 class Normal;
 class Ray;
 class AABB;
@@ -18,8 +17,8 @@ public:
   Transformation(const Matrix4& _m) : m(_m), minv(Matrix4::Inverse(_m)) {}
   Transformation(const Matrix4& _m, const Matrix4 _minv) : m(_m),minv(_minv) {}
 
-  Matrix4 Matrix(void) const { return m; }
-  Matrix4 InvMatrix(void) const { return minv; }
+  Matrix4 const Matrix(void) const { return m; }
+  Matrix4 const InvMatrix(void) const { return minv; }
   
   static Transformation Inverse(const Transformation& t){ return Transformation(t.InvMatrix(), t.Matrix()); }
   Transformation Inverse(void) const { return Transformation(minv,m); }
@@ -38,6 +37,11 @@ public:
 
   template<typename T>
   T operator () (const T& t) const{ return t.Transform(*this); }
+
+  template<typename T>
+  T doTransform(const T& t) const{ return (*this)(t); }
+  template<typename T>
+  T undoTransform(const T& t) const{ return (this->Inverse())(t); }
 
   friend std::ostream& operator << (std::ostream& os, const Transformation& tr){
     os << "m=" << tr.m << " minv=" << tr.minv;

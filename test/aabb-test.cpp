@@ -8,8 +8,8 @@
 #include<functional>
 #include<ranges>
 
-#include <bvh.hpp>
-#include <util/util.hpp>
+#include<util/util.hpp>
+#include<common/transformations.hpp>
 
 
 class aabbTest : public ::testing::Test{
@@ -206,10 +206,4 @@ TEST_P(aabbTransformTest, approxOutsideSquare){
 }
 
 
-auto transform_params = std::vector<Transformation>{
-  Transformation::Translate(-2.34, 0, 15),
-  Transformation::Rotate(Vector3::Random_Unit(), 2.74),
-  Transformation::Scale(Vector3::Random_Unit()),
-  Transformation::Rotate(Vector3::Random_Unit(),random_uniform_01())*Transformation::Scale(Vector3::Random(-3,3)),
-};
-INSTANTIATE_TEST_SUITE_P(aabbtr, aabbTransformTest, testing::ValuesIn(transform_params));
+INSTANTIATE_TEST_SUITE_P(aabbtr, aabbTransformTest, testing::ValuesIn(my_transformations));

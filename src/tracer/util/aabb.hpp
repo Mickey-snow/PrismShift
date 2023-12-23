@@ -4,12 +4,11 @@
 #include<cmath>
 #include<ostream>
 
-#include "interval.hpp"
-
+#include "util/interval.hpp"
+#include "util/geometry_fwd.hpp"
 
 class Ray;
 class Transformation;
-class Point3;
 
 class AABB{
   // Approximate an visible object to a cube
@@ -31,9 +30,11 @@ public:
   
   const Interval<double>& Axis(const int& n) const;
 
+  bool isEmpty() const;
   bool isHitIn(const Ray&, Interval<double>) const;
   bool Contains(const Point3&) const;
-
+  bool Contains(const AABB&) const;
+  
   AABB Pad() const;
 
   AABB Transform(const Transformation&) const;

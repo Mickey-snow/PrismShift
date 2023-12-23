@@ -1,5 +1,5 @@
 #include <opencv2/imgcodecs.hpp>
-#include<argparse/argparse.hpp>
+#include<argparse.hpp>
 
 #include<iostream>
 #include<string>
@@ -13,7 +13,7 @@
 argparse::ArgumentParser parser;
 std::string output_file;
 bool use_timer;
-Renderer renderer;
+
 
 void Add_Arguments(){
   parser.add_argument("-o", "--output-file")
@@ -44,11 +44,6 @@ void Parse_Arguments(int argc, char** argv){
 }
 
 void Set_Config(){
-  renderer.Set_Samples_per_pixel(parser.get<int>("-spp"));
-  renderer.Set_Max_recurrent_depth(parser.get<int>("-mrd"));
-  renderer.Set_Preview_switch(parser.get<bool>("-nw"));
-  renderer.Set_Threads(parser.get<int>("-j"));
-
   output_file = parser.get<decltype(output_file)>("-o");
   use_timer = parser.get<decltype(use_timer)>("-nt");
 }
@@ -63,17 +58,10 @@ int main(int argc, char* argv[])
   Parse_Arguments(argc,argv);
   Set_Config();
 
-  std::shared_ptr<Scene> world = Get_World();
-  std::shared_ptr<Camera> camera = Get_Camera();
-  
-  // Add objects to the scene
-  renderer.Set_World(world);
-  renderer.Set_Camera(camera);
-  
-  // Render
-  auto output = renderer.Render();
-  output.convertTo(output, CV_8UC3, 256);
-  cv::imwrite(output_file.c_str(), output);
+
+  // auto output = renderer.Render();
+  // output.convertTo(output, CV_8UC3, 256);
+  // cv::imwrite(output_file.c_str(), output);
 
   
   const auto time_end = std::chrono::high_resolution_clock::now();

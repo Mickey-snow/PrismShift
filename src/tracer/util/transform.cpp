@@ -27,7 +27,7 @@ Normal Transformation::operator() (const Normal& p) const{
   double xp = minv[0][0]*x + minv[1][0]*y + minv[2][0]*z;
   double yp = minv[0][1]*x + minv[1][1]*y + minv[2][1]*z;
   double zp = minv[0][2]*x + minv[1][2]*y + minv[2][2]*z;
-  return Normal(xp,yp,zp).Normalize();
+  return Normal(xp,yp,zp);
 }
 
   
@@ -49,7 +49,7 @@ Transformation Transformation::Translate(const double& dx, const double& dy, con
 
 
 Transformation Transformation::Rotate(Vector3 axis, const double& costheta, const double& sintheta){
-  axis = axis.Normalize();
+  axis = axis.Normalized();
     
   auto R = [](const Vector3& axis, const double& costheta, const double& sintheta){
     const double nx=axis.x(), ny=axis.y(), nz=axis.z();

@@ -1,4 +1,6 @@
 #include "solidcolor.hpp"
+#include "util/geometry_fwd.hpp"
+#include "util/color.hpp"
 
 SolidColor::SolidColor() : color(0,0,0) {}
 
@@ -12,7 +14,7 @@ SolidColor& SolidColor::Set_Color(const Color& col){
   return *this;
 }
 
-class Point2;
+
 Color SolidColor::ColorAt(const Point2&) {
   return color;
 }

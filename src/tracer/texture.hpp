@@ -1,7 +1,8 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
-#include<util/util.hpp>
+#include "util/geometry_fwd.hpp"
+#include "util/color.hpp"
 
 class Texture{
 public:

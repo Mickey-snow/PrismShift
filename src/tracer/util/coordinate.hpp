@@ -3,10 +3,9 @@
 
 #include<utility>
 
-#include "transform.hpp"
+#include "util/transform.hpp"
+#include "util/geometry_fwd.hpp"
 
-class Vector3;
-class Point3;
 
 class Coordinate3{
 public:

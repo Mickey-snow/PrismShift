@@ -14,8 +14,8 @@ Camera::View_Info Camera::Get_Initialize_View() const{
   view.viewport_width = view.viewport_height * (static_cast<double>(image_width)/image_height);
 
   // The camera coordinate frame basis vectors
-  auto w = (looking_at-camera_center).Normalize(); // front
-  auto u = Vector3::Cross(up_direction, w).Normalize();     // right
+  auto w = (looking_at-camera_center).Normalized(); // front
+  auto u = Vector3::Cross(up_direction, w).Normalized();     // right
   auto v = Vector3::Cross(u,w);			      // down
   
   // Vectors across the horizontal and down the vertical viewport edges

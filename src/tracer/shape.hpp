@@ -1,47 +1,93 @@
 #ifndef OBJECTS_H
 #define OBJECTS_H
 
-#include<util/coordinate.hpp>
+#include<util/geometry.hpp>
+#include<util/ray.hpp>
+#include<util/transform.hpp>
+#include<util/aabb.hpp>
 
 #include<memory>
 #include<string>
-
+#include<optional>
 
 class AABB;
 class Ray;
-class Hit_record;
+struct Hit_record;
 template<typename T>class Interval;
-class Point2;
+class IPrimitive;
 
-class Shape{
+class IShape{
 public:
-  virtual ~Shape() = default;
-  
-  virtual std::string Get_Name(void) const = 0;
+  virtual ~IShape() = default;
 
-  // An alternative Hit method
-  // Accepts Ray r and Interval time as parameters
-  // Returns a Hit_record encapuslates the first object Ray r hits.
-  virtual Hit_record Ray_Hit(const Ray& r, const Interval<double>& time) const = 0;
-
-  virtual AABB Get_Bounding_box(void) const = 0;
+  virtual Hit_record Hit(const Ray&, const Interval<double>&) const = 0;
+  virtual AABB Get_Bbox(void) const = 0;
 };
 
-class Material;
 
-class Visible : public Shape{
+class ConcreteShape : public IShape{
 public:
-  Visible() = default;
-  Visible(const Coordinate3& local_reference_frame) : refframe(local_reference_frame) {}
-  virtual ~Visible() = default;
+  ConcreteShape();
+  ~ConcreteShape();
 
-  virtual void Set_Material(std::shared_ptr<Material>) = 0;
-  virtual std::shared_ptr<Material> Get_Material(void) const = 0;
-  
-  virtual Point2 Map_Texture(const Hit_record&) const = 0;
+  virtual Hit_record Hit(const Ray&, const Interval<double>&) const override;
+  virtual AABB Get_Bbox(void) const override;
 
-  Coordinate3 refframe;
+  ConcreteShape& Set_Shape(IShape const *shape){
+    m_shape = shape;
+    m_bbox_rec.reset();
+    return *this;
+  }
+  ConcreteShape& Set_Frame(const Transformation& frame){
+    m_frame = frame;
+    m_bbox_rec.reset();
+    return *this;
+  }
+
+private:
+  IShape const *m_shape;
+  Transformation m_frame;
+  mutable std::optional<AABB> m_bbox_rec;
 };
 
+
+struct Hit_record{
+  Hit_record() : hits(false), hitted_obj(nullptr) {}
+  Hit_record(const Ray& r, const double& t, const Normal& n) :
+    hits(true), hitted_obj(nullptr),time(t),position(r.At(t)){ Set_Face_Normal(r,n); }
+
+
+  bool hits;
+  IPrimitive const* hitted_obj;
+  double time;
+  Point3 position;
+  
+  Ray ray;
+  Normal normal;		// normal is at the same side with ray
+  bool front_face;
+
+  
+  void Set_Face_Normal(const Ray& r, const Normal& outward_normal){
+    front_face = Vector3::Dot(r.Direction(), outward_normal) < 0;
+    normal = front_face ? outward_normal : -outward_normal;
+    ray = r;
+  }
+
+  bool isHit(void) const noexcept{ return hits; }
+  
+  template<typename... Ts>
+  static Hit_record RTN(Ts&&... params){
+    static_assert(sizeof...(Ts) > 0);
+    return Hit_record(std::forward<Ts>(params)...);
+  }
+
+  template<typename... Ts>
+  static Hit_record ORTN(IPrimitive const* _hitted_obj,
+			 Ts&&... params){
+    auto rec = RTN(std::forward<Ts>(params)...);
+    rec.hitted_obj = _hitted_obj;
+    return rec;
+  }
+};
 
 #endif

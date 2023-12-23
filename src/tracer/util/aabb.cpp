@@ -102,6 +102,18 @@ bool AABB::Contains(const Point3& p) const{
   const double x=p.x(),y=p.y(),z=p.z();
   return x_interval.Contains(x) && y_interval.Contains(y) && z_interval.Contains(z);
 }
+bool AABB::Contains(const AABB& box) const{
+  for(int i=0;i<3;++i)
+    if(!box.Axis(i).In(Axis(i)))
+      return false;
+  return true;
+}
+
+
+
+bool AABB::isEmpty(void) const{
+  return x_interval.isEmpty() && y_interval.isEmpty() && z_interval.isEmpty();
+}
 
 
 AABB AABB::Pad() const{

@@ -1,9 +1,9 @@
 #ifndef CONDUCTOR_BRDF_H
 #define CONDUCTOR_BRDF_H
 
-#include<bsdf.hpp>
+#include "bsdf.hpp"
+#include "util/geometry_fwd.hpp"
 
-class Vector3;
 
 class Conductor_BRDF : public BxDF{
 public:
