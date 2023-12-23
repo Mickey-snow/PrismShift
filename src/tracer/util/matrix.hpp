@@ -11,7 +11,7 @@
 #include<cstddef>
 #include<stdexcept>
 #include<span>
-
+#include<functional>
 
 template<std::size_t N, std::size_t M>
 class Matrix{
@@ -47,6 +47,41 @@ public:
   }
   bool operator != (const Matrix<ROWS, COLUMNS>& rhs) const{ return !(*this == rhs); }
 
+  
+public:
+  /**
+   * @brief Appends another matrixs to the right side of the current matrix.
+   * 
+   * @return Matrix<ROWS, COLUMNS + K> - a new object that is the result of appending
+   * 'mat' to the right side of the current matrix.
+   */
+  template<std::size_t K>
+  auto AppendRight(const Matrix<ROWS,K>& mat) const -> decltype(auto) {
+    using result_t = Matrix<ROWS, COLUMNS+K>;
+    result_t res;
+    for(std::size_t i=0;i<ROWS;++i){
+      std::copy(v[i].cbegin(), v[i].cend(), res.v[i].begin());
+      std::copy(mat.v[i].cbegin(), mat.v[i].cend(), res.v[i].begin()+COLUMNS);
+    }
+    return res;
+  }
+  
+  /**
+   * @brief Appends another matrix of the same number of columns to the bottom of the current matrix.
+   * 
+   * @return Matrix<ROWS + K, COLUMNS> - a new object that is the result of appending 'mat'
+   *   to the bottom of the current matrix.
+   */
+  template<std::size_t K>
+  auto AppendBottom(const Matrix<K,COLUMNS>& mat) const -> decltype(auto) {
+    using result_t = Matrix<ROWS+K, COLUMNS>;
+    result_t res;
+    for(std::size_t i=0;i<ROWS;++i) std::copy(v[i].cbegin(), v[i].cend(), res.v[i].begin());
+    for(std::size_t i=0;i<K;++i) std::copy(mat.v[i].cbegin(), mat.v[i].cend(), res.v[i+ROWS].begin());
+    return res;
+  }
+
+  
   // row operations
   auto RowExchange(std::size_t row1, std::size_t row2) -> decltype(auto) {
     std::swap(v[row1], v[row2]);
@@ -84,66 +119,123 @@ public:
   /**
    * @brief Transforms the matrix into its row-reduced echelon form (RREF).
    *
-   * This method applies a series of elementary row operations to convert 
-   * the matrix into its row-reduced echelon form. The process involves two
-   * main phases: a forward phase that transforms the matrix into an upper
-   * triangular form, and a backward phase that normalizes each pivot row
-   * and zeroes out elements above each pivot.
-   *
    * @return Matrix<ROWS, COLUMNS> The matrix in its row-reduced echelon form.
    */
-  Matrix<ROWS,COLUMNS> rref() const{ return Matrix<ROWS,COLUMNS>::rref(*this); }
+  Matrix<ROWS,COLUMNS> rref() const{
+    return rref_calculator(*this).doit();
+  }
   static auto rref(Matrix<ROWS, COLUMNS> mat) -> decltype(auto) {
-    do_rref_fwd_phase(mat);
-    do_rref_bkwd_phase(mat);
-    return mat;    
+    return rref_calculator(mat).doit();
   }
-private:			// helper functions for rref()
-  // Forward phase: Transforms the matrix into an upper triangular form.
-  // It iterates through each column, finds the first non-zero element 
-  // as the pivot, then zeroes out all elements below the pivot.
-  static void do_rref_fwd_phase(Matrix<ROWS, COLUMNS>& mat){
-    std::size_t toprow = 0;
-    for(std::size_t pivcol=0;pivcol < COLUMNS; ++pivcol){
-      auto search_pivot_elem = [&](){
-	static constexpr auto EPS = 1e-8;
-	for(std::size_t i=toprow;i<ROWS;++i)
-	  if(fabs(mat.v[i][pivcol]) > EPS) // the non-zero element
-	    return std::optional<std::size_t>{i};
-	return std::optional<std::size_t>{};
+private:			// helper class for rref()
+  /**
+   * @class rref_calculator
+   * @brief A helper class for computing the Row-Reduced Echelon Form (RREF) of a matrix.
+   *
+   * This class encapsulates the algorithm for transforming a matrix into its row-reduced
+   * echelon form. It provides a high degree of customization, allowing users to define
+   * their own behaviors for pivotal operations such as row exchange, row scaling, row addition,
+   * and pivot searching. The class implements a two-phase algorithm: a forward phase for
+   * converting the matrix into an upper triangular form and a backward phase for normalizing
+   * pivot rows and zeroing out elements above each pivot. The operations are performed using
+   * customizable functors, enabling specialized behaviors like counting row exchanges or 
+   * skipping the scaling of pivot elements.
+   *
+   * Usage:
+   *     Matrix<ROWS, COLUMNS> mat;
+   *     rref_calculator rrefCalc(mat);
+   *     Matrix<ROWS, COLUMNS> rrefMat = rrefCalc.doit();
+   *
+   * Customization:
+   *     The class allows customization of the row reduction process by setting different
+   *     implementations for `rowexchange_fun`, `rowscale_fun`, `rowadd_fun`, and
+   *     `search_pivot_fun`. These are set to default implementations in the constructor but
+   *     can be overridden by the user.
+   *
+   * Example:
+   *     rref_calculator rrefCalc(matrix);
+   *     rrefCalc.rowexchange_fun = [](Matrix<ROWS, COLUMNS>& mat, std::size_t row1, std::size_t row2){ ... };
+   *     rrefCalc.rowscale_fun = [](Matrix<ROWS, COLUMNS>& mat, std::size_t rowidx, double scale){ ... };
+   *     Matrix<ROWS, COLUMNS> rrefMatrix = rrefCalc.doit();
+   */
+  class rref_calculator{
+  private:
+    using Matrix_t = Matrix<ROWS,COLUMNS>;
+  public:
+    explicit rref_calculator(const Matrix_t& mat) :
+      m_mat(mat) {
+      rowexchange_fun = [](Matrix_t& mat, std::size_t row1, std::size_t row2){
+	mat.RowExchange(row1,row2);
       };
-      std::optional<std::size_t> pivrow = search_pivot_elem();
-
-      // If no pivot is found in this column, continue to the next column
-      if(!pivrow.has_value()) continue;
-      
-      mat.RowExchange(pivrow.value(), toprow);
-      zero_out_pivcol(mat, toprow+1,ROWS, toprow, pivcol);
-      
-      ++toprow;
+      rowscale_fun = [](Matrix_t& mat, std::size_t rowidx, double scale){
+	mat.RowScale(rowidx, scale);
+      };
+      rowadd_fun = [](Matrix_t& mat, std::size_t addeeRow, std::size_t adderRow, double scale){
+	mat.RowAdd(addeeRow, adderRow, scale);
+      };
+      search_pivot_fun = [](const Matrix_t& mat, std::size_t colidx, std::size_t toprow){
+	  static constexpr auto EPS = 1e-8;
+	  for(std::size_t i=toprow;i<ROWS;++i)
+	    if(fabs(mat.v[i][colidx]) > EPS)
+	      return std::optional<std::size_t>{i};
+	  return std::optional<std::size_t>{};
+      };
     }
-  }
-  // Backward phase: Normalizes each pivot row and zeroes out elements above the pivot.
-  static void do_rref_bkwd_phase(Matrix<ROWS,COLUMNS>& mat){
-    for(int i=ROWS-1;i>=0;--i){
-      static constexpr auto EPS = 1e-8;
-      for(std::size_t j=0;j<COLUMNS;++j)
-	if(fabs(mat.v[i][j]) > EPS){
-	  mat.RowScale(i, 1.0/mat.v[i][j]);
-	  zero_out_pivcol(mat, 0,i, i,j);
-	  break;
-	}
+    
+    Matrix_t& doit(void){
+      do_rref_fwd_phase();
+      do_rref_bkwd_phase();
+      return m_mat;
     }
-  }
-  // Zeroes out elements in a specified pivot column.
-  // For each row in the specified range, it subtracts an appropriate multiple of the 
-  // pivot row from it, effectively setting the column element in that row to zero.
-  static void zero_out_pivcol(Matrix<ROWS,COLUMNS>& mat, std::size_t fr, std::size_t to, std::size_t pivrow, std::size_t pivcol){
-    for(auto it=fr; it<to; ++it)
-      mat.RowAdd(it, pivrow, -mat.v[it][pivcol]/mat.v[pivrow][pivcol]);
-  }
 
+    std::function<void(Matrix_t&, std::size_t, std::size_t)> rowexchange_fun;
+    std::function<void(Matrix_t&, std::size_t, double)> rowscale_fun;
+    std::function<void(Matrix_t&, std::size_t, std::size_t, double)> rowadd_fun;
+    std::function<std::optional<std::size_t>(const Matrix_t&,
+					     std::size_t, std::size_t)> search_pivot_fun;
+    
+  private:
+    // Forward phase: Transforms the matrix into an upper triangular form.
+    // It iterates through each column, finds the first non-zero element 
+    // as the pivot, then zeroes out all elements below the pivot.
+    void do_rref_fwd_phase(){
+      std::size_t toprow = 0;
+      for(std::size_t pivcol=0;pivcol < COLUMNS; ++pivcol){
+	std::optional<std::size_t> pivrow = std::invoke(search_pivot_fun,
+							m_mat, pivcol, toprow);
+	// If no pivot is found in this column, continue to the next column
+	if(!pivrow.has_value()) continue;
 
+	std::invoke(rowexchange_fun, m_mat, pivrow.value(), toprow);
+	zero_out_pivcol(toprow+1,ROWS, toprow, pivcol);
+      
+	++toprow;
+      }
+    }
+    // Backward phase: Normalizes each pivot row and zeroes out elements above the pivot.
+    void do_rref_bkwd_phase(){
+      for(int i=ROWS-1;i>=0;--i){
+	static constexpr auto EPS = 1e-8;
+	for(std::size_t j=0;j<COLUMNS;++j)
+	  if(fabs(m_mat.v[i][j]) > EPS){
+	    std::invoke(rowscale_fun, m_mat, i, 1.0/m_mat.v[i][j]);
+	    zero_out_pivcol(0,i, i,j);
+	    break;
+	  }
+      }
+    }
+    // Zeroes out elements in a specified pivot column.
+    // For each row in the specified range, it subtracts an appropriate multiple of the 
+    // pivot row from it, effectively setting the column element in that row to zero.
+    void zero_out_pivcol(std::size_t fr, std::size_t to, std::size_t pivrow, std::size_t pivcol){
+      for(auto it=fr; it<to; ++it)
+	std::invoke(rowadd_fun, m_mat,
+		    it, pivrow, -m_mat.v[it][pivcol]/m_mat.v[pivrow][pivcol]);
+    }
+    Matrix_t m_mat;
+  };
+
+  
   
 public:
   /**
@@ -163,67 +255,28 @@ public:
     return ret;
   }
 
-public:
-  /**
-   * @brief Appends another matrixs to the right side of the current matrix.
-   * 
-   * @return Matrix<ROWS, COLUMNS + K> - a new object that is the result of appending
-   * 'mat' to the right side of the current matrix.
-   */
-  template<std::size_t K>
-  auto AppendRight(const Matrix<ROWS,K>& mat) const -> decltype(auto) {
-    using result_t = Matrix<ROWS, COLUMNS+K>;
-    result_t res;
-    for(std::size_t i=0;i<ROWS;++i){
-      std::copy(v[i].cbegin(), v[i].cend(), res.v[i].begin());
-      std::copy(mat.v[i].cbegin(), mat.v[i].cend(), res.v[i].begin()+COLUMNS);
-    }
-    return res;
-  }
-  
-  /**
-   * @brief Appends another matrix of the same number of columns to the bottom of the current matrix.
-   * 
-   * @return Matrix<ROWS + K, COLUMNS> - a new object that is the result of appending 'mat'
-   *   to the bottom of the current matrix.
-   */
-  template<std::size_t K>
-  auto AppendBottom(const Matrix<K,COLUMNS>& mat) const -> decltype(auto) {
-    using result_t = Matrix<ROWS+K, COLUMNS>;
-    result_t res;
-    for(std::size_t i=0;i<ROWS;++i) std::copy(v[i].cbegin(), v[i].cend(), res.v[i].begin());
-    for(std::size_t i=0;i<K;++i) std::copy(mat.v[i].cbegin(), mat.v[i].cend(), res.v[i+ROWS].begin());
-    return res;
-  }
-
 
 public:
   /**
- * @brief Calculates the inverse of a square matrix.
- *
- * Computes the inverse of a square matrix using the
- * row-reduced echelon form (RREF) approach. It appends an identity matrix to 
- * the right of the original matrix and then applies the RREF algorithm. The 
- * right half of the resultant matrix is the inverse of the original matrix.
- *
- * @pre The matrix must be square (N x N). If the matrix is not square, the
- * method throws a std::runtime_error.
- *
- * @post If the matrix is singular (i.e., does not have an inverse), the method
- * throws a std::runtime_error indicating that the matrix is non-invertible.
- *
- * @return Matrix<N,N> The inverse of the input matrix.
- *
- * @throws std::runtime_error if the matrix is not square or is singular.
- *
- * @example
- * Matrix<3,3> matrix; // Initialize matrix
- * Matrix<3,3> inverseMatrix = matrix.inv();
- */
+   * @brief Calculates the inverse of a square matrix.
+   *
+   * Computes the inverse of a square matrix using the
+   * row-reduced echelon form (RREF) approach. It appends an identity matrix to 
+   * the right of the original matrix and then applies the RREF algorithm. The 
+   * right half of the resultant matrix is the inverse of the original matrix.
+   *
+   * @return Matrix<N,N> The inverse of the input matrix.
+   *
+   * @throws std::runtime_error if the matrix is not square or is singular.
+   *
+   * @example
+   * Matrix<3,3> matrix; // Initialize matrix
+   * Matrix<3,3> inverseMatrix = matrix.inv();
+   */
   auto inv() const -> decltype(auto){ return Matrix<ROWS,COLUMNS>::inv(*this); }
   static auto inv(const Matrix<ROWS,COLUMNS>& mat) -> decltype(auto) {
     if constexpr(ROWS != COLUMNS){
-      throw std::runtime_error("MatrixInvert only works with square matrices");
+      throw std::runtime_error("Not a square matrix");
     } else {
       static constexpr auto K = ROWS;
       auto I_n = Matrix<K,K>::I();
@@ -237,15 +290,11 @@ public:
 	  for(std::size_t j=0;j<K;++j){
 	    double expect = i==j ? 1 : 0;
 	    if(fabs(mat.v[i][j]-expect) > EPS) return false;
-	  } return true;
+	  }
+	return true;
       };
-      if(not lside_is_In(augmat)) {
-	std::ostringstream ss;
-	ss << "Singular matrix in MatirxInvert";
-	ss << ", with mat=" << mat;
-	ss << " augmat=" << augmat;
-	throw std::runtime_error(ss.str());
-      }
+      if(not lside_is_In(augmat))
+	throw std::runtime_error("Singular matrix in MatirxInvert");
 
       Matrix<K,K> ans;
       for(std::size_t i=0;i<K;++i)
@@ -255,7 +304,42 @@ public:
     }
   }
 
-public:				// several useful factory methods
+
+public:
+  /**
+   * @brief Calculates the determinant of a square matrix.
+   *
+   * @return The determinant of the matrix.
+   *
+   * @throws std::runtime_error if the matrix is not square
+   */
+  double det() const{ return Matrix<ROWS,COLUMNS>::det(*this); }
+  static double det(const Matrix<ROWS,COLUMNS>& mat){
+    if constexpr(ROWS != COLUMNS) throw std::runtime_error("Not a square matrix");
+    else {
+      auto calculator = rref_calculator(mat);
+
+      std::size_t row_exchange_count = 0;
+      calculator.rowexchange_fun = [&row_exchange_count](Matrix<ROWS,COLUMNS>& mat, std::size_t row1, std::size_t row2){
+	if(row1 != row2){
+	  ++row_exchange_count;	// keep a count on the row exchange performed
+	  mat.RowExchange(row1,row2);
+	}
+      };
+
+      calculator.rowscale_fun = [](Matrix<ROWS,COLUMNS>&,std::size_t,double){};
+      // don't scale pivots to 1
+    
+      auto reduced = calculator.doit();
+      double det = (row_exchange_count&1) ? -1.0 : 1.0;
+      for(std::size_t i=0;i<ROWS;++i) det *= reduced.v[i][i];
+      return det;
+    }
+  }
+
+  
+  
+public:				// factory methods
   static Matrix<ROWS,COLUMNS> I(void) noexcept{
     Matrix<ROWS,COLUMNS> In;
     for(std::size_t i=0;i<ROWS&&i<COLUMNS;++i)

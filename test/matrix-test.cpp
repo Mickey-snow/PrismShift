@@ -191,3 +191,42 @@ TEST(MatrixTest, Inverse){
     EXPECT_EQ(diagonalMat.inv(), expected);
   }
 }
+
+
+TEST(MatrixTest, Det){
+  // basic functionality
+  {
+    Matrix<2,2> mat{1,2,3,4};
+    EXPECT_DOUBLE_EQ(mat.det(), -2.0);
+  }
+  {
+    Matrix<3,3> mat{2, 1, 3, 1, 0, 1, 3, 2, 0};
+    EXPECT_DOUBLE_EQ(mat.det(), 5.0);
+  }
+
+  // zero matrix
+  {
+    Matrix<5,5> mat;
+    EXPECT_DOUBLE_EQ(mat.det(), 0.0);
+  }
+
+  // upper / lower triangular matrix
+  {
+    Matrix<3,3> upperTriMat{1,2,3,0,4,5,0,0,9};
+    EXPECT_DOUBLE_EQ(upperTriMat.det(), 36.0);
+    Matrix<4,4> lowerTriMat{0.1,0,0,0,7,17,0,0,9,-5.2,23,0,7000,-1,1.5,-92.3};
+    EXPECT_DOUBLE_EQ(lowerTriMat.det(), -3608.93);
+  }
+
+  // identity matrix
+  {
+    auto idMat = Matrix<63,63>::I();
+    EXPECT_DOUBLE_EQ(idMat.det(), 1.0);
+  }
+
+  // non-square matrix
+  {
+    Matrix<2,3> mat;
+    EXPECT_ANY_THROW(mat.det());
+  }
+}

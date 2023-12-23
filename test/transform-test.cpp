@@ -6,63 +6,6 @@
 #include<format>
 
 
-class Matrix4Test : public ::testing::Test{
-protected:
-  void SetUp() override{
-    I = Matrix4::I();
-
-    for(int i=0;i<4;++i)
-      for(int j=0;j<4;++j)
-	randiMat[i][j] = i+j*i+4;
-
-    for(int i=0;i<4;++i)
-      for(int j=0;j<4;++j)
-	randfMat[i][j] = random_uniform_01();
-
-    det0mat = det20mat;
-    for(int i=0;i<4;++i){ det0mat[1][i]=i; det0mat[2][i]=5*i; }
-
-    CheckSetUp();
-  }
-
-  void CheckSetUp(){
-    for(int i=0;i<4;++i)
-      ASSERT_DOUBLE_EQ(I[i][i], 1);
-
-    for(int i=0;i<4;++i)
-      for(int j=0;j<4;++j)
-	ASSERT_DOUBLE_EQ(emptymat[i][j], 0);
-  }
-
-  Matrix4 I;
-  Matrix4 emptymat;
-  Matrix4 randiMat;
-  Matrix4 randfMat;
-  Matrix4 det20mat{5,-7,2,2,0,3,0,-4,-5,-8,0,3,0,5,0,-6};
-  Matrix4 det0mat;
-  
-  const double EPS = 1e-5;
-};
-
-TEST_F(Matrix4Test, unchangedAfterTimesIdentityMat){
-  for(const auto& m : {I,emptymat,randiMat,randfMat,det20mat}){
-    EXPECT_EQ(m, m*I);
-    EXPECT_EQ(m, I*m);
-  }
-}
-
-
-TEST_F(Matrix4Test, productWithInverseIsIdentityMat){
-  for(const auto& m : {I,randfMat,det20mat}){
-    Matrix4 minv = m.inv();
-
-    EXPECT_EQ(m*minv, Matrix4::I());
-    EXPECT_EQ(minv*m, Matrix4::I());
-  }
-}
-
-
-
 class TransformationTest : public ::testing::Test{
 protected:
   struct PointData{
