@@ -8,7 +8,7 @@
 #include<string>
 
 
-TEST(Vector2Test, Basic){
+TEST(geometryPrimitiveTest, BasicVector2){
   Vector2 orig;
   Vector2 v1{5,-1}, v2{0.3,-1.2},v3{10,10};
   const double scalar = 1.5, zero = 0;
@@ -48,7 +48,7 @@ TEST(Vector2Test, Basic){
   EXPECT_DOUBLE_EQ(v3.Length_squared(), 200);
 }
 
-TEST(Vector3Test, Basic){
+TEST(geometryPrimitiveTest, BasicVector3){
   Vector3 v1,v2; v1 = Vector3{42,-12,4}; v2 = Vector3{0.4,321,8.9};
   Vector3 i{1,0,0},j{0,1,0},k{0,0,1}, orig;
   const double scalar = 2.5;
@@ -70,7 +70,7 @@ TEST(Vector3Test, Basic){
   EXPECT_EQ(Vector3::Cross(v1,v2), Vector3(-1390.8, -372.2, 13486.8));
 }
 
-TEST(Vector2Test, ArithmeticType){
+TEST(geometryPrimitiveTest, typesafe){
   using vpv_t = decltype(std::declval<Vector2>() + std::declval<Vector2>());
   using vmv_t = decltype(std::declval<Vector2>() - std::declval<Vector2>());
   bool result = std::is_same_v<vpv_t, Vector2> && std::is_same_v<vmv_t, Vector2>;

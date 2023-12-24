@@ -14,7 +14,7 @@ class AABB;
 class Transformation{
 public:
   Transformation() : m(Matrix4::I()), minv(Matrix4::I()) {}
-  Transformation(const Matrix4& _m) : m(_m), minv(Matrix4::Inverse(_m)) {}
+  Transformation(const Matrix4& _m) : m(_m), minv(_m.inv()) {}
   Transformation(const Matrix4& _m, const Matrix4 _minv) : m(_m),minv(_minv) {}
 
   Matrix4 const Matrix(void) const { return m; }

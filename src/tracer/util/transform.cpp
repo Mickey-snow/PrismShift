@@ -95,7 +95,7 @@ Transformation Transformation::RotateFrTo(const Vector3& fr, const Vector3& to){
 	2/u.Dot(u) * u[i] * u[j] -
 	2/v.Dot(v) * v[i] * v[j] +
 	4*u.Dot(v)/(u.Dot(u)*v.Dot(v)) * v[i] * u[j];
-  return Transformation(r, Matrix4::Transpose(r));
+  return Transformation(r, r.T());
 }
 
 
