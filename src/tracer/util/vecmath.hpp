@@ -84,6 +84,13 @@ public:
     for(std::size_t i=0;i<dimension;++i) ans += v[i] * v[i];
     return ans;
   }
+
+  auto Dot(const basic_vector<value_type, dimension>& rhs) const -> decltype(auto){
+    using return_type = decltype(std::declval<value_type>() * std::declval<value_type>());
+    return_type ret{};
+    for(std::size_t i=0;i<dimension;++i) ret += v[i] * rhs.v[i];
+    return ret;
+  }
     
   std::array<value_type, dimension> v;
   

@@ -1,7 +1,76 @@
 #include<gtest/gtest.h>
 
 #include "util/matrix.hpp"
+#include "util/geometry.hpp"
 
+TEST(MatrixTest, MultVector){
+  // correctness
+  {
+    Matrix<3,2> mat{1,2,3,4,5,6};
+    Vector2 v{2,1};
+    EXPECT_EQ(mat*v, Vector3(4,10,16));
+  }
+  {
+    Matrix<2,3> mat{2,3,4,1,0,-1};
+    Vector3 v{1,2,3};
+    EXPECT_EQ(mat*v, Vector2(20,-2));
+  }
+  {
+    Matrix<2,2> mat{100,200,300,400};
+    Vector2 v{10,20};
+    EXPECT_EQ(mat*v, Vector2(5000,11000));
+  }
+
+  // identity matrix
+  {
+    Matrix<2,2> mat = Matrix<2,2>::I();
+    Vector2 v{5,-31};
+    EXPECT_EQ(mat*v, v);
+  }
+
+  // zero matrix
+  {
+    Matrix<3,3> mat;
+    Vector3 v{-12,3,9.21};
+    EXPECT_EQ(mat*v, Vector3(0,0,0));
+  }
+}
+
+TEST(MatrixTest, MultMat){
+  // standard
+  {
+    Matrix<2,2> A{1,2,3,4},B{2,0,1,3};
+    Matrix<2,2> expected{4,6,10,12};
+    EXPECT_EQ(A*B, expected);
+  }
+  {
+    Matrix<2,2> A{100,200,300,400}, B{10,20,30,40};
+    Matrix<2,2> expected{7000,10000,15000,22000};
+    EXPECT_EQ(A*B, expected);
+  }
+
+  // non-square
+  {
+    Matrix<3,2> A{2,3,4,5,6,7};
+    Matrix<2,3> B{1,2,3,4,5,6};
+    Matrix<3,3> expected{14,19,24,24,33,42,34,47,60};
+    EXPECT_EQ(A*B, expected);
+  }
+
+  // identity
+  {
+    Matrix<3,3> A{1,2,3,4,5,6,7,8,9}, id=Matrix<3,3>::I();
+    EXPECT_EQ(A*id, A);
+    EXPECT_EQ(id*A, A);
+  }
+
+  // zero matrix
+  {
+    Matrix<2,2> zero, A{1,2,3,4};
+    EXPECT_EQ(zero*A, zero);
+    EXPECT_EQ(A*zero, zero);
+  }
+}
 
 TEST(MatrixTest, RREF){
   // Test for correctness with a general matrix

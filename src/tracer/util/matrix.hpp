@@ -13,6 +13,8 @@
 #include<span>
 #include<functional>
 
+#include "util/geometry.hpp"
+
 template<std::size_t N, std::size_t M>
 class Matrix{
 public:
@@ -113,6 +115,17 @@ public:
   Matrix<ROWS,K>& operator *=(const Matrix<COLUMNS,K>& rhs){
     return *this = *this * rhs;
   }
+  template<vector_like T>
+  auto operator *(const T& rhs) const -> decltype(auto)
+    requires (T::dimension==COLUMNS){
+    using return_type = basic_vector<decltype(std::declval<double>() * std::declval<typename T::value_type>()), ROWS>;
+    return_type ret;
+    for(std::size_t i=0;i<ROWS;++i)
+      for(std::size_t j=0;j<COLUMNS;++j)
+	ret.v[i] += v[i][j] * rhs.v[j];
+    return ret;
+  }
+  
 
   
 public:
