@@ -5,24 +5,102 @@
 
 #include<cmath>
 
-Point3 Transformation::operator() (const Point3& p) const{
+VectorTranslate::VectorTranslate(const Vector3& p) : dx(p.x()), dy(p.y()), dz(p.z()) {}
+
+Point3 VectorTranslate::Doit(const Point3& p) const{
+  return Point3{p.x()+dx, p.y()+dy, p.z()+dz};
+}
+Vector3 VectorTranslate::Doit(const Vector3& v) const{
+  return v;
+}
+Normal VectorTranslate::Doit(const Normal& n) const{
+  return n;
+}
+Point3 VectorTranslate::Undo(const Point3& p) const{
+  return Point3{p.x()-dx, p.y()-dy, p.z()-dz};
+}
+Vector3 VectorTranslate::Undo(const Vector3& v) const{
+  return v;
+}
+Normal VectorTranslate::Undo(const Normal& n) const{
+  return n;
+}
+
+
+
+VectorScale::VectorScale(const Vector3& v) : dx(v.x()), dy(v.y()), dz(v.z()) {}
+
+Point3 VectorScale::Doit(const Point3& p) const{
+  return Point3(p.x()*dx, p.y()*dy, p.z()*dz);
+}
+Point3 VectorScale::Undo(const Point3& p) const{
+  return Point3(p.x()/dx, p.y()/dy, p.z()/dz);
+}
+Vector3 VectorScale::Doit(const Vector3& v) const{
+  return Vector3(v.x()*dx, v.y()*dy, v.z()*dz);
+}
+Vector3 VectorScale::Undo(const Vector3& v) const{
+  return Vector3(v.x()/dx, v.y()/dy, v.z()/dz);
+}
+/**
+ * @brief Scales a normal inversely along the x, y, and z axes.
+ *
+ * Applies the scaling transformation to a `Normal` object.
+ * Unlike points and vectors, each component of the
+ * normal is divided by its corresponding scaling factor.
+ * This is done to ensure that the transformed normal
+ * remains perpendicular to the surface after scaling.
+ *
+ * @return Normal The transformed normal.
+ */
+Normal VectorScale::Doit(const Normal& n) const{
+  return Normal(n.x()/dx, n.y()/dy, n.z()/dz);
+}
+Normal VectorScale::Undo(const Normal& n) const{
+  return Normal(n.x()*dx, n.y()*dy, n.z()*dz);
+}
+
+
+Point3 Transformation::Doit (const Point3& p) const{
   double x=p.x(),y=p.y(),z=p.z();
   double xp = m[0][0]*x + m[0][1]*y + m[0][2]*z + m[0][3];
   double yp = m[1][0]*x + m[1][1]*y + m[1][2]*z + m[1][3];
   double zp = m[2][0]*x + m[2][1]*y + m[2][2]*z + m[2][3];
   double wp = m[3][0]*x + m[3][1]*y + m[3][2]*z + m[3][3];
-  return Point3(xp,yp,zp) / wp;
+  static constexpr auto EPS = 1e-9;
+  if(fabs(wp-1.0) > EPS) return Point3(xp,yp,zp);
+  else return Point3(xp,yp,zp) / wp;
+}
+Point3 Transformation::operator() (const Point3& p) const{
+  return Doit(p);
 }
 
-Vector3 Transformation::operator() (const Vector3& p) const{
+Vector3 Transformation::Doit(const Vector3& p) const{
   double x=p.x(),y=p.y(),z=p.z();
   return Vector3(m[0][0]*x + m[0][1]*y + m[0][2]*z,
 		 m[1][0]*x + m[1][1]*y + m[1][2]*z,
 		 m[2][0]*x + m[2][1]*y + m[2][2]*z);
-		 
+}
+Vector3 Transformation::operator() (const Vector3& p) const{
+  return Doit(p);		 
 }
 
-Normal Transformation::operator() (const Normal& p) const{
+
+/**
+ * @brief Transforms a normal using a 4x4 homogeneous transformation matrix.
+ *
+ * This method applies a transformation to a normal,
+ * ensuring that the transformed normal remains perpendicular to
+ * the tangent plane of the surface.
+ * Unlike transformations applied to points or vectors, normals require
+ * a special handling to maintain their geometric properties after the transformation.
+ * The transformation for normals is not done directly using the original matrix M,
+ * but instead using the matrix S, which is derived from the
+ * transpose of the inverse of M (S = (M^-1)^T).
+ *
+ * @return A new Normal object: the transformed normal.
+ */
+Normal Transformation::Doit(const Normal& p) const{
   double x=p.x(),y=p.y(),z=p.z();
   double xp = minv[0][0]*x + minv[1][0]*y + minv[2][0]*z;
   double yp = minv[0][1]*x + minv[1][1]*y + minv[2][1]*z;
@@ -30,13 +108,27 @@ Normal Transformation::operator() (const Normal& p) const{
   return Normal(xp,yp,zp);
 }
 
+Normal Transformation::operator() (const Normal& p) const{
+  return Doit(p);
+}
+
+Point3 Transformation::Undo(const Point3& p) const{
+  return Inverse().Doit(p);
+}
+Vector3 Transformation::Undo(const Vector3& p) const{
+  return Inverse().Doit(p);
+}
+Normal Transformation::Undo(const Normal& p) const{
+  return Inverse().Doit(p);
+}
+
   
 
 Transformation Transformation::Translate(const Vector3& p){
   return Transformation(Matrix4{1,0,0,p.x(),
-			   0,1,0,p.y(),
-			   0,0,1,p.z(),
-			   0,0,0,1},
+				0,1,0,p.y(),
+				0,0,1,p.z(),
+				0,0,0,1},
     Matrix4{1,0,0,-p.x(),
 	    0,1,0,-p.y(),
 	    0,0,1,-p.z(),
@@ -98,8 +190,9 @@ Transformation Transformation::RotateFrTo(const Vector3& fr, const Vector3& to){
   return Transformation(r, r.T());
 }
 
-
-
+Transformation Transformation::Scale(const double& x,const double& y, const double& z){
+  return Transformation::Scale(Vector3{x,y,z});
+}
 Transformation Transformation::Scale(const Vector3& n){
   auto ScaleMat = [](const double& kx, const double& ky, const double& kz){
     return Matrix4{kx,0,0,0,
