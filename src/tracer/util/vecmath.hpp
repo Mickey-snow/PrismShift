@@ -5,10 +5,32 @@
 #include<array>
 #include<utility>
 #include<ostream>
-#include<cassert>
 #include<cstddef>
 #include<type_traits>
 
+
+/**
+ * @brief A template class for basic vector arithmetic.
+ * 
+ * `basic_vector` provides fundamental vector arithmetic logic and is designed to be the base class for geometric primitives like 3D vectors,
+ * points, and normals. It supports operations such as vector addition, subtraction, multiplication (both scalar and vectorial), and division.
+ * 
+ * The class is templated over `value_t`, which represents the type of the vector's components (e.g., float, double),
+ * and `N`, the dimension of the vector.
+ * 
+ * @tparam value_t The type of the elements in the vector.
+ * @tparam N The number of dimensions of the vector.
+ * 
+ * Key features and functionalities:
+ * - Constructors for various initializations (empty, initializer list, variadic templates, iterators, and copy/move constructors).
+ * - Assignment operators for both copy and move semantics.
+ * - Accessor methods for individual components (x, y, z) with compile-time checks for dimensions.
+ * - Overloaded operators for vector arithmetic, including `==`, `!=`, unary `-`, `+`, `-`, `*`, `/`, and compound assignment operators.
+ * - Methods for computing vector length, squared length, and checking if the vector is near zero within a small epsilon value.
+ * 
+ * The class also includes traits and concepts (`has_vector_traits`, `is_vector_like`, `vector_like`)
+ * to identify and work with types that are vector-like.
+ */
 template<typename value_t, std::size_t N>
 class basic_vector{
 public:
@@ -21,14 +43,14 @@ public:
     assert(li.size() == N);
     std::copy(li.begin(), li.end(), v.begin());
   }
-  template<typename... Ts> requires (((std::is_convertible_v<Ts, value_type>) && ...) && (sizeof...(Ts)==N))
+  template<typename... Ts>
+  requires (((std::is_convertible_v<Ts, value_type>) && ...) && (sizeof...(Ts)==N))
   basic_vector(Ts... param) : basic_vector() {
     assign_impl(std::make_index_sequence<sizeof...(Ts)>{},
 		(std::make_tuple(std::forward<Ts>(param)...)));
   }
   basic_vector(const std::input_iterator auto& ibegin,
 	       const std::input_iterator auto& iend) : basic_vector() {
-    assert(std::distance(ibegin, iend) == N);
     std::copy(ibegin, iend, v.begin());
   }
   basic_vector(const basic_vector<value_type, dimension>& it) : basic_vector() {
