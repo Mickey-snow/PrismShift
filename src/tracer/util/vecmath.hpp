@@ -91,9 +91,12 @@ public:
     for(auto& it : ret.v) it /= len;
     return ret;
   }
-  
-  auto Dot(const basic_vector<value_type, dimension>& rhs) const -> decltype(auto){
-    using return_type = decltype(std::declval<value_type>() * std::declval<value_type>());
+
+  template<typename T>
+  auto Dot(const basic_vector<T, dimension>& rhs) const -> decltype(auto){
+    using return_type = decltype(std::declval<value_type>() * std::declval<T>());
+    static_assert(std::is_same_v<return_type, decltype(std::declval<return_type>()+std::declval<return_type>())>);
+    
     return_type ret{};
     for(std::size_t i=0;i<dimension;++i) ret += v[i] * rhs.v[i];
     return ret;
