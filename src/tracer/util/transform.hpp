@@ -173,8 +173,8 @@ public:
   static MatrixTransformation Translate(const Vector3& p);
   static MatrixTransformation Translate(const double& dx, const double& dy, const double& dz);
 
-  static MatrixTransformation Rotate(Vector3 axis, const double& costheta, const double& sintheta);
-  static MatrixTransformation Rotate(Vector3 axis, const double& theta);
+  static MatrixTransformation Rotate(basic_vector<double,3> axis, const double& costheta, const double& sintheta);
+  static MatrixTransformation Rotate(const basic_vector<double,3>& axis, const double& theta);
   static MatrixTransformation RotateX(const double& theta);
   static MatrixTransformation RotateX(const double& costheta, const double& sintheta);
   static MatrixTransformation RotateY(const double& theta);
@@ -194,18 +194,11 @@ class Quaternion{
 public:
   Quaternion(const double& is, const double& ix, const double& iy, const double& iz) :
     s(is), v(ix,iy,iz) {}
-  Quaternion(const double& is, const Vector3& iv):
+  Quaternion(const double& is, const basic_vector<double,3>& iv):
     s(is), v(iv) {}
 
   ~Quaternion() = default;
-  
-  // Point3 Doit(const Point3&) const override;
-  // Vector3 Doit(const Vector3&) const override;
-  // Normal Doit(const Normal&) const override;
-  // Point3 Undo(const Point3&) const override;
-  // Vector3 Undo(const Vector3&) const override;
-  // Normal Undo(const Normal&) const override;
-  
+    
   Quaternion operator + (const Quaternion& rhs) const;
   Quaternion& operator +=(const Quaternion& rhs){ return *this = *this + rhs; }
   Quaternion operator - (const Quaternion& rhs) const;
@@ -230,10 +223,33 @@ public:
 
   Quaternion inv(void) const;
   
-private:
+public:
   double s;
   Vector3 v;
 };
 
+
+class QuaternionTransform : public ITransformation{
+public:
+  QuaternionTransform(const Quaternion& quat) : q(quat), qinv(quat.inv()) {}
+  ~QuaternionTransform() = default;
+  
+  Point3 Doit(const Point3&) const override;
+  Point3 Undo(const Point3&) const override;
+  Vector3 Doit(const Vector3&) const override;
+  Vector3 Undo(const Vector3&) const override;
+  Normal Doit(const Normal&) const override;
+  Normal Undo(const Normal&) const override;
+  
+private:
+  Quaternion q,qinv;
+
+  basic_vector<double,3> Doit_impl(const basic_vector<double,3>&) const;
+  basic_vector<double,3> Undo_impl(const basic_vector<double,3>&) const;
+
+public:
+  static QuaternionTransform Rotate(const basic_vector<double,3>&, double);
+  static QuaternionTransform RotateFrTo(const Vector3& fr, const Vector3& to);
+};
 
 #endif

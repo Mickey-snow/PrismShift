@@ -125,10 +125,10 @@ MatrixTransformation MatrixTransformation::Translate(const double& dx, const dou
 
 
 
-MatrixTransformation MatrixTransformation::Rotate(Vector3 axis, const double& costheta, const double& sintheta){
+MatrixTransformation MatrixTransformation::Rotate(basic_vector<double,3> axis, const double& costheta, const double& sintheta){
   axis = axis.Normalized();
     
-  auto R = [](const Vector3& axis, const double& costheta, const double& sintheta){
+  auto R = [](const basic_vector<double,3>& axis, const double& costheta, const double& sintheta){
     const double nx=axis.x(), ny=axis.y(), nz=axis.z();
     return Matrix4{
       nx*nx*(1-costheta)+costheta, nx*ny*(1-costheta)+nz*sintheta, nx*nz*(1-costheta)-ny*sintheta, 0,
@@ -143,7 +143,7 @@ MatrixTransformation MatrixTransformation::Rotate(Vector3 axis, const double& co
 
   return MatrixTransformation(RotateMat, RotateMatInv);
 }
-MatrixTransformation MatrixTransformation::Rotate(Vector3 axis, const double& theta){
+MatrixTransformation MatrixTransformation::Rotate(const basic_vector<double,3>& axis, const double& theta){
   double costheta = cos(theta);
   double sintheta = sin(theta);
   return Rotate(axis, costheta, sintheta);
@@ -269,3 +269,45 @@ Quaternion Quaternion::inv(void) const{
   return conj() / sqrnorm();
 }
 
+
+basic_vector<double,3> QuaternionTransform::Doit_impl(const basic_vector<double,3>& it) const{
+  auto p = Quaternion(0,it.x(),it.y(),it.z());
+  p = q * p * qinv;
+  return (basic_vector<double,3>)p.v; 
+}
+basic_vector<double,3> QuaternionTransform::Undo_impl(const basic_vector<double,3>& it) const{
+  auto p = Quaternion(0,it.x(),it.y(),it.z());
+  p = qinv * p * q;
+  return (basic_vector<double,3>)p.v;
+}
+Point3 QuaternionTransform::Doit(const Point3& pt) const{
+  return (Point3)Doit_impl(pt);
+}
+Point3 QuaternionTransform::Undo(const Point3& pt) const{
+  return (Point3)Undo_impl(pt);
+}
+Vector3 QuaternionTransform::Doit(const Vector3& v) const{
+  return (Vector3)Doit_impl(v);
+}
+Vector3 QuaternionTransform::Undo(const Vector3& v) const{
+  return (Vector3)Undo_impl(v);
+}
+Normal QuaternionTransform::Doit(const Normal& n) const{
+  return (Normal)Doit_impl(n);
+}
+Normal QuaternionTransform::Undo(const Normal& n) const{
+  return (Normal)Undo_impl(n);
+}
+
+QuaternionTransform QuaternionTransform::Rotate(const basic_vector<double,3>& n, double theta){
+  theta *= -0.5;
+  auto q = Quaternion(cos(theta), sin(theta)*n);
+  return QuaternionTransform(q);
+}
+
+// requires vectors fr and to be normalized
+QuaternionTransform QuaternionTransform::RotateFrTo(const Vector3& fr, const Vector3& to){
+  double theta = acos(fr.Dot(to));
+  auto axis = fr.Cross(to);
+  return QuaternionTransform::Rotate(axis,theta);
+}

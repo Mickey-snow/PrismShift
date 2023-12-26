@@ -133,6 +133,74 @@ TYPED_TEST(ScalingTest, Normals){
 }
 
 
+template<class rotate_t>
+class RotateTest : public TransformTest{
+public:
+  std::shared_ptr<ITransformation> Get_Tr(basic_vector<double,3> n, double angle){
+    return std::make_shared<rotate_t>(std::move(rotate_t::Rotate(n,angle)));
+  }
+
+  std::shared_ptr<ITransformation> Get_Tr(Vector3 fr, Vector3 to){
+    return std::make_shared<rotate_t>(std::move(rotate_t::RotateFrTo(fr,to)));
+  }
+};
+
+using rotate_impl = ::testing::Types<MatrixTransformation, QuaternionTransform>;
+TYPED_TEST_SUITE(RotateTest, rotate_impl);
+
+TYPED_TEST(RotateTest, simpleAxis){
+  Vector3 v{1,0,0};
+  Normal n{0,1,0};
+  double angle = pi/2;
+  auto tr = this->Get_Tr(n,angle);
+  EXPECT_EQ(tr->Doit(v), Vector3(0,0,1));
+
+  v = Vector3{0,0,1};
+  n = Normal{0,1,0};
+  angle = -45.0 / 180 * pi;
+  tr = this->Get_Tr(n,angle);
+  EXPECT_EQ(tr->Doit(v), Vector3(sqrt(2.0)/2,0,sqrt(2.0)/2));
+}
+
+TYPED_TEST(RotateTest, diagonalAxis){
+  Vector3 v{0,1,0};
+  Normal n{1,1,1};
+  double angle = 120.0 /180*pi;
+  auto tr = this->Get_Tr(n,angle);
+  EXPECT_EQ(tr->Doit(v), Vector3(1,0,0));
+}
+
+TYPED_TEST(RotateTest, smallAngle){
+  Vector3 v{1,1,1};
+  Normal n{1,0,0};
+  double angle = 10.0 / 180*pi;
+  auto tr = this->Get_Tr(n,angle);
+  EXPECT_EQ(tr->Doit(v), Vector3(1,1.15845593,0.81115958));
+}
+
+TYPED_TEST(RotateTest, zeroVector){
+  Vector3 v{0,0,0};
+  Normal n{random_uniform_01(), random_uniform_01(), random_uniform_01()};
+  double angle = pi*2 * random_uniform_01();
+  auto tr = this->Get_Tr(n,angle);
+  EXPECT_EQ(tr->Doit(v), v);
+}
+
+TYPED_TEST(RotateTest, rotate180Deg){
+  Vector3 v{random_uniform_01(), 0,0};
+  Normal n{0,1,0};
+  double angle = pi;
+  auto tr = this->Get_Tr(n,angle);
+  EXPECT_EQ(tr->Doit(v), -v);
+}
+
+TYPED_TEST(RotateTest, basicfrto){
+  Vector3 v{1,-2,3.5};
+  Vector3 fr{1,0,0},to{0,1,0};
+  auto tr = this->Get_Tr(fr,to);
+  EXPECT_EQ(tr->Doit(v), Vector3(3.5,1,-2));
+}
+
 
 
 
@@ -268,7 +336,7 @@ TEST_F(MatTransformationTest, nonuniformScaling){
   for(const auto& n : norm.asVector()){
     auto perpendicular = Vector3::Cross(Vector3{2,3,4}, n);
     auto scaled = nuscale.Doit(n);
-    perpendicular = nuscale(perpendicular);
+    perpendicular = nuscale.Doit(perpendicular);
     EXPECT_NEAR(Vector3::Dot(perpendicular, (Vector3)scaled), 0, EPS);
   }
 }
@@ -297,7 +365,7 @@ TEST_F(MatTransformationTest, rotateFrto){
     auto vrotated = ftRotate.Doit(v);
 
     EXPECT_EQ(vrotated, rotateTo) << "v=" << v << "  rotateTo=" << rotateTo;
-    EXPECT_TRUE(Vector3::isPerpendicular(vrotated, ftRotate(perpendicular)));
+    EXPECT_TRUE(Vector3::isPerpendicular(vrotated, ftRotate.Doit(perpendicular)));
   }
 }
 

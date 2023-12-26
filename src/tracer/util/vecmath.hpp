@@ -85,7 +85,13 @@ public:
     for(std::size_t i=0;i<dimension;++i) ans += v[i] * v[i];
     return ans;
   }
-
+  basic_vector<value_type,dimension> Normalized(void) const{
+    auto ret = *this;
+    auto len = Length();
+    for(auto& it : ret.v) it /= len;
+    return ret;
+  }
+  
   auto Dot(const basic_vector<value_type, dimension>& rhs) const -> decltype(auto){
     using return_type = decltype(std::declval<value_type>() * std::declval<value_type>());
     return_type ret{};
@@ -111,7 +117,7 @@ template<typename T>
 struct has_vector_traits<T, std::void_t<decltype(dynamic_cast<const basic_vector<typename T::value_type, T::dimension>*>(std::declval<T*>()))>> : std::true_type {};
 
 template<typename T>
-struct is_vector_like : has_vector_traits<std::remove_cv_t<std::remove_reference_t<T>>> {};
+struct is_vector_like : has_vector_traits<std::decay_t<T>> {};
 
 template<typename T>
 concept vector_like = is_vector_like<T>::value;
