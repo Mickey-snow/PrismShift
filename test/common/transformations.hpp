@@ -7,13 +7,13 @@
 #include<util/geometry.hpp>
 #include<util/random.hpp>
 
-static const std::vector<Transformation> my_transformations{
-  Transformation(),
-  Transformation::Translate(-2.34, 0, 15),
-  Transformation::Rotate(Vector3::Random_Unit(), 2.74),
-  Transformation::RotateFrTo(Vector3::Random_Unit(), Vector3::Random_Unit()),
-  Transformation::Scale(Vector3::Random_Unit()),
-  Transformation::Rotate(Vector3::Random_Unit(),random_uniform_01())*Transformation::Scale(Vector3::Random(-3,3))
+static const std::vector<MatrixTransformation> my_transformations{
+  MatrixTransformation(),
+  MatrixTransformation::Translate(-2.34, 0, 15),
+  MatrixTransformation::Rotate(Vector3::Random_Unit(), 2.74),
+  MatrixTransformation::RotateFrTo(Vector3::Random_Unit(), Vector3::Random_Unit()),
+  MatrixTransformation::Scale(Vector3::Random_Unit()),
+  MatrixTransformation::Rotate(Vector3::Random_Unit(),random_uniform_01())*MatrixTransformation::Scale(Vector3::Random(-3,3))
 };
 
 

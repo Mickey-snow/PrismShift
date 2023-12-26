@@ -4,6 +4,7 @@
 #include<cassert>
 
 // Headers
+#include "vecmath.hpp"
 #include "geometry.hpp"
 #include "matrix.hpp"
 #include "transform.hpp"

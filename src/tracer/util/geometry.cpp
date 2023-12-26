@@ -22,7 +22,7 @@ Vector<3> Vector<3>::Random(const double& min, const double& max){
 
 
 template<>
-Vector<3> Vector<3>::Transform(const Transformation& tr) const{ return tr(*this); }
+Vector<3> Vector<3>::Transform(const ITransformation& tr) const{ return tr.Doit(*this); }
 template<>
-Point<3> Point<3>::Transform(const Transformation& tr) const{ return tr(*this); }
-Normal Normal::Transform(const Transformation& tr) const{ return tr(*this); }
+Point<3> Point<3>::Transform(const ITransformation& tr) const{ return tr.Doit(*this); }
+Normal Normal::Transform(const ITransformation& tr) const{ return tr.Doit(*this); }

@@ -15,9 +15,9 @@ public:
   Coordinate3& Set_Rotation(const double& x,const double& y, const double& z);
   Coordinate3& Set_Scale(const double& x,const double& y, const double& z);
 
-  Coordinate3& Set_Translation(const Transformation& it){ translation = it; Update(); return *this;}
-  Coordinate3& Set_Rotation(const Transformation& it){ rotation = it; Update(); return *this; }
-  Coordinate3& Set_Scale(const Transformation& it){ scale = it; Update(); return *this; }
+  Coordinate3& Set_Translation(const MatrixTransformation& it){ translation = it; Update(); return *this;}
+  Coordinate3& Set_Rotation(const MatrixTransformation& it){ rotation = it; Update(); return *this; }
+  Coordinate3& Set_Scale(const MatrixTransformation& it){ scale = it; Update(); return *this; }
 
   template<typename T>
   T Local2World(const T& it) const{
@@ -29,41 +29,18 @@ public:
   }
   
 private:
-  Transformation translation,rotation,scale;
-  Transformation toworld;
+  MatrixTransformation translation,rotation,scale;
+  MatrixTransformation toworld;
 
   void Update(){ toworld = translation * rotation * scale; }
 
 
 public:
-  static Transformation AlignXYZ(const Vector3&, const Vector3&, const Vector3&);
-  static Transformation AlignXY(const Vector3&, const Vector3&);
-  static Transformation AlignYZ(const Vector3&, const Vector3&);
-  static Transformation AlignXZ(const Vector3&, const Vector3&);
-  static Transformation Origin(const Point3&);
-
-
-  
-public:
-  Coordinate3(const Coordinate3& rhs) : translation(rhs.translation), rotation(rhs.rotation), scale(rhs.scale) { Update(); }
-  
-  Coordinate3& operator = (const Coordinate3& rhs){
-    translation = rhs.translation;
-    rotation = rhs.rotation;
-    scale = rhs.scale;
-    Update();
-    return *this;
-  }
-  
-  Coordinate3(Coordinate3&& rhs) : translation(std::move(rhs.translation)), rotation(std::move(rhs.rotation)), scale(std::move(rhs.scale)) { Update(); }
-  
-  Coordinate3& operator = (Coordinate3&& rhs){
-    translation = std::move(rhs.translation);
-    rotation = std::move(rhs.rotation);
-    scale = std::move(rhs.scale);
-    Update();
-    return *this;
-  }
+  static MatrixTransformation AlignXYZ(const Vector3&, const Vector3&, const Vector3&);
+  static MatrixTransformation AlignXY(const Vector3&, const Vector3&);
+  static MatrixTransformation AlignYZ(const Vector3&, const Vector3&);
+  static MatrixTransformation AlignXZ(const Vector3&, const Vector3&);
+  static MatrixTransformation Origin(const Point3&);
 };
 
 

@@ -8,7 +8,7 @@
 #include "util/geometry_fwd.hpp"
 
 class Ray;
-class Transformation;
+class MatrixTransformation;
 
 class AABB{
   // Approximate an visible object to a cube
@@ -37,7 +37,7 @@ public:
   
   AABB Pad() const;
 
-  AABB Transform(const Transformation&) const;
+  AABB Transform(const MatrixTransformation&) const;
   
   class Componentbased_Comparer{
   public:

@@ -6,7 +6,7 @@
 #include<memory>
 #include<ostream>
 
-class Transformation;
+class ITransformation;
 
 class Ray{
 public:
@@ -20,7 +20,7 @@ public:
 
   Point3 At(const double&) const;
 
-  Ray Transform(const Transformation&) const;
+  Ray Transform(const ITransformation&) const;
 
   bool operator == (const Ray& rhs) const {
     return origin==rhs.Origin() && direction==rhs.Direction();

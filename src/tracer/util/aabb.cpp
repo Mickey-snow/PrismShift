@@ -11,6 +11,7 @@
 
 #include "geometry.hpp"
 #include "ray.hpp"
+#include "util/transform.hpp"
 
 AABB::AABB(std::initializer_list<Point3> li){
   if(li.size() == 0){
@@ -125,7 +126,7 @@ AABB AABB::Pad() const{
 }
 
 
-AABB AABB::Transform(const Transformation& tr) const{
+AABB AABB::Transform(const MatrixTransformation& tr) const{
   std::vector<Point3> v;
   std::function<double(const Interval<double>&)> vertex_component[] = {
     [](const Interval<double>& i){ return i.begin; },
@@ -133,7 +134,7 @@ AABB AABB::Transform(const Transformation& tr) const{
   };
   for(int i=0;i<2;++i) for(int j=0;j<2;++j) for(int k=0;k<2;++k) v.emplace_back(Point3{vertex_component[i](Axis(0)), vertex_component[j](Axis(1)), vertex_component[k](Axis(2)) });
 
-  for(auto& it : v) it = it.Transform(tr);
+  for(auto& it : v) it = tr.Doit(it);
 
   return AABB{v[0],v[1],v[2],v[3],v[4],v[5],v[6],v[7]};
 }

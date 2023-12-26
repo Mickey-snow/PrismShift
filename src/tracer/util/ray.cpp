@@ -9,9 +9,9 @@ Point3 Ray::At(const double& time) const{
 }
 
 
-Ray Ray::Transform(const Transformation& tr) const{
+Ray Ray::Transform(const ITransformation& tr) const{
   Ray ret = *this;
-  ret.SetOrigin(tr(Origin()));
-  ret.SetDirection(tr(Direction()));
+  ret.SetOrigin(tr.Doit(Origin()));
+  ret.SetDirection(tr.Doit(Direction()));
   return ret;
 }

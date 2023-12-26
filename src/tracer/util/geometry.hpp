@@ -14,7 +14,7 @@
 #include "util/vecmath.hpp"
 #include "util/geometry_fwd.hpp"
 
-class Transformation;
+class ITransformation;
 
 template<std::size_t N>
 class Vector : public basic_vector<double, N>{
@@ -34,13 +34,13 @@ public:
 
   bool isUnit(void) const{ return fabs(super::Length_squared()-1.0) < EPS; }
 
+  using super::Dot;
   template<vector_like T, vector_like U>
-  static double Dot(const T& lhs, const U& rhs)
-    requires (T::dimension == N && U::dimension == N){
-    double ans = 0;
-    for(std::size_t i=0;i<dimension;++i) ans += lhs.v[i] * rhs.v[i];
-    return ans;
+  static auto Dot(const T& lhs, const U& rhs) -> decltype(auto)
+    requires (T::dimension==U::dimension){
+    return lhs.Dot(rhs);
   }
+  
   template<vector_like T, vector_like U>
   static Vector<3> Cross(const T& lhs, const U& rhs)
     requires (T::dimension==3 && U::dimension==3 && N==3){
@@ -54,7 +54,6 @@ public:
     return Vector<3>(0,0,
 		     lhs.v[0]*rhs.v[1] - lhs.v[1]*rhs.v[0]);
   }
-  double Dot(const vector_like auto& rhs) const{ return Dot(*this, rhs); }
   Vector<N> Cross(const vector_like auto& rhs) const{ return Cross(*this, rhs); }
 
   static bool isPerpendicular(const Vector<N>& a,const Vector<N>& b){
@@ -72,7 +71,7 @@ public:
   static Vector<N> Random_Unit(void);
   static Vector<N> Random(const double& min, const double& max);
 
-  Vector<N> Transform(const Transformation&) const;
+  Vector<N> Transform(const ITransformation&) const;
 };
 
 
@@ -88,7 +87,7 @@ public:
   template<vector_like T>
   explicit Point<N>(T&& it) : super(std::forward<T>(it)) {}
 
-  Point<N> Transform(const Transformation&) const;
+  Point<N> Transform(const ITransformation&) const;
 
   Point<N> operator + (const Vector<N>& rhs) const{ return
       (Point<N>)vector_arithmetic(*this, rhs, std::plus<>{});
@@ -129,7 +128,7 @@ public:
     return *this;
   }
 
-  Normal Transform(const Transformation&) const;
+  Normal Transform(const ITransformation&) const;
 
   Normal operator +(const Vector3& rhs) const{
     return (Normal)vector_arithmetic(*this, rhs, std::plus<>{});
