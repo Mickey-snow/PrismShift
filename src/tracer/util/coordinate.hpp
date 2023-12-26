@@ -41,29 +41,6 @@ public:
   static MatrixTransformation AlignYZ(const Vector3&, const Vector3&);
   static MatrixTransformation AlignXZ(const Vector3&, const Vector3&);
   static MatrixTransformation Origin(const Point3&);
-
-
-  
-public:
-  Coordinate3(const Coordinate3& rhs) : translation(rhs.translation), rotation(rhs.rotation), scale(rhs.scale) { Update(); }
-  
-  Coordinate3& operator = (const Coordinate3& rhs){
-    translation = rhs.translation;
-    rotation = rhs.rotation;
-    scale = rhs.scale;
-    Update();
-    return *this;
-  }
-  
-  Coordinate3(Coordinate3&& rhs) : translation(std::move(rhs.translation)), rotation(std::move(rhs.rotation)), scale(std::move(rhs.scale)) { Update(); }
-  
-  Coordinate3& operator = (Coordinate3&& rhs){
-    translation = std::move(rhs.translation);
-    rotation = std::move(rhs.rotation);
-    scale = std::move(rhs.scale);
-    Update();
-    return *this;
-  }
 };
 
 

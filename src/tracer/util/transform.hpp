@@ -182,7 +182,16 @@ public:
   static MatrixTransformation RotateZ(const double& theta);
   static MatrixTransformation RotateZ(const double& costheta, const double& sintheta);
   static MatrixTransformation RotateFrTo(const Vector3& fr, const Vector3& to);
-
+  /**
+   * @brief Creates a transformation matrix that aligns the global coordinate system to a given local coordinate system.
+   *
+   * @param The basis of the local coordinate system.
+   *
+   * @return MatrixTransformation representing the rotation.
+   */
+  static MatrixTransformation AlignXYZ(const basic_vector<Vector3,3>&);
+  static MatrixTransformation AlignXYZ(const Vector3&,const Vector3&,const Vector3&);
+  
   static MatrixTransformation Scale(const double&, const double&, const double&);
   static MatrixTransformation Scale(const Vector3& n);
   static MatrixTransformation Scale(const Vector3& n, const double& k);
@@ -232,6 +241,8 @@ public:
 class QuaternionTransform : public ITransformation{
 public:
   QuaternionTransform(const Quaternion& quat) : q(quat), qinv(quat.inv()) {}
+  QuaternionTransform(const Quaternion& quat, const Quaternion& quatinv) :
+    q(quat), qinv(quatinv) {}
   ~QuaternionTransform() = default;
   
   Point3 Doit(const Point3&) const override;
@@ -248,8 +259,33 @@ private:
   basic_vector<double,3> Undo_impl(const basic_vector<double,3>&) const;
 
 public:
+  /**
+   * @brief creates a quaternion representing a rotation.
+   * 
+   * @param A 3D vector representing the axis of rotation.
+   * @param The angle of rotation in radians. The rotation is applied counter-clockwise
+   * when looking along the direction of the axis vector.
+   * 
+   * @return QuaternionTransform The resulting quaternion encapsulates the rotation.
+   *
+   * Example usage:
+   * auto qt = QuaternionTransform::Rotate(Vector3(0, 0, 1), M_PI / 4);
+   * // Rotate 45 degrees around the Z-axis
+   */
   static QuaternionTransform Rotate(const basic_vector<double,3>&, double);
   static QuaternionTransform RotateFrTo(const Vector3& fr, const Vector3& to);
+
+  /**
+   * @brief Creates a quaternion transformation that aligns the global coordinate system to a given local coordinate system.
+   *
+   * @param The basis of the local coordinate system.
+   *
+   * @return QuaternionTransform representing the rotation world->local.
+   *
+   * Note: the basis must form a proper coordinate system.
+   */
+  static QuaternionTransform AlignXYZ(const basic_vector<Vector3,3>&);
+  static QuaternionTransform AlignXYZ(const Vector3&,const Vector3&,const Vector3&);
 };
 
 #endif

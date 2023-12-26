@@ -136,12 +136,16 @@ TYPED_TEST(ScalingTest, Normals){
 template<class rotate_t>
 class RotateTest : public TransformTest{
 public:
-  std::shared_ptr<ITransformation> Get_Tr(basic_vector<double,3> n, double angle){
+  decltype(auto) axisTr(basic_vector<double,3> n, double angle){
     return std::make_shared<rotate_t>(std::move(rotate_t::Rotate(n,angle)));
   }
 
-  std::shared_ptr<ITransformation> Get_Tr(Vector3 fr, Vector3 to){
+  decltype(auto) frtoTr(Vector3 fr, Vector3 to){
     return std::make_shared<rotate_t>(std::move(rotate_t::RotateFrTo(fr,to)));
+  }
+
+  decltype(auto) alignxyzTr(const basic_vector<Vector3, 3>& basis){
+    return std::make_shared<rotate_t>(std::move(rotate_t::AlignXYZ(basis)));
   }
 };
 
@@ -152,13 +156,13 @@ TYPED_TEST(RotateTest, simpleAxis){
   Vector3 v{1,0,0};
   Normal n{0,1,0};
   double angle = pi/2;
-  auto tr = this->Get_Tr(n,angle);
+  auto tr = this->axisTr(n,angle);
   EXPECT_EQ(tr->Doit(v), Vector3(0,0,1));
 
   v = Vector3{0,0,1};
   n = Normal{0,1,0};
   angle = -45.0 / 180 * pi;
-  tr = this->Get_Tr(n,angle);
+  tr = this->axisTr(n,angle);
   EXPECT_EQ(tr->Doit(v), Vector3(sqrt(2.0)/2,0,sqrt(2.0)/2));
 }
 
@@ -166,42 +170,91 @@ TYPED_TEST(RotateTest, diagonalAxis){
   Vector3 v{0,1,0};
   Normal n{1,1,1};
   double angle = 120.0 /180*pi;
-  auto tr = this->Get_Tr(n,angle);
+  auto tr = this->axisTr(n,angle);
   EXPECT_EQ(tr->Doit(v), Vector3(1,0,0));
 }
 
-TYPED_TEST(RotateTest, smallAngle){
+TYPED_TEST(RotateTest, smallAngleAxis){
   Vector3 v{1,1,1};
   Normal n{1,0,0};
   double angle = 10.0 / 180*pi;
-  auto tr = this->Get_Tr(n,angle);
+  auto tr = this->axisTr(n,angle);
   EXPECT_EQ(tr->Doit(v), Vector3(1,1.15845593,0.81115958));
 }
 
 TYPED_TEST(RotateTest, zeroVector){
   Vector3 v{0,0,0};
-  Normal n{random_uniform_01(), random_uniform_01(), random_uniform_01()};
+  auto randNormal = [](){ return Normal{random_uniform_01(), random_uniform_01(), random_uniform_01()}; };
+  auto n=randNormal(), np=randNormal();
   double angle = pi*2 * random_uniform_01();
-  auto tr = this->Get_Tr(n,angle);
+  auto tr = this->axisTr(n,angle);
+  EXPECT_EQ(tr->Doit(v), v);
+  
+  tr = this->frtoTr((Vector3)n,(Vector3)np);
   EXPECT_EQ(tr->Doit(v), v);
 }
 
-TYPED_TEST(RotateTest, rotate180Deg){
+TYPED_TEST(RotateTest, rotate180DegAxis){
   Vector3 v{random_uniform_01(), 0,0};
   Normal n{0,1,0};
   double angle = pi;
-  auto tr = this->Get_Tr(n,angle);
+  auto tr = this->axisTr(n,angle);
   EXPECT_EQ(tr->Doit(v), -v);
 }
 
 TYPED_TEST(RotateTest, basicfrto){
-  Vector3 v{1,-2,3.5};
-  Vector3 fr{1,0,0},to{0,1,0};
-  auto tr = this->Get_Tr(fr,to);
-  EXPECT_EQ(tr->Doit(v), Vector3(3.5,1,-2));
+  Vector3 fr,to;
+  fr = Vector3(0,0,1), to = Vector3(0,0,1); // same direction
+  auto tr = this->frtoTr(fr,to);
+  EXPECT_EQ(tr->Doit(fr), to); EXPECT_EQ(tr->Undo(to), fr);
+
+  to = Vector3(0,1,0);
+  tr = this->frtoTr(fr,to);
+  EXPECT_EQ(tr->Doit(fr), to); EXPECT_EQ(tr->Undo(to), fr);
+
+  to = Vector3(1,0,0);
+  tr = this->frtoTr(fr,to);
+  EXPECT_EQ(tr->Doit(fr), to); EXPECT_EQ(tr->Undo(to), fr);
 }
 
+TYPED_TEST(RotateTest, randomFrto){
+  static constexpr auto testcases = 100;
+  for(int i=0;i<testcases;++i){
+    auto randUnitVec = [](){ return Vector3(random_double(-1000,1000), random_double(-1000,1000), random_double(-1000,1000)).Normalized(); };
+    auto fr=randUnitVec(), to=randUnitVec();
+    auto tr = this->frtoTr(fr,to);
+    EXPECT_EQ(tr->Doit(fr), to); EXPECT_EQ(tr->Undo(to), fr);
+  }
+}
 
+TYPED_TEST(RotateTest, basicAlign){
+  basic_vector<Vector3, 3> basis{Vector3(1,0,0), Vector3(0,1,0), Vector3(0,0,1)};
+  Vector3 world{6,7,8}, local;
+  auto tr = this->alignxyzTr(basis); local = world;
+  EXPECT_EQ(tr->Doit(world), local); EXPECT_EQ(tr->Undo(local), world);
+
+  basis = basic_vector<Vector3,3>{Vector3(0,-1,0), Vector3(1,0,0), Vector3(0,0,1)};
+  tr = this->alignxyzTr(basis); local = Vector3(-7,6,8);
+  EXPECT_EQ(tr->Doit(world), local); EXPECT_EQ(tr->Undo(local), world);
+
+  basis = basic_vector<Vector3,3>{Vector3(0,-1,0), Vector3(0,0,-1), Vector3(1,0,0)};
+  tr = this->alignxyzTr(basis); local = Vector3(-7,-8,6);
+  EXPECT_EQ(tr->Doit(world), local); EXPECT_EQ(tr->Undo(local), world);
+}
+
+TYPED_TEST(RotateTest, randomAlign){
+  static constexpr auto testcases = 100;
+  for(int _=0;_<testcases;++_){
+    auto randVec = [](){ return Vector3(random_double(-1000,1000), random_double(-1000,1000), random_double(-1000,1000)); };
+    auto i=randVec().Normalized(), j=randVec(); auto k=i.Cross(j).Normalized(); j=k.Cross(i);
+    basic_vector<Vector3, 3> basis{i,j,k};
+    Vector3 world = randVec();
+    auto tr = this->alignxyzTr(basis);
+    Vector3 local = tr->Doit(world);
+    auto expr = local.x()*i + local.y()*j + local.z()*k;
+    EXPECT_EQ(expr, world); EXPECT_EQ(tr->Undo(local), world);
+  }
+}
 
 
 class MatTransformationTest : public ::testing::Test{

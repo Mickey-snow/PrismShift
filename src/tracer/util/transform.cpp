@@ -2,6 +2,7 @@
 #include "geometry.hpp"
 
 #include<cmath>
+#include<cassert>
 
 VectorTranslate::VectorTranslate(const Vector3& p) : dx(p.x()), dy(p.y()), dz(p.z()) {}
 
@@ -178,6 +179,7 @@ MatrixTransformation MatrixTransformation::RotateZ(const double& costheta, const
  * @note Requires `fr` and `to` to be unit vectors.
  */
 MatrixTransformation MatrixTransformation::RotateFrTo(const Vector3& fr, const Vector3& to){
+  assert(fr.Normalized()==fr); assert(to.Normalized()==to);
   Vector3 refl;
   if(std::abs(fr.x())<0.72 && std::abs(to.x())<0.72) refl = Vector3{1,0,0};
   else if(std::abs(fr.y())<0.72 && std::abs(to.y())<0.72) refl = Vector3{0,1,0};
@@ -192,6 +194,18 @@ MatrixTransformation MatrixTransformation::RotateFrTo(const Vector3& fr, const V
 	2/v.Dot(v) * v[i] * v[j] +
 	4*u.Dot(v)/(u.Dot(u)*v.Dot(v)) * v[i] * u[j];
   return MatrixTransformation(r, r.T());
+}
+
+MatrixTransformation MatrixTransformation::AlignXYZ(const Vector3& i, const Vector3& j, const Vector3& k){
+  Matrix4 mat_rotate_toworld{
+    i.x(), j.x(), k.x(), 0,
+    i.y(), j.y(), k.y(), 0,
+    i.z(), j.z(), k.z(), 0,
+    0,0,0,1};
+  return MatrixTransformation(mat_rotate_toworld.inv(), mat_rotate_toworld);
+};
+MatrixTransformation MatrixTransformation::AlignXYZ(const basic_vector<Vector3,3>& basis){
+  return MatrixTransformation::AlignXYZ(basis.x(), basis.y(), basis.z());
 }
 
 MatrixTransformation MatrixTransformation::Scale(const double& x,const double& y, const double& z){
@@ -299,15 +313,39 @@ Normal QuaternionTransform::Undo(const Normal& n) const{
   return (Normal)Undo_impl(n);
 }
 
+// requires normalized n
 QuaternionTransform QuaternionTransform::Rotate(const basic_vector<double,3>& n, double theta){
+  assert(n.Normalized() == n);
   theta *= -0.5;
   auto q = Quaternion(cos(theta), sin(theta)*n);
   return QuaternionTransform(q);
 }
 
-// requires vectors fr and to be normalized
 QuaternionTransform QuaternionTransform::RotateFrTo(const Vector3& fr, const Vector3& to){
   double theta = acos(fr.Dot(to));
-  auto axis = fr.Cross(to);
-  return QuaternionTransform::Rotate(axis,theta);
+  auto axis = fr.Cross(to).Normalized();
+  return QuaternionTransform::Rotate(axis,-theta);
+}
+
+// From the provided 4x4 matrix MatrixTransform::AlignXYZ,
+// the upper-left 3x3 portion is the rotation matrix R,
+// from which the corresponding quaternion can be derived as follows:
+// w = 1/2 * sqrt(1+R11+R22+R33)
+// x = (R32-R23) / 4w
+// y = (R13-R31) / 4w
+// z = (R21-R12) / 4w
+// The quaternion should be normalized to ensure it represents a valid rotation.
+QuaternionTransform QuaternionTransform::AlignXYZ(const Vector3& i, const Vector3& j, const Vector3& k){
+  double w = sqrt(1+i.x()+j.y()+k.z()) / 2;
+  double wquarter = 1.0 / (4*w);
+  double x = (j.z()-k.y()) * wquarter;
+  double y = (k.x()-i.z()) * wquarter;
+  double z = (i.y()-j.x()) * wquarter;
+  
+  auto q = Quaternion(w,x,y,z);
+  q /= q.norm();
+  return QuaternionTransform(q.inv(), q);
+}
+QuaternionTransform QuaternionTransform::AlignXYZ(const basic_vector<Vector3,3>& basis){
+  return QuaternionTransform::AlignXYZ(basis.x(), basis.y(), basis.z());
 }
