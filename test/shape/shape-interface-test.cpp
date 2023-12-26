@@ -8,7 +8,7 @@ using ::testing::Return;
 using ::testing::_;
 using ::testing::AnyNumber;
 
-class ConcreteShapeTest : public ::testing::TestWithParam<Transformation>{
+class ConcreteShapeTest : public ::testing::TestWithParam<MatrixTransformation>{
 protected:
   void SetUp() override{
     mshape = new mShape();
@@ -35,7 +35,7 @@ protected:
 
   mShape *mshape, *minvisible;
   ConcreteShape shape,invisible;
-  Transformation tr;
+  MatrixTransformation tr;
 };
 
 TEST_P(ConcreteShapeTest, forwardsBbox){  

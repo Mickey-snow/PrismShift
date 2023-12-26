@@ -105,13 +105,13 @@ using ::testing::TestWithParam;
 using ::testing::Values;
 
 
-class aabbTransformTest : public TestWithParam<Transformation>{
+class aabbTransformTest : public TestWithParam<MatrixTransformation>{
 protected:
   AABB square = AABB(Point3(0,0,0), Point3(1,1,0));
   AABB cube = AABB(Interval(-1.0,1.0),Interval(-1.0,1.0),Interval(-1.0,1.0));
 
   testing::AssertionResult is_transformed_inside(const std::vector<Point3>& v, AABB box){
-    const Transformation tr = GetParam();
+    const MatrixTransformation tr = GetParam();
     for(const auto& it : v)
       if(not box.Contains(it))
 	return testing::AssertionFailure() << "Point v=" << it<< " is not inside the bbox " << box << " before transformation!";
@@ -124,7 +124,7 @@ protected:
     return testing::AssertionSuccess() << "All points are inside the bbox before and after the transformation";
   }
   testing::AssertionResult is_transformed_outside(const std::vector<Point3>& v, AABB box){
-    const Transformation tr = GetParam();
+    const MatrixTransformation tr = GetParam();
     for(const auto& it : v)
       if(box.Contains(it))
 	return testing::AssertionFailure() << "Point v=" << it << " is inside the bbox " << box << " before transformation!";

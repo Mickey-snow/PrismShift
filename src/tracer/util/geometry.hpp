@@ -14,7 +14,7 @@
 #include "util/vecmath.hpp"
 #include "util/geometry_fwd.hpp"
 
-class Transformation;
+class ITransformation;
 
 template<std::size_t N>
 class Vector : public basic_vector<double, N>{
@@ -72,7 +72,7 @@ public:
   static Vector<N> Random_Unit(void);
   static Vector<N> Random(const double& min, const double& max);
 
-  Vector<N> Transform(const Transformation&) const;
+  Vector<N> Transform(const ITransformation&) const;
 };
 
 
@@ -88,7 +88,7 @@ public:
   template<vector_like T>
   explicit Point<N>(T&& it) : super(std::forward<T>(it)) {}
 
-  Point<N> Transform(const Transformation&) const;
+  Point<N> Transform(const ITransformation&) const;
 
   Point<N> operator + (const Vector<N>& rhs) const{ return
       (Point<N>)vector_arithmetic(*this, rhs, std::plus<>{});
@@ -129,7 +129,7 @@ public:
     return *this;
   }
 
-  Normal Transform(const Transformation&) const;
+  Normal Transform(const ITransformation&) const;
 
   Normal operator +(const Vector3& rhs) const{
     return (Normal)vector_arithmetic(*this, rhs, std::plus<>{});

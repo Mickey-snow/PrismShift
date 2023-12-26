@@ -185,7 +185,7 @@ protected:
 
 TEST_F(MatTransformationTest, translate){
   double dx=random_double(-10,10), dy=random_double(-10,10), dz=random_double(-10,10);
-  auto translate = Transformation::Translate(dx,dy,dz);
+  auto translate = MatrixTransformation::Translate(dx,dy,dz);
 
   for(const auto& p : pt.asVector()){
     auto translatedpt = translate.Doit(p);
@@ -207,7 +207,7 @@ TEST_F(MatTransformationTest, translate){
 }
 
 TEST_F(MatTransformationTest, zeroScalingCollapseToTheOrigin){
-  auto zscale = Transformation::Scale({0,0,0});
+  auto zscale = MatrixTransformation::Scale({0,0,0});
 
   for(const auto& p : pt.asVector()){
     auto scaled = zscale.Doit(p);
@@ -231,7 +231,7 @@ TEST_F(MatTransformationTest, zeroScalingCollapseToTheOrigin){
 }
 
 TEST_F(MatTransformationTest, identityscalingLeaveUnchanged){
-  for(const auto& iscale : {Transformation::Scale({1,1,1}), Transformation::Scale(vec.rand, 1)}){
+  for(const auto& iscale : {MatrixTransformation::Scale({1,1,1}), MatrixTransformation::Scale(vec.rand, 1)}){
     for(const auto& p : pt.asVector()){
       auto scaled = iscale.Doit(p);
       EXPECT_EQ(scaled, p);
@@ -251,7 +251,7 @@ TEST_F(MatTransformationTest, identityscalingLeaveUnchanged){
 
 TEST_F(MatTransformationTest, nonuniformScaling){
   double sx=random_uniform_01(), sy=random_uniform_01(), sz=random_uniform_01();
-  auto nuscale = Transformation::Scale({sx,sy,sz});
+  auto nuscale = MatrixTransformation::Scale({sx,sy,sz});
 
   for(const auto& p : pt.asVector()){
     auto scaled = nuscale.Doit(p);
@@ -274,9 +274,9 @@ TEST_F(MatTransformationTest, nonuniformScaling){
 }
 
 TEST_F(MatTransformationTest, rotateXyzAxis){
-  auto transform = Transformation::RotateY(-4.636991) *
-    Transformation::RotateZ(2.437875) *
-    Transformation::RotateX(-1.50796);
+  auto transform = MatrixTransformation::RotateY(-4.636991) *
+    MatrixTransformation::RotateZ(2.437875) *
+    MatrixTransformation::RotateX(-1.50796);
   Vector3 v{5,1,7};
 
   Vector3 vp = transform.Doit(v);
@@ -293,7 +293,7 @@ TEST_F(MatTransformationTest, rotateFrto){
     auto perpendicular = Vector3::Cross(v+Vector3{1,2,3}, v);
     auto rotateTo = Vector3::Random_Unit();
 
-    auto ftRotate = Transformation::RotateFrTo(v, rotateTo);
+    auto ftRotate = MatrixTransformation::RotateFrTo(v, rotateTo);
     auto vrotated = ftRotate.Doit(v);
 
     EXPECT_EQ(vrotated, rotateTo) << "v=" << v << "  rotateTo=" << rotateTo;
@@ -312,7 +312,7 @@ TEST_F(MatTransformationTest, rotateNormalFrTo){
   };
   Vector3 out_direction = deprecated_ray_reflect_direction(norm, in_direction);
 
-  auto frtoRotate = Transformation::RotateFrTo((Vector3)norm, Vector3{0,0,1});
+  auto frtoRotate = MatrixTransformation::RotateFrTo((Vector3)norm, Vector3{0,0,1});
   ASSERT_EQ(frtoRotate.Doit(norm), Normal(0,0,1));
   in_direction = frtoRotate.Doit(in_direction);
   Vector3 out_direction_local = Vector3{in_direction.x(), in_direction.y(), -in_direction.z()};
@@ -321,9 +321,9 @@ TEST_F(MatTransformationTest, rotateNormalFrTo){
 }
 
 TEST_F(MatTransformationTest, chainedTransformation){
-  auto t1 = Transformation::Translate(Vector3::Random(-10,10));
-  auto t2 = Transformation::Scale(Vector3::Random(-5,5));
-  auto t3 = Transformation::Rotate(Vector3::Random_Unit(),random_uniform_01());
+  auto t1 = MatrixTransformation::Translate(Vector3::Random(-10,10));
+  auto t2 = MatrixTransformation::Scale(Vector3::Random(-5,5));
+  auto t3 = MatrixTransformation::Rotate(Vector3::Random_Unit(),random_uniform_01());
   auto chained = t1*t2*t3;
 
   for(auto p : pt.asVector())

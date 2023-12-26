@@ -4,7 +4,7 @@
 
 TEST(coord, rotate){
   Coordinate3 frame;
-  frame.Set_Rotation(Transformation::RotateY(pi/2));
+  frame.Set_Rotation(MatrixTransformation::RotateY(pi/2));
 
   Vector3 v{1,0,0},vp{0,0,1};
   EXPECT_EQ(frame.Local2World(v), vp);
@@ -13,8 +13,8 @@ TEST(coord, rotate){
 
 TEST(coord, translateRotate){
   Coordinate3 frame;
-  frame.Set_Translation(Transformation::Translate(1,1,1))
-    .Set_Rotation(Transformation::RotateZ(pi));
+  frame.Set_Translation(MatrixTransformation::Translate(1,1,1))
+    .Set_Rotation(MatrixTransformation::RotateZ(pi));
 
   Vector3 v{1,0,0}, vp{-1,0,0};
   EXPECT_EQ(frame.Local2World(v), vp);

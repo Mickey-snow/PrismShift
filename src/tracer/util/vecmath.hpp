@@ -1,6 +1,7 @@
 #ifndef UTILITY_VECMATH_H
 #define UTILITY_VECMATH_H
 
+#include<cmath>
 #include<tuple>
 #include<array>
 #include<utility>

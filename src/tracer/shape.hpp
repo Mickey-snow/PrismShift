@@ -38,7 +38,7 @@ public:
     m_bbox_rec.reset();
     return *this;
   }
-  ConcreteShape& Set_Frame(const Transformation& frame){
+  ConcreteShape& Set_Frame(const MatrixTransformation& frame){
     m_frame = frame;
     m_bbox_rec.reset();
     return *this;
@@ -46,7 +46,7 @@ public:
 
 private:
   IShape const *m_shape;
-  Transformation m_frame;
+  MatrixTransformation m_frame;
   mutable std::optional<AABB> m_bbox_rec;
 };
 
