@@ -1,14 +1,11 @@
-#ifndef TEXTURE_H
-#define TEXTURE_H
+#pragma once
 
-#include "util/geometry_fwd.hpp"
 #include "util/color.hpp"
+#include "util/geometry_fwd.hpp"
 
-class Texture{
-public:
+class Texture {
+ public:
   ~Texture() = default;
 
   virtual Color ColorAt(const Point2&) = 0;
 };
-
-#endif

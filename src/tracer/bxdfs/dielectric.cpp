@@ -23,12 +23,13 @@
 //     return BxDF::Make_Sample(Color(1,1,1), out_direction, 1.0,this);
 //   else{
 //     const Vector3 delta_w = Vector3::Random_Unit();
-//     return BxDF::Make_Sample(Color(1,1,1), out_direction+fuzz*delta_w, 0.25*invpi, this);
+//     return BxDF::Make_Sample(Color(1,1,1), out_direction+fuzz*delta_w,
+//     0.25*invpi, this);
 //   }
 // }
 
-
-// double DielectricBTDF::Reflectance(const double& cosine, const double& iof)const {
+// double DielectricBTDF::Reflectance(const double& cosine, const double&
+// iof)const {
 //   auto r0 = (1-iof) / (1+iof);
 //   r0 = r0 * r0;
 //   return r0+(1-r0)*pow((1-cosine),5);

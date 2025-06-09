@@ -1,19 +1,16 @@
-#ifndef TRACER_CORE_H
-#define TRACER_CORE_H
+#pragma once
 
 #include "util/util.hpp"
 
-#include "shape.hpp"
 #include "aggregator.hpp"
 #include "camera.hpp"
-#include "material.hpp"
 #include "factory.hpp"
+#include "material.hpp"
 #include "renderer.hpp"
 #include "scene.hpp"
+#include "shape.hpp"
 
+#include "lights/light.hpp"
 #include "materials/material.hpp"
 #include "shapes/shape.hpp"
 #include "textures/texture.hpp"
-#include "lights/light.hpp"
-
-#endif

@@ -1,15 +1,15 @@
 #ifndef TRIANGLE_H
 #define TRIANGEL_H
 
-#include<shape.hpp>
+#include <shape.hpp>
 
 class AABB;
 class Ray;
-template<typename> class Interval;
+template <typename>
+class Interval;
 
-
-class Triangle : public IShape{
-public:
+class Triangle : public IShape {
+ public:
   Triangle() = default;
   ~Triangle() = default;
 

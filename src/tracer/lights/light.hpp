@@ -1,6 +1,3 @@
-#ifndef LIGHTS_LIGHT_H
-#define LIGHTS_LIGHT_H
+#pragma once
 
 #include "pointlight.hpp"
-
-#endif

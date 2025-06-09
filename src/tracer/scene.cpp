@@ -1,27 +1,26 @@
 #include "scene.hpp"
 
-#include<primitive.hpp>
-#include<util/util.hpp>
-#include<aggregator.hpp>
+#include <aggregator.hpp>
+#include <primitive.hpp>
+#include <util/util.hpp>
 
-PrimitiveList& PrimitiveList::Add(const std::shared_ptr<IPrimitive> shape){
+Scene& Scene::Add(const std::shared_ptr<IPrimitive> shape) {
   m_shapes.push_back(shape);
   m_aggregator = nullptr;
   return *this;
 }
 
-Hit_record PrimitiveList::Hit(const Ray& r, const Interval<double>& time) const {
+Hit_record Scene::Hit(const Ray& r, const Interval<double>& time) const {
   Make_Aggregator();
-  return m_aggregator->Hit(r,time);
+  return m_aggregator->Hit(r, time);
 }
 
-AABB PrimitiveList::Get_Bbox(void) const{
+AABB Scene::Get_Bbox(void) const {
   Make_Aggregator();
   return m_aggregator->Get_Bbox();
 }
 
-using Aggregator = BVT;
-void PrimitiveList::Make_Aggregator(void) const{
-  if(m_aggregator == nullptr)
-    m_aggregator = std::make_unique<Aggregator>(m_shapes);
+void Scene::Make_Aggregator(void) const {
+  if (m_aggregator == nullptr)
+    m_aggregator = std::make_unique<BVT>(m_shapes);
 }

@@ -10,7 +10,7 @@
 // public:
 //   DielectricBTDF(const double& e,const double& f=0) : eta(e),fuzz(f) {
 //     isSpecular = fuzz==0;
-    
+
 //     unsigned int flag = BxDFType::Transmission;
 //     if(eta != 1) flag |= BxDFType::Reflection;
 
@@ -25,11 +25,9 @@
 // private:
 //   double eta,fuzz;
 //   bool isSpecular;
-  
+
 //   double Reflectance(const double& cosine, const double& iof)const;
 //   Vector3 Get_out_direction(const Vector3& in_direction)const;
 // };
-
-
 
 // #endif

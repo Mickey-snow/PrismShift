@@ -1,19 +1,17 @@
-#ifndef SHAPE_INTERFACE_TEST_H
-#define SHAPE_INTERFACE_TEST_H
+#pragma once
 
-#include<gmock/gmock.h>
+#include <gmock/gmock.h>
 
-#include<util/util.hpp>
-#include<shape.hpp>
+#include <shape.hpp>
+#include <util/util.hpp>
 
-
-class mShape : public IShape{
-public:
+class mShape : public IShape {
+ public:
   mShape() {}
-  
-  MOCK_METHOD(Hit_record, Hit, (const Ray& r, const Interval<double>& period),  (const, override));
+
+  MOCK_METHOD(Hit_record,
+              Hit,
+              (const Ray& r, const Interval<double>& period),
+              (const, override));
   MOCK_METHOD(AABB, Get_Bbox, (), (const, override));
 };
-
-
-#endif

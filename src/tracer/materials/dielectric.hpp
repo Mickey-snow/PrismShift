@@ -13,7 +13,8 @@
 // public:
 //   static constexpr std::string name{"dielectric"};
 
-//   Dielectric(const double& index_of_refraction,const double& f=0) : eta(index_of_refraction),fuzz(fabs(f)){
+//   Dielectric(const double& index_of_refraction,const double& f=0) :
+//   eta(index_of_refraction),fuzz(fabs(f)){
 //     assert(0<=fuzz && fuzz<=1);
 //   }
 
@@ -25,7 +26,5 @@
 
 // namespace{
 // }
-
-
 
 // #endif

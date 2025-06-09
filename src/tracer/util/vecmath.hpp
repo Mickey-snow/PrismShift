@@ -1,226 +1,278 @@
-#ifndef UTILITY_VECMATH_H
-#define UTILITY_VECMATH_H
+#pragma once
 
-#include<cmath>
-#include<tuple>
-#include<array>
-#include<utility>
-#include<ostream>
-#include<cstddef>
-#include<type_traits>
-
+#include <array>
+#include <cmath>
+#include <cstddef>
+#include <ostream>
+#include <tuple>
+#include <type_traits>
+#include <utility>
 
 /**
  * @brief A template class for basic vector arithmetic.
- * 
- * `basic_vector` provides fundamental vector arithmetic logic and is designed to be the base class for geometric primitives like 3D vectors,
- * points, and normals. It supports operations such as vector addition, subtraction, multiplication (both scalar and vectorial), and division.
- * 
- * The class is templated over `value_t`, which represents the type of the vector's components (e.g., float, double),
- * and `N`, the dimension of the vector.
- * 
+ *
+ * `basic_vector` provides fundamental vector arithmetic logic and is designed
+ * to be the base class for geometric primitives like 3D vectors, points, and
+ * normals. It supports operations such as vector addition, subtraction,
+ * multiplication (both scalar and vectorial), and division.
+ *
+ * The class is templated over `value_t`, which represents the type of the
+ * vector's components (e.g., float, double), and `N`, the dimension of the
+ * vector.
+ *
  * @tparam value_t The type of the elements in the vector.
  * @tparam N The number of dimensions of the vector.
- * 
+ *
  * Key features and functionalities:
- * - Constructors for various initializations (empty, initializer list, variadic templates, iterators, and copy/move constructors).
+ * - Constructors for various initializations (empty, initializer list, variadic
+ * templates, iterators, and copy/move constructors).
  * - Assignment operators for both copy and move semantics.
- * - Accessor methods for individual components (x, y, z) with compile-time checks for dimensions.
- * - Overloaded operators for vector arithmetic, including `==`, `!=`, unary `-`, `+`, `-`, `*`, `/`, and compound assignment operators.
- * - Methods for computing vector length, squared length, and checking if the vector is near zero within a small epsilon value.
- * 
- * The class also includes traits and concepts (`has_vector_traits`, `is_vector_like`, `vector_like`)
- * to identify and work with types that are vector-like.
+ * - Accessor methods for individual components (x, y, z) with compile-time
+ * checks for dimensions.
+ * - Overloaded operators for vector arithmetic, including `==`, `!=`, unary
+ * `-`, `+`, `-`, `*`, `/`, and compound assignment operators.
+ * - Methods for computing vector length, squared length, and checking if the
+ * vector is near zero within a small epsilon value.
+ *
+ * The class also includes traits and concepts (`has_vector_traits`,
+ * `is_vector_like`, `vector_like`) to identify and work with types that are
+ * vector-like.
  */
-template<typename value_t, std::size_t N>
-class basic_vector{
-public:
+template <typename value_t, std::size_t N>
+class basic_vector {
+ public:
   static constexpr double EPS = 1e-5;
   using value_type = value_t;
   static constexpr std::size_t dimension = N;
 
   basic_vector() : v(std::array<value_type, dimension>()) {}
-  basic_vector(std::initializer_list<value_type> li){
+  basic_vector(std::initializer_list<value_type> li) {
     assert(li.size() == N);
     std::copy(li.begin(), li.end(), v.begin());
   }
-  template<typename... Ts>
-  requires (((std::is_convertible_v<Ts, value_type>) && ...) && (sizeof...(Ts)==N))
+  template <typename... Ts>
+    requires(((std::is_convertible_v<Ts, value_type>) && ...) &&
+             (sizeof...(Ts) == N))
   basic_vector(Ts... param) : basic_vector() {
     assign_impl(std::make_index_sequence<sizeof...(Ts)>{},
-		(std::make_tuple(std::forward<Ts>(param)...)));
+                (std::make_tuple(std::forward<Ts>(param)...)));
   }
   basic_vector(const std::input_iterator auto& ibegin,
-	       const std::input_iterator auto& iend) : basic_vector() {
+               const std::input_iterator auto& iend)
+      : basic_vector() {
     std::copy(ibegin, iend, v.begin());
   }
   basic_vector(const basic_vector<value_type, dimension>& it) : basic_vector() {
     std::copy(it.v.cbegin(), it.v.cend(), v.begin());
   }
-  basic_vector(basic_vector<value_type, dimension>&& it){
+  basic_vector(basic_vector<value_type, dimension>&& it) {
     v = std::move(it.v);
   }
-  
+
   ~basic_vector() = default;
 
-  basic_vector& operator = (const basic_vector<value_type, dimension>& it){
+  basic_vector& operator=(const basic_vector<value_type, dimension>& it) {
     basic_vector<value_type, dimension> tmp(it);
     this->swap(tmp);
     return *this;
   }
-  basic_vector& operator = (basic_vector<value_type, dimension>&& it){
+  basic_vector& operator=(basic_vector<value_type, dimension>&& it) {
     basic_vector<value_type, dimension> tmp(std::move(it));
     this->swap(tmp);
     return *this;
   }
 
-  template<typename T>
-  void swap(T& it){ std::swap(v, it.v); }
+  template <typename T>
+  void swap(T& it) {
+    std::swap(v, it.v);
+  }
 
   // data access
-  value_type x() const{ return v[0]; }
-  value_type& x(){ return v[0]; }
-  value_type y() const requires (dimension>=2) { return v[1]; }
-  value_type& y() requires (dimension>=2) { return v[1]; }
-  value_type z() const requires (dimension>=3) { return v[2]; }
-  value_type& z() requires (dimension>=3) { return v[2]; }
-  value_type operator [](const int& idx)const { return v[idx]; }
-  value_type& operator [](const int& idx){ return v[idx]; }
+  value_type x() const { return v[0]; }
+  value_type& x() { return v[0]; }
+  value_type y() const
+    requires(dimension >= 2)
+  {
+    return v[1];
+  }
+  value_type& y()
+    requires(dimension >= 2)
+  {
+    return v[1];
+  }
+  value_type z() const
+    requires(dimension >= 3)
+  {
+    return v[2];
+  }
+  value_type& z()
+    requires(dimension >= 3)
+  {
+    return v[2];
+  }
+  value_type operator[](const int& idx) const { return v[idx]; }
+  value_type& operator[](const int& idx) { return v[idx]; }
 
-  bool Near_Zero(void) const{
-    for(std::size_t i=0; i<dimension; ++i)
-      if(fabs(v[i]) > EPS) return false;
+  bool Near_Zero(void) const {
+    for (std::size_t i = 0; i < dimension; ++i)
+      if (fabs(v[i]) > EPS)
+        return false;
     return true;
   }
-  bool operator == (const basic_vector<value_type, dimension>& rhs) const {
-    for(std::size_t i=0;i<dimension; ++i)
-      if(fabs(v[i]-rhs.v[i]) > EPS) return false;
+  bool operator==(const basic_vector<value_type, dimension>& rhs) const {
+    for (std::size_t i = 0; i < dimension; ++i)
+      if (fabs(v[i] - rhs.v[i]) > EPS)
+        return false;
     return true;
   }
-  bool operator != (const basic_vector<value_type, dimension>& rhs) const {
+  bool operator!=(const basic_vector<value_type, dimension>& rhs) const {
     return !(*this == rhs);
   }
-  
-  value_type Length(void) const{ return sqrt(Length_squared()); }
-  value_type Length_squared(void) const{
+
+  value_type Length(void) const { return sqrt(Length_squared()); }
+  value_type Length_squared(void) const {
     value_type ans{};
-    for(std::size_t i=0;i<dimension;++i) ans += v[i] * v[i];
+    for (std::size_t i = 0; i < dimension; ++i)
+      ans += v[i] * v[i];
     return ans;
   }
-  basic_vector<value_type,dimension> Normalized(void) const{
+  basic_vector<value_type, dimension> Normalized(void) const {
     auto ret = *this;
     auto len = Length();
-    for(auto& it : ret.v) it /= len;
+    for (auto& it : ret.v)
+      it /= len;
     return ret;
   }
 
-  template<typename T>
-  auto Dot(const basic_vector<T, dimension>& rhs) const -> decltype(auto){
-    using return_type = decltype(std::declval<value_type>() * std::declval<T>());
-    static_assert(std::is_same_v<return_type, decltype(std::declval<return_type>()+std::declval<return_type>())>);
-    
+  template <typename T>
+  auto Dot(const basic_vector<T, dimension>& rhs) const -> decltype(auto) {
+    using return_type =
+        decltype(std::declval<value_type>() * std::declval<T>());
+    static_assert(
+        std::is_same_v<return_type, decltype(std::declval<return_type>() +
+                                             std::declval<return_type>())>);
+
     return_type ret{};
-    for(std::size_t i=0;i<dimension;++i) ret += v[i] * rhs.v[i];
+    for (std::size_t i = 0; i < dimension; ++i)
+      ret += v[i] * rhs.v[i];
     return ret;
   }
-    
+
   std::array<value_type, dimension> v;
-  
-private:
-  template<std::size_t... I, typename... Ts>
-  void assign_impl(std::index_sequence<I...> unused,
-		   std::tuple<Ts...> vals){
+
+ private:
+  template <std::size_t... I, typename... Ts>
+  void assign_impl(std::index_sequence<I...> unused, std::tuple<Ts...> vals) {
     ((v[I] = std::get<I>(vals)), ...);
   }
 };
 
-template<typename, typename = std::void_t<>>
+template <typename, typename = std::void_t<>>
 struct has_vector_traits : std::false_type {};
-template<typename T, size_t N>
-struct has_vector_traits<basic_vector<T,N>> : std::true_type {};
-template<typename T>
-struct has_vector_traits<T, std::void_t<decltype(dynamic_cast<const basic_vector<typename T::value_type, T::dimension>*>(std::declval<T*>()))>> : std::true_type {};
+template <typename T, size_t N>
+struct has_vector_traits<basic_vector<T, N>> : std::true_type {};
+template <typename T>
+struct has_vector_traits<
+    T,
+    std::void_t<decltype(dynamic_cast<const basic_vector<typename T::value_type,
+                                                         T::dimension>*>(
+        std::declval<T*>()))>> : std::true_type {};
 
-template<typename T>
+template <typename T>
 struct is_vector_like : has_vector_traits<std::decay_t<T>> {};
 
-template<typename T>
+template <typename T>
 concept vector_like = is_vector_like<T>::value;
 
-
-
-template<vector_like T>
-auto operator - (const T& it) -> T {
+template <vector_like T>
+auto operator-(const T& it) -> T {
   T ret;
-  for(std::size_t i=0;i<T::dimension;++i) ret.v[i] = -it.v[i];
+  for (std::size_t i = 0; i < T::dimension; ++i)
+    ret.v[i] = -it.v[i];
   return ret;
 }
 
-template<vector_like T, vector_like U, class F>
-auto vector_arithmetic(const T& lhs, const U& rhs, const F& op) -> decltype(auto)
-  requires (T::dimension == U::dimension){
-  using return_type = basic_vector<decltype(op(std::declval<typename T::value_type>(),
-					       std::declval<typename U::value_type>())),
-				   T::dimension>;
+template <vector_like T, vector_like U, class F>
+auto vector_arithmetic(const T& lhs, const U& rhs, const F& op)
+    -> decltype(auto)
+  requires(T::dimension == U::dimension)
+{
+  using return_type =
+      basic_vector<decltype(op(std::declval<typename T::value_type>(),
+                               std::declval<typename U::value_type>())),
+                   T::dimension>;
   return_type ret;
-  for(std::size_t i=0;i<return_type::dimension;++i) ret.v[i] = op(lhs.v[i], rhs.v[i]);
+  for (std::size_t i = 0; i < return_type::dimension; ++i)
+    ret.v[i] = op(lhs.v[i], rhs.v[i]);
   return ret;
 }
 
-template<vector_like T>
-auto operator -(const T& lhs, const T& rhs) -> T {
+template <vector_like T>
+auto operator-(const T& lhs, const T& rhs) -> T {
   return (T)vector_arithmetic(lhs, rhs, std::minus<>{});
 }
-template<vector_like T, vector_like U>
-auto& operator -=(T& lhs, const U& rhs){ return lhs = lhs - rhs; }
+template <vector_like T, vector_like U>
+auto& operator-=(T& lhs, const U& rhs) {
+  return lhs = lhs - rhs;
+}
 
-template<vector_like T>
-auto operator +(const T& lhs, const T& rhs) -> T{
+template <vector_like T>
+auto operator+(const T& lhs, const T& rhs) -> T {
   return (T)vector_arithmetic(lhs, rhs, std::plus<>{});
 }
-template<vector_like T, vector_like U>
-auto& operator +=(T& lhs, const U& rhs){ return lhs = lhs + rhs; }
+template <vector_like T, vector_like U>
+auto& operator+=(T& lhs, const U& rhs) {
+  return lhs = lhs + rhs;
+}
 
-template<vector_like T>
-auto operator *(const T& lhs, const T& rhs) -> T {
+template <vector_like T>
+auto operator*(const T& lhs, const T& rhs) -> T {
   return (T)vector_arithmetic(lhs, rhs, std::multiplies<>{});
 }
-template<vector_like T, typename U>
-auto operator *(const T& lhs, const U& rhs) -> T
-  requires std::is_arithmetic_v<U>{
+template <vector_like T, typename U>
+auto operator*(const T& lhs, const U& rhs) -> T
+  requires std::is_arithmetic_v<U>
+{
   T ret;
-  for(std::size_t i=0;i<T::dimension;++i) ret.v[i] = lhs.v[i] * rhs;
+  for (std::size_t i = 0; i < T::dimension; ++i)
+    ret.v[i] = lhs.v[i] * rhs;
   return ret;
 }
-template<typename T, vector_like U>
-auto operator *(const T& lhs, const U& rhs) -> U
-  requires std::is_arithmetic_v<T> { return rhs * lhs; }
-template<typename T, typename U>
-auto& operator *=(T& lhs, const U& rhs)
-  requires vector_like<T> || vector_like<U> { return lhs = lhs*rhs; }
-
-template<vector_like T>
-auto operator /(const T& lhs, const T& rhs) -> T{
-  return (T)vector_arithmetic(lhs,rhs,std::divides<>{});
+template <typename T, vector_like U>
+auto operator*(const T& lhs, const U& rhs) -> U
+  requires std::is_arithmetic_v<T>
+{
+  return rhs * lhs;
 }
-template<vector_like T, typename U>
-auto operator /(const T& lhs, const U& rhs) -> T
-  requires std::is_arithmetic_v<U> {
+template <typename T, typename U>
+auto& operator*=(T& lhs, const U& rhs)
+  requires vector_like<T> || vector_like<U>
+{
+  return lhs = lhs * rhs;
+}
+
+template <vector_like T>
+auto operator/(const T& lhs, const T& rhs) -> T {
+  return (T)vector_arithmetic(lhs, rhs, std::divides<>{});
+}
+template <vector_like T, typename U>
+auto operator/(const T& lhs, const U& rhs) -> T
+  requires std::is_arithmetic_v<U>
+{
   T ret;
-  for(std::size_t i=0;i<T::dimension;++i) ret.v[i] = lhs.v[i] / rhs;
+  for (std::size_t i = 0; i < T::dimension; ++i)
+    ret.v[i] = lhs.v[i] / rhs;
   return ret;
 }
-template<vector_like T, typename U>
-auto& operator /=(T& lhs, const U& rhs){ return lhs = lhs / rhs; }
+template <vector_like T, typename U>
+auto& operator/=(T& lhs, const U& rhs) {
+  return lhs = lhs / rhs;
+}
 
-
-std::ostream& operator << (std::ostream& os, const vector_like auto& it){
+std::ostream& operator<<(std::ostream& os, const vector_like auto& it) {
   os << '{' << it.v[0];
-  for(std::size_t i=1;i<it.dimension;++i) os << ',' << it.v[i];
+  for (std::size_t i = 1; i < it.dimension; ++i)
+    os << ',' << it.v[i];
   os << '}';
   return os;
 }
-
-
-
-#endif

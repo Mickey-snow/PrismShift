@@ -1,25 +1,23 @@
-#ifndef SPHERE_H
-#define SPHERE_H
+#pragma once
 
-#include<shape.hpp>
+#include <shape.hpp>
 
-#include<cmath>
-#include<memory>
-#include<sstream>
-#include<string>
+#include <cmath>
+#include <memory>
+#include <sstream>
+#include <string>
 
 class AABB;
 class Hit_record;
 class Ray;
-template<typename> class Interval;
+template <typename>
+class Interval;
 
-class Sphere : public IShape{
-public:
+class Sphere : public IShape {
+ public:
   Sphere() = default;
   ~Sphere() = default;
 
   AABB Get_Bbox(void) const override;
   Hit_record Hit(const Ray& r, const Interval<double>& time) const override;
 };
-
-#endif

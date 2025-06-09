@@ -1,95 +1,93 @@
-#ifndef VISUAL_SHAPE_FACTORY_H
-#define VISUAL_SHAPE_FACTORY_H
+#pragma once
 
-#include<sstream>
-#include<memory>
-#include<map>
-#include<string>
-#include<format>
-#include<any>
-#include<functional>
+#include <any>
+#include <format>
+#include <functional>
+#include <map>
+#include <memory>
+#include <sstream>
+#include <string>
 
-
-struct Attribute{
+struct Attribute {
   std::string name;
   std::any val;
 };
 
-struct Attribute_List{
+struct Attribute_List {
   std::vector<Attribute> attributes;
 };
 
-template<typename idtype, typename productType>
-class _Factory{
-public:
+template <typename idtype, typename productType>
+class _Factory {
+ public:
   using Callback = std::function<productType(const std::vector<Attribute>&)>;
-private:
+
+ private:
   using CallbackMap = std::map<idtype, Callback>;
   CallbackMap _callbacks;
-    
-public:
+
+ public:
   // Returns true iff suffessfully register creating function to factory
-  bool Register(idtype id, Callback CreateFn){
+  bool Register(idtype id, Callback CreateFn) {
     return _callbacks.insert(std::pair{id, CreateFn}).second;
   }
 
-  bool isRegistered(idtype id) const{
+  bool isRegistered(idtype id) const {
     return _callbacks.find(id) != _callbacks.end();
   }
 
-  Callback GetCreateFn(idtype shapeid){
+  Callback GetCreateFn(idtype shapeid) {
     auto it = _callbacks.find(shapeid);
-    if(it == _callbacks.end())
+    if (it == _callbacks.end())
       throw std::runtime_error(std::format("Unknown Shape ID: {}", shapeid));
     return it->second;
   }
 };
 
-
 class Visible;
-class ShapeFactory{
-private:
-  class ShapeFactory_ins : public _Factory<std::string, std::shared_ptr<Visible>>{};
+class ShapeFactory {
+ private:
+  class ShapeFactory_ins
+      : public _Factory<std::string, std::shared_ptr<Visible>> {};
 
-public:
+ public:
   ShapeFactory() = delete;
   ShapeFactory(ShapeFactory&) = delete;
-    
-  static ShapeFactory_ins* Instance(){
+
+  static ShapeFactory_ins* Instance() {
     static ShapeFactory_ins factory;
     return &factory;
   }
 };
 
-
 class Material;
-class MaterialFactory{
-private:
-  class MaterialFactory_ins : public _Factory<std::string, std::shared_ptr<Material>> {};
+class MaterialFactory {
+ private:
+  class MaterialFactory_ins
+      : public _Factory<std::string, std::shared_ptr<Material>> {};
 
-public:
+ public:
   MaterialFactory() = delete;
   MaterialFactory(MaterialFactory&) = delete;
 
-  static MaterialFactory_ins* Instance(){
+  static MaterialFactory_ins* Instance() {
     static MaterialFactory_ins factory;
     return &factory;
   }
 };
 
 class Texture;
-class TextureFactory{
-private:
-  class TextureFactory_ins : public _Factory<std::string, std::shared_ptr<Texture>> {};
+class TextureFactory {
+ private:
+  class TextureFactory_ins
+      : public _Factory<std::string, std::shared_ptr<Texture>> {};
 
-public:
+ public:
   TextureFactory() = delete;
   TextureFactory(TextureFactory&) = delete;
 
-  static TextureFactory_ins* Instance(){
+  static TextureFactory_ins* Instance() {
     static TextureFactory_ins factory;
     return &factory;
   }
 };
-
-#endif

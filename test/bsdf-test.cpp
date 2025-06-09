@@ -1,7 +1,6 @@
-#include<bsdf.hpp>
+#include <bsdf.hpp>
 
-#include<gtest/gtest.h>
-
+#include <gtest/gtest.h>
 
 // constexpr int samples = 240000;
 // constexpr double LEPS = 0.1;
@@ -9,7 +8,7 @@
 // TEST(cosbxdf, pdf){
 //   Normal normal(0,1,0);
 //   CosBxDF bxdf(0,normal);
-  
+
 //   double sum = 0;
 //   for(int i=0;i<samples;++i){
 //     double theta = pi*i/2/samples;
@@ -28,7 +27,8 @@
 //   int lesshalf=0,greaterhalf=0;
 //   for(int i=0;i<samples;++i){
 //     auto [f,out,pdf] = bxdf.Sample_f(Vector3::Random_Unit());
-//     double costheta = Vector3::Dot(out,normal)/(normal.Length()*out.Length());
+//     double costheta =
+//     Vector3::Dot(out,normal)/(normal.Length()*out.Length());
 
 //     if(costheta > cos_median_val) ++lesshalf;
 //     else ++greaterhalf;
@@ -45,7 +45,8 @@
 //   double sum = 0;
 //   for(int i=0;i<samples;++i){
 //     auto [f,out,pdf] = bxdf.Sample_f(Vector3::Random_Unit());
-//     double costheta = Vector3::Dot(out,normal)/(normal.Length()*out.Length());
+//     double costheta =
+//     Vector3::Dot(out,normal)/(normal.Length()*out.Length());
 
 //     sum += acos(costheta);
 //   }
@@ -70,29 +71,31 @@
 //   EXPECT_NEAR(sum/samples, 0, LEPS);
 // }
 
-
 // TEST(bsdftest, integrateByCombinedBxdf){
 //   class RandomDirectionBxDF : public BxDF{
 //   public:
 //     using BxDF::BxDF;
-//     Color f(const Vector3&, const Vector3&) const override { return Color(0,0,0); }
-//     std::tuple<Color,Vector3,double> Sample_f(const Vector3&) const override{
+//     Color f(const Vector3&, const Vector3&) const override { return
+//     Color(0,0,0); } std::tuple<Color,Vector3,double> Sample_f(const Vector3&)
+//     const override{
 //       auto direction = Vector3::Random_Unit();
 //       if(direction[1] < 0) direction[1] = -direction[1];
 //       return std::make_tuple(f(dummy,dummy), direction, pdf(dummy,dummy));
 //     }
-//     double pdf(const Vector3&, const Vector3&) const override{ return 1.0/(2*pi); }
+//     double pdf(const Vector3&, const Vector3&) const override{
+//     return 1.0/(2*pi); }
 //   private:
 //     Vector3 dummy = Vector3(0,0,0);
 //   };
-  
+
 //   auto f_val = [](double alpha, double theta){
 //     return exp(alpha) / tan(theta);
 //   };
 //   const double expect_int_f_val = 2*(exp(pi/2)-exp(-pi/2));
 
 //   auto bsdf = BSDF(std::vector<std::shared_ptr<BxDF>>{
-//       std::make_shared<CosBxDF>(BxDFType::Diffuse|BxDFType::Reflection, Normal(0,1,0)),
+//       std::make_shared<CosBxDF>(BxDFType::Diffuse|BxDFType::Reflection,
+//       Normal(0,1,0)),
 //       std::make_shared<RandomDirectionBxDF>(BxDFType::Diffuse|BxDFType::Reflection)});
 //   double sum = 0;
 //   for(int i=0;i<samples;++i){
@@ -110,8 +113,9 @@
 //   class StaticSamplerBxDF : public BxDF{
 //   public:
 //     using BxDF::BxDF;
-//     Color f(const Vector3&, const Vector3&) const override{ return Color(0,0,0); }
-//     std::tuple<Color,Vector3,double> Sample_f(const Vector3&) const override{
+//     Color f(const Vector3&, const Vector3&) const override{ return
+//     Color(0,0,0); } std::tuple<Color,Vector3,double> Sample_f(const Vector3&)
+//     const override{
 //       return std::make_tuple(f(dummy,dummy),
 // 			     Vector3(1,1,1).Normalize(),
 // 			     1.0);
@@ -127,8 +131,10 @@
 //   const double expect_int_f_val = 26.6735636;
 
 //   auto bsdf = BSDF(std::vector<std::shared_ptr<BxDF>>{
-//       std::make_shared<CosBxDF>(BxDFType::Diffuse|BxDFType::Reflection, Normal(0,1,0)),
-//       std::make_shared<CosBxDF>(BxDFType::Diffuse|BxDFType::Reflection, Normal(0,1,0)),
+//       std::make_shared<CosBxDF>(BxDFType::Diffuse|BxDFType::Reflection,
+//       Normal(0,1,0)),
+//       std::make_shared<CosBxDF>(BxDFType::Diffuse|BxDFType::Reflection,
+//       Normal(0,1,0)),
 //       std::make_shared<StaticSamplerBxDF>(BxDFType::Specular|BxDFType::Reflection)});
 //   double sum = 0;
 //   for(int i=0;i<samples;++i){
@@ -136,10 +142,10 @@
 //     if((flags & BxDFType::Specular) == BxDFType::None){
 //       pdf = bsdf.pdf(Vector3::Random_Unit(),w,BxDFType::Diffuse)/2;
 //     }
-    
+
 //     double alpha = atan(w.z()/w.x()), theta = acos(w.y());
 //     sum += f_val(alpha,theta) / pdf;
 //   }
-  
+
 //   EXPECT_NEAR(sum/samples,expect_int_f_val,LEPS*5);
 // }

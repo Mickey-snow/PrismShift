@@ -1,29 +1,22 @@
-#ifndef COMMON_H
-#define COMMON_H
+#pragma once
 
-#include<cassert>
+#include <cassert>
 
 // Headers
-#include "vecmath.hpp"
-#include "geometry.hpp"
-#include "matrix.hpp"
-#include "transform.hpp"
-#include "coordinate.hpp"
-#include "color.hpp"
-#include "ray.hpp"
-#include "interval.hpp"
-#include "constant.hpp"
-#include "random.hpp"
-#include "mat.hpp"
 #include "aabb.hpp"
+#include "color.hpp"
+#include "constant.hpp"
+#include "coordinate.hpp"
+#include "geometry.hpp"
+#include "interval.hpp"
+#include "mat.hpp"
+#include "matrix.hpp"
+#include "random.hpp"
+#include "ray.hpp"
 #include "sampling.hpp"
+#include "transform.hpp"
+#include "vecmath.hpp"
 
 // Utility Functions
-inline double Degree2Rad(const double& degrees){
-  return degrees * pi / 180.0;
-}
-inline double Rad2Degree(const double& rad){
-  return rad / 180.0 * pi;
-}
-
-#endif
+inline double Degree2Rad(const double& degrees) { return degrees * pi / 180.0; }
+inline double Rad2Degree(const double& rad) { return rad / 180.0 * pi; }

@@ -1,7 +1,4 @@
-#ifndef TEXTURES_TEXTURE_H
-#define TEXTURES_TEXTURE_H
+#pragma once
 
 #include "imagetexture.hpp"
 #include "solidcolor.hpp"
-
-#endif
