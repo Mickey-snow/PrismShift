@@ -155,13 +155,6 @@ TEST(MatrixTest, Transpose) {
     Matrix<1, 1> expected{1};
     EXPECT_EQ(mat.T(), expected);
   }
-
-  // Test transposing an empty matrix
-  {
-    Matrix<50, 0> mat{};
-    Matrix<0, 50> expected{};
-    EXPECT_EQ(mat.T(), expected);
-  }
 }
 
 TEST(MatrixTest, AppendMatrix) {
@@ -170,23 +163,13 @@ TEST(MatrixTest, AppendMatrix) {
     Matrix<3, 3> mat1{1, 2, 3, 4, 5, 6, 7, 8, 9};
     Matrix<3, 2> mat2{-1, -2, -3, -4, -5, -6};
     Matrix<3, 5> expected{1, 2, 3, -1, -2, 4, 5, 6, -3, -4, 7, 8, 9, -5, -6};
-    EXPECT_EQ(mat1.AppendRight(mat2), expected);
+    EXPECT_EQ(mat1.append_right(mat2), expected);
   }
   {
     Matrix<2, 3> mat1{1, 2, 3, 4, 5, 6};
     Matrix<1, 3> mat2{7, 8, 9};
     Matrix<3, 3> expected{1, 2, 3, 4, 5, 6, 7, 8, 9};
-    EXPECT_EQ(mat1.AppendBottom(mat2), expected);
-  }
-
-  // Test appending empty matrix
-  {
-    Matrix<2, 2> mat1{1, 0, 0, 1};
-    Matrix<2, 0> mat2;
-    EXPECT_EQ(mat1.AppendRight(mat2), mat1);
-
-    Matrix<0, 2> mat3;
-    EXPECT_EQ(mat1.AppendBottom(mat3), mat1);
+    EXPECT_EQ(mat1.append_bottom(mat2), expected);
   }
 }
 
@@ -230,10 +213,6 @@ TEST(MatrixTest, Inverse) {
   {
     Matrix<2, 2> mat{1, 2, 2, 4};
     EXPECT_ANY_THROW(mat.inv());
-  }
-  {
-    Matrix<1, 3> notSquaremat{1, 2, 3};
-    EXPECT_ANY_THROW(notSquaremat.inv());
   }
 
   // Test special cases
@@ -279,11 +258,5 @@ TEST(MatrixTest, Det) {
   {
     auto idMat = Matrix<63, 63>::I();
     EXPECT_DOUBLE_EQ(idMat.det(), 1.0);
-  }
-
-  // non-square matrix
-  {
-    Matrix<2, 3> mat;
-    EXPECT_ANY_THROW(mat.det());
   }
 }

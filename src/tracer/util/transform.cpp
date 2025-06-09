@@ -54,10 +54,10 @@ Point3 MatrixTransformation::Doit(const Point3& p) const {
   basic_vector<double, 4> w(p.x(), p.y(), p.z(), 1);
   w = m * w;
   static constexpr auto EPS = 1e-9;
-  auto ans = Point3(w.x(), w.y(), w.z());
+  auto ans = Vector3(w.x(), w.y(), w.z());
   if (fabs(w[3] - 1.0) > EPS)
     ans /= w[3];
-  return ans;
+  return Point3(ans);
 }
 Point3 MatrixTransformation::operator()(const Point3& p) const {
   return Doit(p);
@@ -120,7 +120,7 @@ MatrixTransformation MatrixTransformation::Translate(const double& dx,
 MatrixTransformation MatrixTransformation::Rotate(basic_vector<double, 3> axis,
                                                   const double& costheta,
                                                   const double& sintheta) {
-  axis = axis.Normalized();
+  axis = axis.normalised();
 
   auto R = [](const basic_vector<double, 3>& axis, const double& costheta,
               const double& sintheta) {
@@ -345,7 +345,7 @@ Normal QuaternionTransform::Undo(const Normal& n) const {
 QuaternionTransform QuaternionTransform::Rotate(
     const basic_vector<double, 3>& n,
     double theta) {
-  assert(n.Normalized() == n);
+  assert(n.normalised() == n);
   theta *= -0.5;
   auto q = Quaternion(cos(theta), sin(theta) * n);
   return QuaternionTransform(q);

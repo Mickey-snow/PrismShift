@@ -23,7 +23,7 @@ class sphereTest : public ::testing::Test {
   std::vector<std::function<Ray()>> spawn_ray_fn;
   std::function<Ray()> spawn_orig_directed_ray = []() {
     Point3 p_onball = (Point3)Vector3::Random_Unit();
-    Point3 ray_orig = random_double(1.5, 10) * p_onball;
+    Point3 ray_orig = Point3(random_double(1.5, 10) * p_onball);
     Vector3 ray_d = p_onball - ray_orig;
     return Ray(ray_orig, ray_d);
   };

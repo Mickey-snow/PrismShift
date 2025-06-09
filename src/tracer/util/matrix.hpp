@@ -1,396 +1,310 @@
 #pragma once
 
+#include "util/vecmath.hpp"
+
+#include <algorithm>
+#include <array>
+#include <cassert>
 #include <cmath>
 #include <cstddef>
-#include <functional>
-#include <initializer_list>
-#include <iterator>
-#include <limits>
-#include <optional>
-#include <ostream>
-#include <span>
-#include <sstream>
-#include <stdexcept>
+#include <iostream>
+#include <utility>
 
-#include "util/geometry.hpp"
-
-template <std::size_t N, std::size_t M>
+template <std::size_t R, std::size_t C, typename value_type = double>
 class Matrix {
+  static_assert(R > 0 && C > 0, "Matrix must have non‑zero dimensions");
+
  public:
-  static constexpr auto ROWS = N;
-  static constexpr auto COLUMNS = M;
+  static constexpr std::size_t rows = R;
+  static constexpr std::size_t cols = C;
+  static constexpr value_type eps = static_cast<value_type>(1e-12);
 
-  // data & data access
-  std::array<std::array<double, COLUMNS>, ROWS> v;
-  std::array<double, COLUMNS>& operator[](const std::size_t& idx) {
-    return v[idx];
-  }
-  auto operator[](const std::size_t& idx) const -> decltype(auto) {
-    return std::span<const double>(v[idx]);
-  }
+  using storage_type = std::array<value_type, R * C>;
+  storage_type data_{};
 
-  Matrix() : v{} {}
-  explicit Matrix(std::initializer_list<double> li) : Matrix() {
-    auto it = li.begin();
-    for (std::size_t i = 0; i < ROWS; ++i)
-      for (std::size_t j = 0; j < COLUMNS; ++j) {
-        if (it == li.end())
-          break;
-        v[i][j] = *it++;
-      }
+  [[nodiscard]] static inline constexpr std::size_t idx(
+      std::size_t r,
+      std::size_t c) noexcept {
+    return r * C + c;
   }
 
-  bool operator==(const Matrix<ROWS, COLUMNS>& rhs) const {
-    static constexpr auto EPS = 1e-6;
-    for (std::size_t i = 0; i < ROWS; ++i)
-      for (std::size_t j = 0; j < COLUMNS; ++j)
-        if (fabs(v[i][j] - rhs.v[i][j]) > EPS)
-          return false;
+ public: /* -------------------------------- ctors --- */
+  constexpr Matrix() noexcept = default;
+
+  /* row‑major initialiser list: `{ a00, a01, … }` */
+  constexpr explicit Matrix(std::initializer_list<value_type> init) noexcept {
+    assert(init.size() <= data_.size());
+    std::copy_n(init.begin(), init.size(), data_.begin());
+  }
+
+ public: /* ------------------------- access --- */
+  /* pointer to the first element of the row (fast, cache‑friendly) */
+  [[nodiscard]] constexpr value_type* operator[](std::size_t r) noexcept {
+    return data_.data() + r * C;
+  }
+  [[nodiscard]] constexpr const value_type* operator[](
+      std::size_t r) const noexcept {
+    return data_.data() + r * C;
+  }
+
+  [[nodiscard]] constexpr value_type& at(std::size_t r,
+                                         std::size_t c) noexcept {
+    return data_[idx(r, c)];
+  }
+  [[nodiscard]] constexpr const value_type& at(std::size_t r,
+                                               std::size_t c) const noexcept {
+    return data_[idx(r, c)];
+  }
+
+ public: /* ------------------------ comparison --- */
+  [[nodiscard]] constexpr bool approx_equal(
+      const Matrix& rhs,
+      value_type tolerance = eps) const noexcept {
+    for (std::size_t i = 0; i < data_.size(); ++i)
+      if (std::abs(data_[i] - rhs.data_[i]) > tolerance)
+        return false;
     return true;
   }
-  bool operator!=(const Matrix<ROWS, COLUMNS>& rhs) const {
-    return !(*this == rhs);
+  friend constexpr bool operator==(const Matrix& a, const Matrix& b) noexcept {
+    return a.approx_equal(b);
+  }
+  friend constexpr bool operator!=(const Matrix& a, const Matrix& b) noexcept {
+    return !(a == b);
   }
 
- public:
-  /**
-   * @brief Appends another matrixs to the right side of the current matrix.
-   *
-   * @return Matrix<ROWS, COLUMNS + K> - a new object that is the result of
-   * appending 'mat' to the right side of the current matrix.
-   */
-  template <std::size_t K>
-  auto AppendRight(const Matrix<ROWS, K>& mat) const -> decltype(auto) {
-    using result_t = Matrix<ROWS, COLUMNS + K>;
-    result_t res;
-    for (std::size_t i = 0; i < ROWS; ++i) {
-      std::copy(v[i].cbegin(), v[i].cend(), res.v[i].begin());
-      std::copy(mat.v[i].cbegin(), mat.v[i].cend(), res.v[i].begin() + COLUMNS);
-    }
-    return res;
-  }
-
-  /**
-   * @brief Appends another matrix of the same number of columns to the bottom
-   * of the current matrix.
-   *
-   * @return Matrix<ROWS + K, COLUMNS> - a new object that is the result of
-   * appending 'mat' to the bottom of the current matrix.
-   */
-  template <std::size_t K>
-  auto AppendBottom(const Matrix<K, COLUMNS>& mat) const -> decltype(auto) {
-    using result_t = Matrix<ROWS + K, COLUMNS>;
-    result_t res;
-    for (std::size_t i = 0; i < ROWS; ++i)
-      std::copy(v[i].cbegin(), v[i].cend(), res.v[i].begin());
-    for (std::size_t i = 0; i < K; ++i)
-      std::copy(mat.v[i].cbegin(), mat.v[i].cend(), res.v[i + ROWS].begin());
-    return res;
-  }
-
-  // row operations
-  auto RowExchange(std::size_t row1, std::size_t row2) -> decltype(auto) {
-    std::swap(v[row1], v[row2]);
-    return *this;
-  }
-  auto RowAdd(std::size_t addee, std::size_t adder, double multiplier)
-      -> decltype(auto) {
-    for (std::size_t i = 0; i < COLUMNS; ++i)
-      v[addee][i] += v[adder][i] * multiplier;
-    return *this;
-  }
-  auto RowScale(std::size_t rowidx, double multiplier) -> decltype(auto) {
-    for (std::size_t i = 0; i < COLUMNS; ++i)
-      v[rowidx][i] *= multiplier;
-    return *this;
-  }
-
- public:
-  template <std::size_t K>
-  Matrix<ROWS, K> operator*(const Matrix<COLUMNS, K>& rhs) const {
-    Matrix<ROWS, K> ans;
-    for (std::size_t i = 0; i < ROWS; ++i)
-      for (std::size_t j = 0; j < COLUMNS; ++j)
-        for (std::size_t k = 0; k < K; ++k)
-          ans.v[i][k] += v[i][j] * rhs.v[j][k];
-    return ans;
-  }
-  template <std::size_t K>
-  Matrix<ROWS, K>& operator*=(const Matrix<COLUMNS, K>& rhs) {
-    return *this = *this * rhs;
-  }
-  template <vector_like T>
-  auto operator*(const T& rhs) const -> decltype(auto)
-    requires(T::dimension == COLUMNS)
+ public: /* ------------------------ factories --- */
+  [[nodiscard]] static consteval Matrix I() noexcept
+    requires(R == C)
   {
-    using return_type =
-        basic_vector<decltype(std::declval<double>() *
-                              std::declval<typename T::value_type>()),
-                     ROWS>;
-    return_type ret;
-    for (std::size_t i = 0; i < ROWS; ++i)
-      for (std::size_t j = 0; j < COLUMNS; ++j)
-        ret.v[i] += v[i][j] * rhs.v[j];
-    return ret;
+    Matrix m;
+    for (std::size_t i = 0; i < R; ++i)
+      m.at(i, i) = value_type{1};
+    return m;
   }
 
- public:
-  /**
-   * @brief Transforms the matrix into its row-reduced echelon form (RREF).
-   *
-   * @return Matrix<ROWS, COLUMNS> The matrix in its row-reduced echelon form.
-   */
-  Matrix<ROWS, COLUMNS> rref() const { return rref_calculator(*this).doit(); }
-  static auto rref(Matrix<ROWS, COLUMNS> mat) -> decltype(auto) {
-    return rref_calculator(mat).doit();
+ public: /* ------------------------ basic ops --- */
+  /* fast row operations - used by rref/det/inv */
+  constexpr void swap_rows(std::size_t r1, std::size_t r2) noexcept {
+    if (r1 == r2)
+      return;
+    for (std::size_t c = 0; c < C; ++c)
+      std::swap(at(r1, c), at(r2, c));
+  }
+  constexpr void scale_row(std::size_t r, value_type s) noexcept {
+    for (std::size_t c = 0; c < C; ++c)
+      at(r, c) *= s;
+  }
+  constexpr void add_row(std::size_t dst,
+                         std::size_t src,
+                         value_type s) noexcept {
+    for (std::size_t c = 0; c < C; ++c)
+      at(dst, c) += at(src, c) * s;
   }
 
- private:  // helper class for rref()
-  /**
-   * @class rref_calculator
-   * @brief A helper class for computing the Row-Reduced Echelon Form (RREF) of
-   * a matrix.
-   *
-   * This class encapsulates the algorithm for transforming a matrix into its
-   * row-reduced echelon form. It provides a high degree of customization,
-   * allowing users to define their own behaviors for pivotal operations such as
-   * row exchange, row scaling, row addition, and pivot searching. The class
-   * implements a two-phase algorithm: a forward phase for converting the matrix
-   * into an upper triangular form and a backward phase for normalizing pivot
-   * rows and zeroing out elements above each pivot. The operations are
-   * performed using customizable functors, enabling specialized behaviors like
-   * counting row exchanges or skipping the scaling of pivot elements.
-   *
-   * Usage:
-   *     Matrix<ROWS, COLUMNS> mat;
-   *     rref_calculator rrefCalc(mat);
-   *     Matrix<ROWS, COLUMNS> rrefMat = rrefCalc.doit();
-   *
-   * Customization:
-   *     The class allows customization of the row reduction process by setting
-   * different implementations for `rowexchange_fun`, `rowscale_fun`,
-   * `rowadd_fun`, and `search_pivot_fun`. These are set to default
-   * implementations in the constructor but can be overridden by the user.
-   *
-   * Example:
-   *     rref_calculator rrefCalc(matrix);
-   *     rrefCalc.rowexchange_fun = [](Matrix<ROWS, COLUMNS>& mat, std::size_t
-   * row1, std::size_t row2){ ... }; rrefCalc.rowscale_fun = [](Matrix<ROWS,
-   * COLUMNS>& mat, std::size_t rowidx, double scale){ ... }; Matrix<ROWS,
-   * COLUMNS> rrefMatrix = rrefCalc.doit();
-   */
-  class rref_calculator {
-   private:
-    using Matrix_t = Matrix<ROWS, COLUMNS>;
+  /* transpose */
+  [[nodiscard]] constexpr Matrix<C, R, value_type> T() const noexcept {
+    Matrix<C, R, value_type> out;
+    for (std::size_t r = 0; r < R; ++r)
+      for (std::size_t c = 0; c < C; ++c)
+        out.at(c, r) = at(r, c);
+    return out;
+  }
 
-   public:
-    explicit rref_calculator(const Matrix_t& mat) : m_mat(mat) {
-      rowexchange_fun = [](Matrix_t& mat, std::size_t row1, std::size_t row2) {
-        mat.RowExchange(row1, row2);
-      };
-      rowscale_fun = [](Matrix_t& mat, std::size_t rowidx, double scale) {
-        mat.RowScale(rowidx, scale);
-      };
-      rowadd_fun = [](Matrix_t& mat, std::size_t addeeRow, std::size_t adderRow,
-                      double scale) { mat.RowAdd(addeeRow, adderRow, scale); };
-      search_pivot_fun = [](const Matrix_t& mat, std::size_t colidx,
-                            std::size_t toprow) {
-        static constexpr auto EPS = 1e-8;
-        for (std::size_t i = toprow; i < ROWS; ++i)
-          if (fabs(mat.v[i][colidx]) > EPS)
-            return std::optional<std::size_t>{i};
-        return std::optional<std::size_t>{};
-      };
-    }
-
-    Matrix_t& doit(void) {
-      do_rref_fwd_phase();
-      do_rref_bkwd_phase();
-      return m_mat;
-    }
-
-    std::function<void(Matrix_t&, std::size_t, std::size_t)> rowexchange_fun;
-    std::function<void(Matrix_t&, std::size_t, double)> rowscale_fun;
-    std::function<void(Matrix_t&, std::size_t, std::size_t, double)> rowadd_fun;
-    std::function<
-        std::optional<std::size_t>(const Matrix_t&, std::size_t, std::size_t)>
-        search_pivot_fun;
-
-   private:
-    // Forward phase: Transforms the matrix into an upper triangular form.
-    // It iterates through each column, finds the first non-zero element
-    // as the pivot, then zeroes out all elements below the pivot.
-    void do_rref_fwd_phase() {
-      std::size_t toprow = 0;
-      for (std::size_t pivcol = 0; pivcol < COLUMNS; ++pivcol) {
-        std::optional<std::size_t> pivrow =
-            std::invoke(search_pivot_fun, m_mat, pivcol, toprow);
-        // If no pivot is found in this column, continue to the next column
-        if (!pivrow.has_value())
-          continue;
-
-        std::invoke(rowexchange_fun, m_mat, pivrow.value(), toprow);
-        zero_out_pivcol(toprow + 1, ROWS, toprow, pivcol);
-
-        ++toprow;
+  /* matrix × matrix (naïve triple loop, sizes are compile‑time so it will be
+   * unrolled/vectorised by the optimiser) */
+  template <std::size_t K>
+  [[nodiscard]] constexpr Matrix<R, K, value_type> operator*(
+      const Matrix<C, K, value_type>& rhs) const noexcept {
+    Matrix<R, K, value_type> out;
+    for (std::size_t r = 0; r < R; ++r)
+      for (std::size_t k = 0; k < K; ++k) {
+        value_type acc{};
+        for (std::size_t c = 0; c < C; ++c)
+          acc += at(r, c) * rhs.at(c, k);
+        out.at(r, k) = acc;
       }
-    }
-    // Backward phase: Normalizes each pivot row and zeroes out elements above
-    // the pivot.
-    void do_rref_bkwd_phase() {
-      for (int i = ROWS - 1; i >= 0; --i) {
-        static constexpr auto EPS = 1e-8;
-        for (std::size_t j = 0; j < COLUMNS; ++j)
-          if (fabs(m_mat.v[i][j]) > EPS) {
-            std::invoke(rowscale_fun, m_mat, i, 1.0 / m_mat.v[i][j]);
-            zero_out_pivcol(0, i, i, j);
-            break;
-          }
-      }
-    }
-    // Zeroes out elements in a specified pivot column.
-    // For each row in the specified range, it subtracts an appropriate multiple
-    // of the pivot row from it, effectively setting the column element in that
-    // row to zero.
-    void zero_out_pivcol(std::size_t fr,
-                         std::size_t to,
-                         std::size_t pivrow,
-                         std::size_t pivcol) {
-      for (auto it = fr; it < to; ++it)
-        std::invoke(rowadd_fun, m_mat, it, pivrow,
-                    -m_mat.v[it][pivcol] / m_mat.v[pivrow][pivcol]);
-    }
-    Matrix_t m_mat;
-  };
-
- public:
-  /**
-   * @brief Computes the transpose of the matrix.
-   *
-   * @return Matrix<COLUMNS, ROWS> - A new object which is the transpose of the
-   * original matrix.
-   *
-   * Example:
-   *   Matrix<3,2> mat; // Original matrix of size 3x2.
-   *   auto transposedMat = mat.T(); // Transposed matrix of size 2x3.
-   */
-  Matrix<COLUMNS, ROWS> T(void) const {
-    Matrix<COLUMNS, ROWS> ret;
-    for (std::size_t i = 0; i < ROWS; ++i)
-      for (std::size_t j = 0; j < COLUMNS; ++j)
-        ret.v[j][i] = v[i][j];
-    return ret;
+    return out;
   }
 
- public:
-  /**
-   * @brief Calculates the inverse of a square matrix.
-   *
-   * Computes the inverse of a square matrix using the
-   * row-reduced echelon form (RREF) approach. It appends an identity matrix to
-   * the right of the original matrix and then applies the RREF algorithm. The
-   * right half of the resultant matrix is the inverse of the original matrix.
-   *
-   * @return Matrix<N,N> The inverse of the input matrix.
-   *
-   * @throws std::runtime_error if the matrix is not square or is singular.
-   *
-   * @example
-   * Matrix<3,3> matrix; // Initialize matrix
-   * Matrix<3,3> inverseMatrix = matrix.inv();
-   */
-  auto inv() const -> decltype(auto) {
-    return Matrix<ROWS, COLUMNS>::inv(*this);
-  }
-  static auto inv(const Matrix<ROWS, COLUMNS>& mat) -> decltype(auto) {
-    if constexpr (ROWS != COLUMNS) {
-      throw std::runtime_error("Not a square matrix");
-    } else {
-      static constexpr auto K = ROWS;
-      auto I_n = Matrix<K, K>::I();
-
-      auto augmat = mat.AppendRight(I_n);
-      augmat = augmat.rref();
-
-      auto lside_is_In = [](const Matrix<K, K + K>& mat) {
-        static constexpr auto EPS = 1e-8;
-        for (std::size_t i = 0; i < K; ++i)
-          for (std::size_t j = 0; j < K; ++j) {
-            double expect = i == j ? 1 : 0;
-            if (fabs(mat.v[i][j] - expect) > EPS)
-              return false;
-          }
-        return true;
-      };
-      if (not lside_is_In(augmat))
-        throw std::runtime_error("Singular matrix in MatirxInvert");
-
-      Matrix<K, K> ans;
-      for (std::size_t i = 0; i < K; ++i)
-        for (std::size_t j = 0; j < K; ++j)
-          ans.v[i][j] = augmat.v[i][j + K];
-      return ans;
+  template <vector_like V>
+    requires(V::dimension == C)
+  [[nodiscard]] constexpr auto operator*(const V& v) const {
+    using out_scalar = decltype(std::declval<value_type>() *
+                                std::declval<typename V::value_type>());
+    basic_vector<out_scalar, R> out{};
+    for (std::size_t r = 0; r < R; ++r) {
+      out_scalar acc{};
+      for (std::size_t c = 0; c < C; ++c)
+        acc += (*this)[r][c] * v.v[c];
+      out.v[r] = acc;
     }
+    return out;
+  }
+  [[nodiscard]] friend constexpr auto operator*(const vector_like auto& v,
+                                                const Matrix& m) {
+    return m * v;
   }
 
- public:
-  /**
-   * @brief Calculates the determinant of a square matrix.
-   *
-   * @return The determinant of the matrix.
-   *
-   * @throws std::runtime_error if the matrix is not square
-   */
-  double det() const { return Matrix<ROWS, COLUMNS>::det(*this); }
-  static double det(const Matrix<ROWS, COLUMNS>& mat) {
-    if constexpr (ROWS != COLUMNS)
-      throw std::runtime_error("Not a square matrix");
-    else {
-      auto calculator = rref_calculator(mat);
+  template <std::size_t K>
+  constexpr Matrix& operator*=(const Matrix<C, K, value_type>& rhs) noexcept {
+    return *this = (*this * rhs);
+  }
 
-      std::size_t row_exchange_count = 0;
-      calculator.rowexchange_fun = [&row_exchange_count](
-                                       Matrix<ROWS, COLUMNS>& mat,
-                                       std::size_t row1, std::size_t row2) {
-        if (row1 != row2) {
-          ++row_exchange_count;  // keep a count on the row exchange performed
-          mat.RowExchange(row1, row2);
+ public: /* ------------------- append / concat --- */
+  template <std::size_t K>
+  [[nodiscard]] constexpr Matrix<R, C + K, value_type> append_right(
+      const Matrix<R, K, value_type>& m) const noexcept {
+    Matrix<R, C + K, value_type> out;
+    /* copy this */
+    std::copy_n(data_.begin(), data_.size(), out.data_.begin());
+    /* copy rhs */
+    for (std::size_t r = 0; r < R; ++r)
+      std::copy_n(m[r], K, out[r] + C);
+    return out;
+  }
+
+  template <std::size_t K>
+  [[nodiscard]] constexpr Matrix<R + K, C, value_type> append_bottom(
+      const Matrix<K, C, value_type>& m) const noexcept {
+    Matrix<R + K, C, value_type> out;
+    /* copy top */
+    std::copy_n(data_.begin(), data_.size(), out.data_.begin());
+    /* copy bottom */
+    std::copy_n(m.data_.begin(), m.data_.size(),
+                out.data_.begin() + data_.size());
+    return out;
+  }
+
+ public: /* ---------------------- RREF / inverse / det --- */
+  [[nodiscard]] constexpr Matrix rref() const noexcept {
+    Matrix tmp{*this};
+    std::size_t lead = 0;
+    for (std::size_t r = 0; r < R; ++r) {
+      if (lead >= C)
+        break;
+      std::size_t i = r;
+      while (std::abs(tmp.at(i, lead)) <= eps) {
+        if (++i == R) {
+          i = r;
+          if (++lead == C)
+            return tmp;
         }
-      };
-
-      calculator.rowscale_fun = [](Matrix<ROWS, COLUMNS>&, std::size_t,
-                                   double) {};
-      // don't scale pivots to 1
-
-      auto reduced = calculator.doit();
-      double det = (row_exchange_count & 1) ? -1.0 : 1.0;
-      for (std::size_t i = 0; i < ROWS; ++i)
-        det *= reduced.v[i][i];
-      return det;
+      }
+      tmp.swap_rows(i, r);
+      const value_type pivot = tmp.at(r, lead);
+      tmp.scale_row(r, value_type{1} / pivot);
+      for (std::size_t j = 0; j < R; ++j) {
+        if (j == r)
+          continue;
+        const value_type factor = tmp.at(j, lead);
+        if (std::abs(factor) > eps)
+          tmp.add_row(j, r, -factor);
+      }
+      ++lead;
     }
+    return tmp;
   }
 
- public:  // factory methods
-  static Matrix<ROWS, COLUMNS> I(void) noexcept {
-    Matrix<ROWS, COLUMNS> In;
-    for (std::size_t i = 0; i < ROWS && i < COLUMNS; ++i)
-      In.v[i][i] = 1;
-    return In;
+  /* determinant via Gaussian elimination (O(N^3)) */
+  [[nodiscard]] constexpr value_type det() const noexcept
+    requires(R == C)
+  {
+    Matrix tmp{*this};
+    value_type det{1};
+    for (std::size_t i = 0; i < R; ++i) {
+      /* find pivot (partial pivoting for stability) */
+      std::size_t pivot = i;
+      for (std::size_t r = i + 1; r < R; ++r)
+        if (std::abs(tmp.at(r, i)) > std::abs(tmp.at(pivot, i)))
+          pivot = r;
+      if (std::abs(tmp.at(pivot, i)) <= eps)
+        return 0;  // singular
+      if (pivot != i) {
+        tmp.swap_rows(pivot, i);
+        det = -det;  // swap flips sign
+      }
+      det *= tmp.at(i, i);
+      const value_type inv_piv = value_type{1} / tmp.at(i, i);
+      for (std::size_t c = i; c < C; ++c)
+        tmp.at(i, c) *= inv_piv;
+      for (std::size_t r = i + 1; r < R; ++r) {
+        const value_type f = tmp.at(r, i);
+        if (std::abs(f) <= eps)
+          continue;
+        for (std::size_t c = i; c < C; ++c)
+          tmp.at(r, c) -= f * tmp.at(i, c);
+      }
+    }
+    return det;
   }
 
- public:
-  friend std::ostream& operator<<(std::ostream& os,
-                                  const Matrix<ROWS, COLUMNS> m) {
-    os << '(';
-    for (std::size_t i = 0; i < ROWS; ++i) {
+  [[nodiscard]] constexpr Matrix inv() const noexcept
+    requires(R == C)
+  {
+    /* augment with identity and run Gauss‑Jordan */
+    constexpr std::size_t K = R;
+    using Aug = Matrix<R, 2 * K, value_type>;
+    Aug aug;
+    /* left half = *this */
+    for (std::size_t i = 0; i < R; ++i)
+      for (std::size_t j = 0; j < C; ++j)
+        aug.at(i, j) = at(i, j);
+    /* right half = I */
+    for (std::size_t i = 0; i < K; ++i)
+      aug.at(i, i + C) = value_type{1};
+
+    /* RREF in‑place on augmented matrix */
+    std::size_t lead = 0;
+    for (std::size_t r = 0; r < R; ++r) {
+      if (lead >= 2 * K)
+        break;
+      std::size_t i = r;
+      while (std::abs(aug.at(i, lead)) <= eps) {
+        if (++i == R) {
+          i = r;
+          if (++lead == 2 * K)
+            throw std::runtime_error("singular matrix");
+        }
+      }
+      aug.swap_rows(i, r);
+      const value_type pivot = aug.at(r, lead);
+      aug.scale_row(r, value_type{1} / pivot);
+      for (std::size_t j = 0; j < R; ++j) {
+        if (j == r)
+          continue;
+        const value_type f = aug.at(j, lead);
+        if (std::abs(f) > eps)
+          aug.add_row(j, r, -f);
+      }
+      ++lead;
+    }
+
+    /* extract right half */
+    Matrix<R, C, value_type> out;
+    for (std::size_t i = 0; i < R; ++i)
+      for (std::size_t j = 0; j < C; ++j)
+        out.at(i, j) = aug.at(i, j + C);
+    return out;
+  }
+
+ public: /* ------------------------ stream out --- */
+  friend std::ostream& operator<<(std::ostream& os, const Matrix& m) {
+    os << '[';
+    for (std::size_t r = 0; r < R; ++r) {
       os << '[';
-      std::copy(m.v[i].cbegin(), m.v[i].cend(),
-                std::ostream_iterator<double>(os, ","));
-      os << "],";
+      for (std::size_t c = 0; c < C; ++c) {
+        os << m.at(r, c);
+        if (c + 1 < C)
+          os << ',';
+      }
+      os << ']';
+      if (r + 1 < R)
+        os << '\n';
     }
-    os << ')';
+    os << ']';
     return os;
   }
 };
 
-using Matrix4 = Matrix<4, 4>;
+/* convenient alias for 4×4 double matrix (graphics etc.) */
+using Matrix4 = Matrix<4, 4, double>;

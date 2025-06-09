@@ -26,8 +26,7 @@ Color ray_color(const Ray& r, const Scene& scene) {
     Point3 p = r.At(root);
     Normal n = (Normal)((p - s.center) / s.radius);
     Color shade = Color(n.x() + 1, n.y() + 1, n.z() + 1) * 0.5;
-    col = Color(shade.x() * s.color.x(), shade.y() * s.color.y(),
-                shade.z() * s.color.z());
+    col = shade * s.color;
     hit_any = true;
   }
   if (hit_any)

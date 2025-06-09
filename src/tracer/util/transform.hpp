@@ -3,8 +3,9 @@
 #include <ostream>
 #include <utility>
 
-#include "matrix.hpp"
-#include "util/geometry_fwd.hpp"
+#include "util/geometry.hpp"
+#include "util/matrix.hpp"
+#include "util/vecmath.hpp"
 
 /**
  * @interface ITransformation
@@ -130,9 +131,9 @@ class VectorScale : public ITransformation {
 class MatrixTransformation : public ITransformation {
  public:
   MatrixTransformation() : m(Matrix4::I()), minv(Matrix4::I()) {}
-  MatrixTransformation(const Matrix4& _m) : m(_m), minv(_m.inv()) {}
-  MatrixTransformation(const Matrix4& _m, const Matrix4 _minv)
-      : m(_m), minv(_minv) {}
+  MatrixTransformation(Matrix4 _m) : m(std::move(_m)), minv(m.inv()) {}
+  MatrixTransformation(Matrix4 _m, const Matrix4 _minv)
+      : m(std::move(_m)), minv(std::move(_minv)) {}
 
   Matrix4 const Matrix(void) const { return m; }
   Matrix4 const InvMatrix(void) const { return minv; }

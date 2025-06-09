@@ -1,5 +1,4 @@
-#ifndef TRIANGLE_H
-#define TRIANGEL_H
+#pragma once
 
 #include <shape.hpp>
 
@@ -16,5 +15,3 @@ class Triangle : public IShape {
   AABB Get_Bbox() const override;
   Hit_record Hit(const Ray&, const Interval<double>&) const override;
 };
-
-#endif
