@@ -1,51 +1,49 @@
 #pragma once
 
-#include <iostream>
 #include "shape.hpp"
 #include "util/util.hpp"
 
-class Renderer;
-
 class Camera {
  public:
-  Camera(const Point3& center_position = Point3(0, 0, 0),
-         const Point3& looking_at_ = Point3(0, 0, 0),
-         const int& image_height_ = 1080,
-         const double& aspect_ratio_ = 16.0 / 9.0,
-         const double& view_angle_vertical_ = 30)
-      : camera_center(center_position),
-        looking_at(looking_at_),
-        aspect_ratio(aspect_ratio_),
-        image_height(image_height_),
-        view_angle_vertical(view_angle_vertical_) {
-    up_direction = Vector3(0, 1, 0);
-    image_width = static_cast<int>(image_height * aspect_ratio);
+  Camera(Point3 center = {},
+         Point3 lookAt = {},
+         int imageHeight = 1080,
+         double aspectRatio = 16.0 / 9.0,
+         double vFovDeg = 30.0) noexcept
+      : camera_center_{std::move(center)},
+        looking_at_{std::move(lookAt)},
+        up_direction_{0, 1, 0},
+        aspect_ratio_{aspectRatio},
+        image_height_{imageHeight},
+        image_width_{static_cast<int>(imageHeight * aspectRatio)},
+        view_angle_vertical_{vFovDeg} {
+    clampDimensions();
   }
 
-  void Set_Position(const Point3& position) { camera_center = position; }
-  Point3 Position(void) const { return camera_center; }
-  void Set_Looking_point(const Point3& _looking_at) {
-    looking_at = _looking_at;
-  }
+  // Position & orientation
+  void setPosition(Point3 p) noexcept { camera_center_ = std::move(p); }
+  [[nodiscard]] Point3 position() const noexcept { return camera_center_; }
 
-  void Set_Aspect_ratio(const double& _aspect_ratio) {
-    aspect_ratio = _aspect_ratio;
-  }
+  void setLookAt(Point3 la) noexcept { looking_at_ = std::move(la); }
+  [[nodiscard]] Point3 lookAt() const noexcept { return looking_at_; }
 
-  void Set_View_angle_vertical(const double& angle) {
-    view_angle_vertical = angle;
+  void setAspectRatio(double ar) noexcept {
+    aspect_ratio_ = ar;
+    clampDimensions();
   }
+  [[nodiscard]] double aspectRatio() const noexcept { return aspect_ratio_; }
 
-  void Set_Image_Width(const int& _width) {
-    image_width = _width;
-    image_height = static_cast<int>(image_width / aspect_ratio);
-    assert(image_width >= 1 and image_height >= 1);
+  void setImageHeight(int h) noexcept {
+    image_height_ = h;
+    clampDimensions();
   }
-  void Set_Image_Height(const int& _height) {
-    image_height = _height;
-    image_width = static_cast<int>(image_height * aspect_ratio);
-    assert(image_width >= 1 and image_height >= 1);
+  [[nodiscard]] int imageHeight() const noexcept { return image_height_; }
+
+  void setImageWidth(int w) noexcept {
+    image_width_ = w;
+    clampDimensions();
   }
+  [[nodiscard]] int imageWidth() const noexcept { return image_width_; }
 
   struct View_Info {
     double focal_length;
@@ -55,18 +53,18 @@ class Camera {
     Point3 viewport_upper_left;
     Point3 pixel00_loc;
   };
-
-  View_Info Get_Initialize_View() const;
+  [[nodiscard]] View_Info initializeView() const;
 
  private:
-  // Image and Camera config
-  double aspect_ratio;
-  int image_height, image_width;
-  Point3 camera_center;
-  Vector3 up_direction;
-  Point3 looking_at;
+  void clampDimensions() noexcept {
+    image_height_ = std::max(1, image_height_);
+    image_width_ = std::max(1, int(image_height_ * aspect_ratio_));
+  }
 
-  double view_angle_vertical;
-
-  friend Renderer;
+  Point3 camera_center_;
+  Point3 looking_at_;
+  Vector3 up_direction_;
+  double aspect_ratio_;
+  int image_height_, image_width_;
+  double view_angle_vertical_;
 };
