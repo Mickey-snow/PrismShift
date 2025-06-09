@@ -4,6 +4,7 @@
 #include <shape.hpp>
 #include <util/util.hpp>
 
+#include <algorithm>
 #include <format>
 #include <memory>
 #include <stdexcept>

@@ -30,53 +30,38 @@ class fPrimitive : public IPrimitive {
 
 class AggregatorTest : public ::testing::Test {
  private:
-  const int hittable_count = 10000;
-  const int unhittable_count = 10000;
-
   AABB rand_bbox(void) const {
     return AABB{(Point3)Vector3::Random(-100, 100),
                 (Point3)Vector3::Random(-100, 100)};
   }
 
  protected:
-  void SetUp() override {
+  void Init(const int hittable_count = 0, const int unhittable_count = 0) {
     for (int i = 0; i < hittable_count; ++i) {
-      auto obj = new fPrimitive(rand_bbox(), random_double(1, 100));
+      auto obj =
+          std::make_shared<fPrimitive>(rand_bbox(), random_double(1, 100));
       hittables.push_back(obj);
     }
     for (int i = 0; i < unhittable_count; ++i) {
-      auto obj = new fPrimitive(rand_bbox(), -1);
+      auto obj = std::make_shared<fPrimitive>(rand_bbox(), -1);
       unhittables.push_back(obj);
     }
 
     std::vector<std::shared_ptr<IPrimitive>> primitives;
-    std::transform(hittables.cbegin(), hittables.cend(),
-                   std::back_inserter(primitives), [](const fPrimitive* ptr) {
-                     return std::make_shared<fPrimitive>(*ptr);
-                   });
-    std::transform(unhittables.cbegin(), unhittables.cend(),
-                   std::back_inserter(primitives), [](const fPrimitive* ptr) {
-                     return std::make_shared<fPrimitive>(*ptr);
-                   });
-    aggregator = new BVT(primitives);
+    primitives.insert(primitives.end(), hittables.begin(), hittables.end());
+    primitives.insert(primitives.end(), unhittables.begin(), unhittables.end());
+
+    aggregator = std::make_unique<BVT>(primitives);
   }
 
-  void TearDown() override {
-    delete aggregator;
-    for (auto& it : hittables)
-      delete it;
-    for (auto& it : unhittables)
-      delete it;
-  }
-
-  BVT* aggregator;
-
-  std::vector<fPrimitive*> hittables;
-  std::vector<fPrimitive*> unhittables;
+  std::unique_ptr<BVT> aggregator;
+  std::vector<std::shared_ptr<fPrimitive>> hittables;
+  std::vector<std::shared_ptr<fPrimitive>> unhittables;
 };
 
 TEST_F(AggregatorTest, bbox) {
-  auto merge_bbox = [](AABB lhs, IPrimitive* rhs) {
+  Init(10000, 10000);
+  auto merge_bbox = [](AABB lhs, const std::shared_ptr<fPrimitive>& rhs) {
     return AABB{lhs, rhs->Get_Bbox()};
   };
   auto hittables_box =
@@ -88,24 +73,42 @@ TEST_F(AggregatorTest, bbox) {
   EXPECT_EQ(box, aggregator->Get_Bbox());
 }
 
-// fixme
-// TEST_F(AggregatorTest, hit){
-//   const int testcases = 10000;
-//   auto rand_ray = [](){ return Ray((Point3)Vector3::Random(-1000,1000),
-//   Vector3::Random_Unit()); };
+TEST_F(AggregatorTest, hit) {
+  Init(10000, 10000);
+  const int testcases = 10000;
+  auto rand_ray = []() {
+    return Ray((Point3)Vector3::Random(-1000, 1000), Vector3::Random_Unit());
+  };
 
-//   for(int i=0;i<testcases;++i){
-//     auto r = rand_ray();
-//     auto t = Interval<double>::Positive();
+  for (int i = 0; i < testcases; ++i) {
+    auto r = rand_ray();
+    auto t = Interval<double>::Positive();
 
-//     auto rec = aggregator->Hit(r,t);
-//     auto it = std::find(hittables.cbegin(), hittables.cend(),
-//     rec.hitted_obj);
+    auto rec = aggregator->Hit(r, t);
+    auto it = std::find_if(hittables.cbegin(), hittables.cend(),
+                           [&rec](const std::shared_ptr<fPrimitive>& ptr) {
+                             return ptr.get() == rec.hitted_obj;
+                           });
 
-//     if(!rec.isHit()) EXPECT_EQ(it, hittables.cend());
-//     else{
-//       ASSERT_NE(it, hittables.cend());
-//       EXPECT_EQ(*it, rec.hitted_obj);
-//     }
-//   }
-// }
+    if (!rec.isHit())
+      EXPECT_EQ(it, hittables.cend());
+    else {
+      ASSERT_NE(it, hittables.cend());
+      EXPECT_EQ((*it).get(), rec.hitted_obj);
+    }
+  }
+}
+
+TEST_F(AggregatorTest, SingleObject) {
+  auto obj =
+      std::make_shared<fPrimitive>(AABB{Point3(0, 0, 0), Point3(1, 1, 1)}, 1.0);
+  std::vector<std::shared_ptr<IPrimitive>> primitives{obj};
+  aggregator = std::make_unique<BVT>(primitives);
+
+  Ray r(Point3(0.5, 0.5, -1), Vector3(0, 0, 1));
+  auto rec = aggregator->Hit(r, Interval<double>::Positive());
+
+  ASSERT_TRUE(rec.isHit());
+  EXPECT_EQ(rec.hitted_obj, obj.get());
+  EXPECT_TRUE(aggregator->Get_Bbox().Contains(obj->Get_Bbox()));
+}
