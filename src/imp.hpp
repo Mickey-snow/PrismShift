@@ -2,7 +2,14 @@
 
 #include "simple_renderer.hpp"
 
-inline Camera Get_Camera() { return Camera(16.0 / 9.0); }
+inline Camera Get_Camera() {
+  int image_h = 720;
+  double aspect = 16.0 / 9.0;
+  double vFovDeg = 60.0;
+  // Camera(center, lookAt, imageHeight, aspect, verticalFovDegrees)
+  Camera cam({0, 0, 0}, {0, 0, -1}, image_h, aspect, vFovDeg);
+  return cam;
+}
 
 inline Scene Get_World() {
   Scene scene;

@@ -43,21 +43,27 @@ Color ray_color(const Ray& r, const Scene& scene) {
 
 void render_ppm(const Scene& scene,
                 const Camera& cam,
-                int image_width,
-                int image_height,
                 const std::string& filename) {
+  // get size & precompute the viewing frustum
+  int image_width = cam.imageWidth();
+  int image_height = cam.imageHeight();
+  auto view = cam.initializeView();
+  Point3 origin = cam.position();
+
   std::ofstream out(filename);
   out << "P3\n" << image_width << ' ' << image_height << "\n255\n";
-  for (int j = image_height - 1; j >= 0; --j) {
-    for (int i = 0; i < image_width; ++i) {
-      double u = double(i) / (image_width - 1);
-      double v = double(j) / (image_height - 1);
-      Ray r = cam.get_ray(u, v);
-      Color pixel = ray_color(r, scene);
-      Color formatted = Format_Color(pixel, 255.999);
-      out << static_cast<int>(formatted.x()) << ' '
-          << static_cast<int>(formatted.y()) << ' '
-          << static_cast<int>(formatted.z()) << '\n';
+
+  // now iterate in row-major from top-left pixel (0,0) downwards
+  for (int y = 0; y < image_height; ++y) {
+    for (int x = 0; x < image_width; ++x) {
+      // compute the exact center of pixel (x,y)
+      Point3 pixel_center =
+          view.pixel00_loc + view.pixel_delta_u * x + view.pixel_delta_v * y;
+
+      Ray r(origin, pixel_center - origin);
+      Color raw = ray_color(r, scene);
+      Color rgb = Format_Color(raw, 255.999);
+      out << int(rgb.x()) << ' ' << int(rgb.y()) << ' ' << int(rgb.z()) << '\n';
     }
   }
 }
