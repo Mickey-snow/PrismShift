@@ -1,5 +1,6 @@
 #pragma once
 
+
 #include <memory>
 #include <util/util.hpp>
 #include <utility>
@@ -114,8 +115,8 @@ class BSDF {
                      const BxDFType& flag = BxDFType::ALL) const;
 
  private:
-  std::shared_ptr<BxDF> bxdf;
   Coordinate3 frame;
+  std::shared_ptr<BxDF> bxdf;
 
  public:
   BSDF(const BSDF& rhs) : frame(rhs.frame), bxdf(rhs.bxdf) {}
