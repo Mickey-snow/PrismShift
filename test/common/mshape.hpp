@@ -9,9 +9,9 @@ class mShape : public IShape {
  public:
   mShape() {}
 
-  MOCK_METHOD(Hit_record,
+  MOCK_METHOD(HitRecord,
               Hit,
               (const Ray& r, const Interval<double>& period),
               (const, override));
-  MOCK_METHOD(AABB, Get_Bbox, (), (const, override));
+  MOCK_METHOD(AABB, GetBbox, (), (const, override));
 };

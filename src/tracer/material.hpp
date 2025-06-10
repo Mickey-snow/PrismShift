@@ -4,20 +4,23 @@
 #include <util/color.hpp>
 
 class BSDF;
-class Hit_record;
+class HitRecord;
 
 class Material {
  public:
   ~Material() = default;
 
-  virtual BSDF CalculateBSDF(const Hit_record&) = 0;
+  virtual BSDF CalculateBSDF(const HitRecord&) = 0;
 
-  virtual Color Emission(const Hit_record&) { return Color(0, 0, 0); }
+  virtual Color Emission(const HitRecord&) { return Color(0, 0, 0); }
 };
 
 class IMaterial {
  public:
   virtual ~IMaterial() = default;
 
-  virtual BSDF CalcBSDF(const Hit_record&) const = 0;
+  virtual BSDF CalcBSDF(const HitRecord&) const = 0;
+
+  // Override if the material is emissive
+  virtual Color Emission(const HitRecord& rec) { return Color(0, 0, 0); }
 };

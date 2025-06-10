@@ -8,7 +8,7 @@
 #include <string>
 
 class AABB;
-class Hit_record;
+class HitRecord;
 class Ray;
 template <typename>
 class Interval;
@@ -18,6 +18,6 @@ class Sphere : public IShape {
   Sphere() = default;
   ~Sphere() = default;
 
-  AABB Get_Bbox(void) const override;
-  Hit_record Hit(const Ray& r, const Interval<double>& time) const override;
+  AABB GetBbox(void) const override;
+  HitRecord Hit(const Ray& r, const Interval<double>& time) const override;
 };

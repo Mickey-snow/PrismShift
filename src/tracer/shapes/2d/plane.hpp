@@ -12,6 +12,6 @@ class Plane : public IShape {
   Plane() = default;
   ~Plane() = default;
 
-  AABB Get_Bbox(void) const override;
-  Hit_record Hit(const Ray&, const Interval<double>&) const override;
+  AABB GetBbox(void) const override;
+  HitRecord Hit(const Ray&, const Interval<double>&) const override;
 };

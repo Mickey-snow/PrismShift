@@ -17,10 +17,10 @@ class AABB {
       : x_interval(Interval<double>::Empty()),
         y_interval(Interval<double>::Empty()),
         z_interval(Interval<double>::Empty()) {}
-  AABB(const Interval<double>& x,
-       const Interval<double>& y,
-       const Interval<double>& z)
-      : x_interval(x), y_interval(y), z_interval(z) {}
+  AABB(Interval<double> x, Interval<double> y, Interval<double> z)
+      : x_interval(std::move(x)),
+        y_interval(std::move(y)),
+        z_interval(std::move(z)) {}
 
   AABB(std::initializer_list<AABB> li);
   AABB(std::initializer_list<Point3> li);

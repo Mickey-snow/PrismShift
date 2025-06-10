@@ -9,23 +9,22 @@
 #include <memory>
 #include <numeric>
 
-class fPrimitive : public IPrimitive {
+class FakeShape : public IShape {
  public:
-  fPrimitive(const AABB& box, const double time) : m_bbox(box), m_time(time) {}
+  FakeShape(AABB box, double time) : bbox_(std::move(box)), time_(time) {}
 
-  Hit_record Hit(const Ray& r, const Interval<double>& t) const override {
-    if (m_time > 0 && m_bbox.isHitIn(r, t))
-      return Hit_record::ORTN(this, r, m_time, Normal{0, 1, 0});
+  HitRecord Hit(const Ray& r, const Interval<double>& interval) const override {
+    if (time_ > 0.0 && bbox_.isHitIn(r, interval))
+      return HitRecord::RTN(r, time_, Normal{0, 1, 0});
     else
-      return Hit_record{};
+      return HitRecord();
   }
 
-  AABB Get_Bbox() const override { return m_bbox; }
-  BSDF CalcBSDF(const Hit_record&) const override { throw; }
+  AABB GetBbox() const override { return bbox_; }
 
  private:
-  AABB m_bbox;
-  double m_time;
+  AABB bbox_;
+  double time_;
 };
 
 class AggregatorTest : public ::testing::Test {
@@ -37,17 +36,21 @@ class AggregatorTest : public ::testing::Test {
 
  protected:
   void Init(const int hittable_count = 0, const int unhittable_count = 0) {
+    hittables.reserve(hittable_count);
+    unhittables.reserve(unhittable_count);
     for (int i = 0; i < hittable_count; ++i) {
-      auto obj =
-          std::make_shared<fPrimitive>(rand_bbox(), random_double(1, 100));
+      auto shape =
+          std::make_shared<FakeShape>(rand_bbox(), random_double(1, 100));
+      auto obj = std::make_shared<Primitive>(shape, /*material=*/nullptr);
       hittables.push_back(obj);
     }
     for (int i = 0; i < unhittable_count; ++i) {
-      auto obj = std::make_shared<fPrimitive>(rand_bbox(), -1);
+      auto shape = std::make_shared<FakeShape>(rand_bbox(), -1);
+      auto obj = std::make_shared<Primitive>(shape, /*material=*/nullptr);
       unhittables.push_back(obj);
     }
 
-    std::vector<std::shared_ptr<IPrimitive>> primitives;
+    std::vector<std::shared_ptr<Primitive>> primitives;
     primitives.insert(primitives.end(), hittables.begin(), hittables.end());
     primitives.insert(primitives.end(), unhittables.begin(), unhittables.end());
 
@@ -55,14 +58,14 @@ class AggregatorTest : public ::testing::Test {
   }
 
   std::unique_ptr<BVT> aggregator;
-  std::vector<std::shared_ptr<fPrimitive>> hittables;
-  std::vector<std::shared_ptr<fPrimitive>> unhittables;
+  std::vector<std::shared_ptr<Primitive>> hittables;
+  std::vector<std::shared_ptr<Primitive>> unhittables;
 };
 
 TEST_F(AggregatorTest, bbox) {
   Init(10000, 10000);
-  auto merge_bbox = [](AABB lhs, const std::shared_ptr<fPrimitive>& rhs) {
-    return AABB{lhs, rhs->Get_Bbox()};
+  auto merge_bbox = [](AABB lhs, const std::shared_ptr<Primitive>& rhs) {
+    return AABB{lhs, rhs->GetBbox()};
   };
   auto hittables_box =
       std::accumulate(hittables.cbegin(), hittables.cend(), AABB(), merge_bbox);
@@ -70,7 +73,7 @@ TEST_F(AggregatorTest, bbox) {
       unhittables.cbegin(), unhittables.cend(), AABB(), merge_bbox);
   auto box = AABB{hittables_box, unhittables_box};
 
-  EXPECT_EQ(box, aggregator->Get_Bbox());
+  EXPECT_EQ(box, aggregator->GetBbox());
 }
 
 TEST_F(AggregatorTest, hit) {
@@ -86,11 +89,11 @@ TEST_F(AggregatorTest, hit) {
 
     auto rec = aggregator->Hit(r, t);
     auto it = std::find_if(hittables.cbegin(), hittables.cend(),
-                           [&rec](const std::shared_ptr<fPrimitive>& ptr) {
+                           [&rec](const std::shared_ptr<Primitive>& ptr) {
                              return ptr.get() == rec.hitted_obj;
                            });
 
-    if (!rec.isHit())
+    if (!rec.hits)
       EXPECT_EQ(it, hittables.cend());
     else {
       ASSERT_NE(it, hittables.cend());
@@ -100,15 +103,16 @@ TEST_F(AggregatorTest, hit) {
 }
 
 TEST_F(AggregatorTest, SingleObject) {
-  auto obj =
-      std::make_shared<fPrimitive>(AABB{Point3(0, 0, 0), Point3(1, 1, 1)}, 1.0);
-  std::vector<std::shared_ptr<IPrimitive>> primitives{obj};
+  auto obj = std::make_shared<Primitive>(
+      std::make_shared<FakeShape>(AABB{Point3(0, 0, 0), Point3(1, 1, 1)}, 1.0),
+      nullptr);
+  std::vector<std::shared_ptr<Primitive>> primitives{obj};
   aggregator = std::make_unique<BVT>(primitives);
 
   Ray r(Point3(0.5, 0.5, -1), Vector3(0, 0, 1));
   auto rec = aggregator->Hit(r, Interval<double>::Positive());
 
-  ASSERT_TRUE(rec.isHit());
+  ASSERT_TRUE(rec.hits);
   EXPECT_EQ(rec.hitted_obj, obj.get());
-  EXPECT_TRUE(aggregator->Get_Bbox().Contains(obj->Get_Bbox()));
+  EXPECT_TRUE(aggregator->GetBbox().Contains(obj->GetBbox()));
 }

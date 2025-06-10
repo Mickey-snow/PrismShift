@@ -6,12 +6,12 @@
 #include <shape.hpp>
 #include <util/util.hpp>
 
-AABB Sphere::Get_Bbox(void) const {
+AABB Sphere::GetBbox(void) const {
   static AABB bbox = AABB(Point3(1, 1, 1), Point3(-1, -1, -1));
   return bbox;
 }
 
-Hit_record Sphere::Hit(const Ray& r,
+HitRecord Sphere::Hit(const Ray& r,
                        const Interval<double>& time_interval) const {
   constexpr double radius = 1.0;
 
@@ -22,7 +22,7 @@ Hit_record Sphere::Hit(const Ray& r,
 
   auto discriminant = half_b * half_b - a * c;
   if (discriminant < 0)
-    return Hit_record{};
+    return HitRecord();
   auto sqrtd = std::sqrt(discriminant);
 
   // Find the nearest root that lies in the acceptable range.
@@ -30,12 +30,12 @@ Hit_record Sphere::Hit(const Ray& r,
   if (!time_interval.Surrounds(root)) {
     root = (-half_b + sqrtd) / a;
     if (!time_interval.Surrounds(root))
-      return Hit_record{};
+      return HitRecord();
   }
 
   double time = root;
   Point3 position = r.At(time);
   Normal normal = (Normal)position;
 
-  return Hit_record::RTN(r, time, normal);
+  return HitRecord::RTN(r, time, normal);
 }

@@ -2,21 +2,21 @@
 
 #include <util/util.hpp>
 
-AABB Plane::Get_Bbox(void) const {
+AABB Plane::GetBbox(void) const {
   static const AABB box = AABB(Interval<double>::Universe(),
                                Interval<double>::Universe(), Interval<double>())
                               .Pad();
   return box;
 }
 
-Hit_record Plane::Hit(const Ray& r,
+HitRecord Plane::Hit(const Ray& r,
                       const Interval<double>& time_interval) const {
   double time = -r.Origin().z() / r.Direction().z();
   if (std::isnan(time))
-    return Hit_record{};
+    return HitRecord();
   if (!time_interval.Contains(time))
-    return Hit_record{};
+    return HitRecord();
 
   static const Normal normal{0, 0, 1};
-  return Hit_record::RTN(r, time, normal);
+  return HitRecord::RTN(r, time, normal);
 }

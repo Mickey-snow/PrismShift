@@ -1,32 +1,31 @@
 #include "primitive.hpp"
-#include <bsdf.hpp>
-#include <material.hpp>
-#include <shape.hpp>
-#include <util/util.hpp>
 
-Primitive::Primitive() : m_material(nullptr), m_shape(nullptr) {}
+#include "bsdf.hpp"
+#include "material.hpp"
+#include "shape.hpp"
+#include "util/util.hpp"
+
+Primitive::Primitive(std::shared_ptr<IShape> shape,
+                     std::shared_ptr<IMaterial> mat)
+    : shape_(shape), material_(mat) {}
+
 Primitive::~Primitive() = default;
 
-Hit_record Primitive::Hit(const Ray& r, const Interval<double>& t) const {
-  if (m_shape == nullptr)
-    return Hit_record{};
+HitRecord Primitive::Hit(const Ray& r, const Interval<double>& t) const {
+  if (shape_ == nullptr)
+    return HitRecord();
 
-  auto rec = m_shape->Hit(r, t);
-  if (rec.isHit())
+  auto rec = shape_->Hit(r, t);
+  if (rec.hits) {
     rec.hitted_obj = this;
+    rec.material = material_.get();
+  }
   return rec;
 }
 
-AABB Primitive::Get_Bbox(void) const {
-  if (m_shape == nullptr)
+AABB Primitive::GetBbox(void) const {
+  if (shape_ == nullptr)
     return AABB();
   else
-    return m_shape->Get_Bbox();
-}
-
-BSDF Primitive::CalcBSDF(const Hit_record& rec) const {
-  if (m_material == nullptr)
-    return {};
-  else
-    return m_material->CalcBSDF(rec);
+    return shape_->GetBbox();
 }

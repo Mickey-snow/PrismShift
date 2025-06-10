@@ -11,17 +11,18 @@
 
 class AABB;
 class Ray;
-struct Hit_record;
+struct HitRecord;
 template <typename T>
 class Interval;
-class IPrimitive;
+class Primitive;
+class IMaterial;
 
 class IShape {
  public:
   virtual ~IShape() = default;
 
-  virtual Hit_record Hit(const Ray&, const Interval<double>&) const = 0;
-  virtual AABB Get_Bbox(void) const = 0;
+  virtual HitRecord Hit(const Ray&, const Interval<double>&) const = 0;
+  virtual AABB GetBbox(void) const = 0;
 };
 
 class ConcreteShape : public IShape {
@@ -29,8 +30,8 @@ class ConcreteShape : public IShape {
   ConcreteShape();
   ~ConcreteShape();
 
-  virtual Hit_record Hit(const Ray&, const Interval<double>&) const override;
-  virtual AABB Get_Bbox(void) const override;
+  virtual HitRecord Hit(const Ray&, const Interval<double>&) const override;
+  virtual AABB GetBbox(void) const override;
 
   ConcreteShape& Set_Shape(IShape const* shape) {
     m_shape = shape;
@@ -49,15 +50,11 @@ class ConcreteShape : public IShape {
   mutable std::optional<AABB> m_bbox_rec;
 };
 
-struct Hit_record {
-  Hit_record() : hits(false), hitted_obj(nullptr) {}
-  Hit_record(const Ray& r, const double& t, const Normal& n)
-      : hits(true), hitted_obj(nullptr), time(t), position(r.At(t)) {
-    Set_Face_Normal(r, n);
-  }
+struct HitRecord {
+  HitRecord() = default;
 
-  bool hits;
-  IPrimitive const* hitted_obj;
+  bool hits = false;
+  Primitive const* hitted_obj = nullptr;
   double time;
   Point3 position;
 
@@ -65,24 +62,21 @@ struct Hit_record {
   Normal normal;  // normal is at the same side with ray
   bool front_face;
 
-  void Set_Face_Normal(const Ray& r, const Normal& outward_normal) {
+  IMaterial const* material = nullptr;
+
+  void Set_Face_Normal(Ray r, Normal outward_normal) {
     front_face = Vector3::Dot(r.Direction(), outward_normal) < 0;
     normal = front_face ? outward_normal : -outward_normal;
     ray = r;
   }
 
-  bool isHit(void) const noexcept { return hits; }
-
-  template <typename... Ts>
-  static Hit_record RTN(Ts&&... params) {
-    static_assert(sizeof...(Ts) > 0);
-    return Hit_record(std::forward<Ts>(params)...);
-  }
-
-  template <typename... Ts>
-  static Hit_record ORTN(IPrimitive const* _hitted_obj, Ts&&... params) {
-    auto rec = RTN(std::forward<Ts>(params)...);
-    rec.hitted_obj = _hitted_obj;
+  static HitRecord RTN(Ray ray, double time, Normal normal) {
+    HitRecord rec;
+    rec.hits = true;
+    rec.hitted_obj = nullptr;
+    rec.time = time;
+    rec.position = ray.At(time);
+    rec.Set_Face_Normal(ray, normal);
     return rec;
   }
 };

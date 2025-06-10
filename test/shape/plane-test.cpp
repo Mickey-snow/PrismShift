@@ -18,7 +18,7 @@ using xyPlaneTypes = ::testing::Types<Plane, Parallelogram, Triangle>;
 template <typename T>
 class PlaneTest : public ::testing::Test {
  public:
-  IShape const* shape = new T();
+  std::unique_ptr<IShape> shape = std::make_unique<T>();
 
   const double MIN = -1e5;
   const double MAX = 1e5;
@@ -57,16 +57,14 @@ class PlaneTest : public ::testing::Test {
 TYPED_TEST_SUITE(PlaneTest, xyPlaneTypes);
 
 TYPED_TEST(PlaneTest, bbox) {
-  auto box = this->shape->Get_Bbox();
+  auto box = this->shape->GetBbox();
 
-  if (auto dummy = dynamic_cast<Plane const*>(this->shape); dummy != nullptr)
+  if (dynamic_cast<Plane*>(this->shape.get()))
     EXPECT_TRUE(box.Contains(AABB(Point3(this->MIN, this->MIN, 0),
                                   Point3(this->MAX, this->MAX, 0))));
-  else if (auto dummy = dynamic_cast<Parallelogram const*>(this->shape);
-           dummy != nullptr)
+  else if (dynamic_cast<Parallelogram*>(this->shape.get()))
     EXPECT_TRUE(box.Contains(AABB(Point3(0, 0, 0), Point3(1, 1, 1))));
-  else if (auto dummy = dynamic_cast<Triangle const*>(this->shape);
-           dummy != nullptr)
+  else if (dynamic_cast<Triangle*>(this->shape.get()))
     EXPECT_TRUE(box.Contains(AABB(Point3(0, 1, 0), Point3(1, 0, 0))));
 
   else
@@ -80,7 +78,7 @@ TYPED_TEST(PlaneTest, rayHit) {
     Ray r = std::invoke(this->spawn_hit_ray, time);
 
     auto rec = this->shape->Hit(r, Interval<double>::Positive());
-    ASSERT_TRUE(rec.isHit());
+    ASSERT_TRUE(rec.hits);
     EXPECT_EQ(rec.ray, r);
     EXPECT_DOUBLE_EQ(rec.time, time);
     if (r.Origin().z() > 0)
@@ -98,7 +96,7 @@ TYPED_TEST(PlaneTest, rayHitOutInterval) {
     Ray r = std::invoke(this->spawn_hit_ray, time);
 
     auto rec = this->shape->Hit(r, Interval<double>(EPS, time - EPS));
-    EXPECT_FALSE(rec.isHit());
+    EXPECT_FALSE(rec.hits);
   }
 }
 
@@ -107,7 +105,7 @@ TYPED_TEST(PlaneTest, rayNoHit) {
     Ray r = std::invoke(this->spawn_nohit_ray);
 
     auto rec = this->shape->Hit(r, Interval<double>::Positive());
-    EXPECT_FALSE(rec.isHit());
+    EXPECT_FALSE(rec.hits);
   }
 }
 
@@ -116,6 +114,6 @@ TYPED_TEST(PlaneTest, parallelRayNoHit) {
     Ray r = std::invoke(this->spawn_parallel_ray);
 
     auto rec = this->shape->Hit(r, Interval<double>::Universe());
-    EXPECT_FALSE(rec.isHit());
+    EXPECT_FALSE(rec.hits);
   }
 }

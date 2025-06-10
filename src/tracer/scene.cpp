@@ -4,23 +4,21 @@
 #include <primitive.hpp>
 #include <util/util.hpp>
 
-Scene& Scene::Add(const std::shared_ptr<IPrimitive> shape) {
-  m_shapes.push_back(shape);
-  m_aggregator = nullptr;
-  return *this;
+Scene::~Scene() = default;
+
+Scene::Scene(std::vector<std::shared_ptr<Primitive>> objs)
+    : objs_(std::move(objs)), aggregator_(std::make_unique<BVT>(objs_)) {}
+
+HitRecord Scene::Hit(Ray r, Interval<double> time) const {
+  return aggregator_->Hit(r, time);
 }
 
-Hit_record Scene::Hit(const Ray& r, const Interval<double>& time) const {
-  Make_Aggregator();
-  return m_aggregator->Hit(r, time);
+AABB Scene::GetBbox(void) const { return aggregator_->GetBbox(); }
+
+void Scene::SetBackground(std::function<Color(Ray)> fn) {
+  background_fn_ = std::move(fn);
 }
 
-AABB Scene::Get_Bbox(void) const {
-  Make_Aggregator();
-  return m_aggregator->Get_Bbox();
-}
-
-void Scene::Make_Aggregator(void) const {
-  if (m_aggregator == nullptr)
-    m_aggregator = std::make_unique<BVT>(m_shapes);
+Color Scene::Background(Ray ray) const {
+  return std::invoke(background_fn_, std::move(ray));
 }

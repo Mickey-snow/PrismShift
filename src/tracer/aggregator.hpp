@@ -6,35 +6,35 @@
 
 #include <memory>
 #include <string>
+#include <variant>
 #include <vector>
 
 class BVT {
- private:
-  class Node : public IShape {
-   public:
-    Node(const std::vector<std::shared_ptr<IPrimitive>>& src) {
-      std::vector<std::shared_ptr<IPrimitive>> src_obj_copy(src);
+ public:
+  struct Node {
+    Node(const std::vector<std::shared_ptr<Primitive>>& src) {
+      std::vector<std::shared_ptr<Primitive>> src_obj_copy(src);
       *this = Node(src_obj_copy, 0, src_obj_copy.size(), 0);
     }
-    Node(std::vector<std::shared_ptr<IPrimitive>>& src_obj,
+    Node(std::vector<std::shared_ptr<Primitive>>& src_obj,
          size_t start,
          size_t end,
          int axis = 0);
 
-    Hit_record Hit(const Ray&, const Interval<double>&) const;
-    AABB Get_Bbox(void) const { return bbox; }
+    HitRecord Hit(const Ray&, const Interval<double>&) const;
+    AABB GetBbox(void) const noexcept { return bbox; }
 
-   private:
-    std::shared_ptr<IShape> lch, rch;
+    using var_t =
+        std::variant<std::shared_ptr<Node>, std::shared_ptr<Primitive>>;
+    var_t lch, rch;
     AABB bbox;
-    friend BVT;
   };
 
  public:
-  BVT(const std::vector<std::shared_ptr<IPrimitive>>& li);
+  BVT(const std::vector<std::shared_ptr<Primitive>>& li);
 
-  AABB Get_Bbox(void) const { return bbox; }
-  Hit_record Hit(const Ray&, const Interval<double>&) const;
+  AABB GetBbox(void) const { return bbox; }
+  HitRecord Hit(const Ray&, const Interval<double>&) const;
 
  private:
   AABB bbox;

@@ -17,9 +17,9 @@ class Pointlight : public Material {
   Pointlight& Set_Color(const double&, const double&, const double&);
   Pointlight& Set_Color(const Color&);
 
-  virtual BSDF CalculateBSDF(const Hit_record&) override { return {}; }
+  virtual BSDF CalculateBSDF(const HitRecord&) override { return {}; }
 
-  Color Emission(const Hit_record&) override { return color; }
+  Color Emission(const HitRecord&) override { return color; }
 
  private:
   Color color;

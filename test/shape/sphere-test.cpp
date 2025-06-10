@@ -5,6 +5,7 @@
 #include <util/util.hpp>
 
 #include <functional>
+#include <memory>
 #include <vector>
 
 class sphereTest : public ::testing::Test {
@@ -14,11 +15,10 @@ class sphereTest : public ::testing::Test {
         spawn_orig_directed_ray  // , spawn_orig_ray, spawn_tan_ray,
                                  // spawn_para_ray
     };
+    ball = std::make_unique<Sphere>();
   }
 
-  void TearDown() override { delete ball; }
-
-  IShape const* ball = new Sphere();
+  std::unique_ptr<IShape> ball;
 
   std::vector<std::function<Ray()>> spawn_ray_fn;
   std::function<Ray()> spawn_orig_directed_ray = []() {
@@ -46,7 +46,7 @@ class sphereTest : public ::testing::Test {
 };
 
 TEST_F(sphereTest, bbox) {
-  auto bbox = ball->Get_Bbox();
+  auto bbox = ball->GetBbox();
   EXPECT_EQ(bbox, AABB(Point3(-1, -1, -1), Point3(1, 1, 1)));
 }
 
@@ -60,7 +60,7 @@ TEST_F(sphereTest, rayHits) {
       Ray r = spawn_fn();
       auto rec = ball->Hit(r, Interval<double>(0, 10.5));
 
-      ASSERT_TRUE(rec.isHit());
+      ASSERT_TRUE(rec.hits);
       EXPECT_EQ(rec.ray, r);
       if (isInside(r.Origin()))
         EXPECT_FALSE(rec.front_face);
@@ -77,7 +77,7 @@ TEST_F(sphereTest, hitOutTimeInterval) {
     for (int i = 0; i < testcases; ++i) {
       Ray r = spawn_fn();
       auto rec = ball->Hit(r, Interval<double>(0.0001, 0.9999));
-      EXPECT_FALSE(rec.isHit()) << r;
+      EXPECT_FALSE(rec.hits) << r;
     }
   }
 }
@@ -91,6 +91,6 @@ TEST_F(sphereTest, nohit) {
 
     Ray r = Ray(p - vp, vp);
     auto rec = ball->Hit(r, Interval<double>::Universe());
-    EXPECT_FALSE(rec.isHit()) << r;
+    EXPECT_FALSE(rec.hits) << r;
   }
 }

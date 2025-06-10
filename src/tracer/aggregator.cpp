@@ -9,33 +9,50 @@
 #include <memory>
 #include <stdexcept>
 
-BVT::BVT(const std::vector<std::shared_ptr<IPrimitive>>& li) {
+BVT::BVT(const std::vector<std::shared_ptr<Primitive>>& li) {
   root = std::make_unique<Node>(li);
-  bbox = root->Get_Bbox();
+  bbox = root->GetBbox();
 }
 
-Hit_record BVT::Hit(const Ray& r, const Interval<double>& time_interval) const {
+HitRecord BVT::Hit(const Ray& r, const Interval<double>& time_interval) const {
   return root->Hit(r, time_interval);
 }
 
-BVT::Node::Node(std::vector<std::shared_ptr<IPrimitive>>& src_obj,
+// helpers
+inline static AABB _GetBbox(const BVT::Node::var_t& var) {
+  return std::visit(
+      overload([](std::shared_ptr<BVT::Node> node) { return node->bbox; },
+               [](std::shared_ptr<Primitive> prim) { return prim->GetBbox(); }),
+      var);
+}
+inline static HitRecord _GetHitResult(const BVT::Node::var_t& var,
+                                      Ray r,
+                                      Interval<double> t) {
+  return std::visit(
+      overload(
+          [&](std::shared_ptr<BVT::Node> node) { return node->Hit(r, t); },
+          [&](std::shared_ptr<Primitive> prim) { return prim->Hit(r, t); }),
+      var);
+}
+
+BVT::Node::Node(std::vector<std::shared_ptr<Primitive>>& src_obj,
                 size_t start,
                 size_t end,
                 int axis) {
-  class __final_comparer {
+  class AxisComparer {
    public:
-    __final_comparer(const AABB::Componentbased_Comparer& cp)
+    AxisComparer(const AABB::Componentbased_Comparer& cp)
         : component_comparer(cp) {}
-    bool operator()(std::shared_ptr<IPrimitive> a,
-                    std::shared_ptr<IPrimitive> b) {
-      return component_comparer(a->Get_Bbox(), b->Get_Bbox());
+    bool operator()(std::shared_ptr<Primitive> a,
+                    std::shared_ptr<Primitive> b) {
+      return component_comparer(a->GetBbox(), b->GetBbox());
     }
 
    private:
     AABB::Componentbased_Comparer component_comparer;
   };
 
-  auto comparer = __final_comparer(AABB::Componentbased_Comparer(axis));
+  auto comparer = AxisComparer(AABB::Componentbased_Comparer(axis));
   size_t object_span = end - start;
 
   if (object_span == 1)
@@ -61,24 +78,24 @@ BVT::Node::Node(std::vector<std::shared_ptr<IPrimitive>>& src_obj,
         "Array offset error while constructing bvt. start={}, end={}, span={}",
         start, end, object_span));
 
-  bbox = AABB{lch->Get_Bbox(), rch->Get_Bbox()};
+  bbox = AABB{_GetBbox(lch), _GetBbox(rch)};
 }
 
-Hit_record BVT::Node::Hit(const Ray& r, const Interval<double>& time) const {
+HitRecord BVT::Node::Hit(const Ray& r, const Interval<double>& time) const {
   double closest_hit_time = time.end;
 
-  if (not bbox.isHitIn(r, time))
-    return Hit_record{};
-  Hit_record rec = Hit_record{};
+  if (!bbox.isHitIn(r, time))
+    return HitRecord();
+  HitRecord rec = HitRecord();
 
-  Hit_record temp_rec = lch->Hit(r, time);
-  if (temp_rec.isHit()) {
+  HitRecord temp_rec = _GetHitResult(lch, r, time);
+  if (temp_rec.hits) {
     rec = temp_rec;
     closest_hit_time = temp_rec.time;
   }
 
-  temp_rec = rch->Hit(r, Interval{time.begin, closest_hit_time});
-  if (temp_rec.isHit())
+  temp_rec = _GetHitResult(rch, r, Interval{time.begin, closest_hit_time});
+  if (temp_rec.hits)
     rec = temp_rec;
 
   return rec;

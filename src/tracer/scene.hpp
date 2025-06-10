@@ -1,26 +1,28 @@
 #pragma once
 
+#include "shape.hpp"
+#include "util/util.hpp"
+
+#include <functional>
 #include <memory>
 #include <vector>
 
-#include <shape.hpp>
-
 class BVT;
-class Primitive;
+class IPrimitive;
 class AABB;
 
 class Scene {
-  Scene() : m_shapes{}, m_aggregator(nullptr) {}
-  ~Scene() = default;
+ public:
+  Scene(std::vector<std::shared_ptr<Primitive>> objs);
+  ~Scene();
 
-  Hit_record Hit(const Ray&, const Interval<double>&) const;
-  AABB Get_Bbox(void) const;
-
-  Scene& Add(const std::shared_ptr<IPrimitive> shape);
+  HitRecord Hit(Ray ray, Interval<double> interval) const;
+  AABB GetBbox(void) const;
+  void SetBackground(std::function<Color(Ray)> fn);
+  Color Background(Ray ray) const;
 
  private:
-  std::vector<std::shared_ptr<IPrimitive>> m_shapes;
-  mutable std::unique_ptr<BVT> m_aggregator;
-
-  void Make_Aggregator(void) const;
+  std::vector<std::shared_ptr<Primitive>> objs_;
+  std::unique_ptr<BVT> aggregator_;
+  std::function<Color(Ray)> background_fn_;
 };

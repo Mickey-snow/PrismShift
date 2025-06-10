@@ -1,11 +1,11 @@
 #pragma once
 
+#include "shape.hpp"
+
 #include <memory>
 
-#include <shape.hpp>
-
 class IMaterial;
-class Hit_record;
+struct HitRecord;
 template <typename>
 class Interval;
 class Ray;
@@ -17,32 +17,23 @@ class IPrimitive : public IShape {
   virtual ~IPrimitive() = default;
 
   // Hit_record Hit(const Ray&, const Interval<double>&) const
-  // AABB Get_Bbox(void) const
+  // AABB GetBbox(void) const
   // methods for geometry calculation
 
-  virtual BSDF CalcBSDF(const Hit_record&) const = 0;
+  virtual BSDF CalcBSDF(const HitRecord&) const = 0;
   // methods for calculate scattering distribution
 };
 
-class Primitive : public IPrimitive {
+class Primitive {
  public:
-  Primitive();
+  explicit Primitive(std::shared_ptr<IShape> shape,
+                     std::shared_ptr<IMaterial> mat);
   ~Primitive();
 
-  Hit_record Hit(const Ray& r, const Interval<double>& t) const override;
-  AABB Get_Bbox(void) const override;
-  Primitive& Set_Shape(std::shared_ptr<IShape> shape) {
-    m_shape = shape;
-    return *this;
-  }
-
-  BSDF CalcBSDF(const Hit_record&) const override;
-  Primitive& Set_Material(std::shared_ptr<IMaterial> material) {
-    m_material = material;
-    return *this;
-  }
+  HitRecord Hit(const Ray& r, const Interval<double>& t) const;
+  AABB GetBbox(void) const;
 
  private:
-  std::shared_ptr<IMaterial> m_material;
-  std::shared_ptr<IShape> m_shape;
+  std::shared_ptr<IShape> shape_;
+  std::shared_ptr<IMaterial> material_;
 };
