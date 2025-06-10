@@ -8,8 +8,17 @@ class Color : public basic_vector<double, 3> {
 
  public:
   using super::super;
+  using value_type = typename super::value_type;
+  static constexpr auto dimension = super::dimension;
 
   explicit constexpr Color(vector_like auto c) : super(std::move(c)) {}
+
+  inline constexpr value_type r() const { return v[0]; }
+  inline constexpr value_type& r() { return v[0]; }
+  inline constexpr value_type g() const { return v[1]; }
+  inline constexpr value_type& g() { return v[1]; }
+  inline constexpr value_type b() const { return v[2]; }
+  inline constexpr value_type& b() { return v[2]; }
 
   inline constexpr Color operator*(vector_like auto const& rhs) const {
     return Color(super::operator*(rhs));
