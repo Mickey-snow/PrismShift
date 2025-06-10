@@ -3,20 +3,23 @@
 #include "bsdf.hpp"
 #include "util/geometry_fwd.hpp"
 
-class Conductor_BRDF : public BxDF {
+namespace bxdfs {
+
+class Conductor : public BxDF {
  public:
-  Conductor_BRDF(const Color& _col, const double& f = 0)
-      : isSpecular(fabs(f) < 1e-6), fuzz(fabs(f) > 1 ? 1 : fabs(f)), col(_col) {
-    unsigned int flag = BxDFType::Reflection;
+  Conductor(const Color& _col, const double& f = 0)
+      : BxDF(BxDFBits::Reflection),
+        isSpecular(fabs(f) < 1e-6),
+        fuzz(fabs(f) > 1 ? 1 : fabs(f)),
+        col(_col) {
     if (isSpecular)
-      flag |= BxDFType::Specular;
+      SetFlags(GetFlags() | BxDFBits::Specular);
     else
-      flag |= BxDFType::Glossy;
-    BxDF::SetFlags(flag);
+      SetFlags(GetFlags() | BxDFBits::Glossy);
   }
 
   Color f(const Vector3&, const Vector3&) const override;
-  bxdfSample Sample_f(const Vector3&) const override;
+  std::optional<bxdfSample> Sample_f(const Vector3&) const override;
   double pdf(const Vector3&, const Vector3&) const override;
 
  private:
@@ -26,3 +29,5 @@ class Conductor_BRDF : public BxDF {
 
   Vector3 Reflected_Direction(const Vector3&) const;
 };
+
+}  // namespace bxdfs

@@ -1,39 +1,36 @@
 #pragma once
 
-
 #include <memory>
+#include <optional>
 #include <util/util.hpp>
 #include <utility>
 
-class BxDFType {
- public:
-  enum types {
-    None = 0,
-    Reflection = 1 << 0,
-    Transmission = 1 << 1,
-    Diffuse = 1 << 2,
-    Glossy = 1 << 3,
-    Specular = 1 << 4,
-    ALL = Reflection | Transmission | Diffuse | Glossy | Specular
-  };
-
-  BxDFType() : flag(0) {}
-  BxDFType(unsigned int _flag) : flag(_flag) {}
-
-  BxDFType operator&(const BxDFType& cp) const {
-    return BxDFType(flag & cp.flag);
-  }
-  BxDFType operator&(const unsigned int& cp) const {
-    return BxDFType(flag & cp);
-  }
-  bool operator==(const BxDFType& cp) const { return flag == cp.flag; }
-  bool operator==(const unsigned int& cp) const { return flag == cp; }
-  bool operator!=(const BxDFType& cp) const { return !(*this == cp); }
-  bool operator!=(const unsigned int& cp) const { return !(*this == cp); }
-
- private:
-  unsigned int flag;
+enum class [[nodiscard]] BxDFBits : unsigned {
+  None = 0,
+  Reflection = 1u << 0,
+  Transmission = 1u << 1,
+  Diffuse = 1u << 2,
+  Glossy = 1u << 3,
+  Specular = 1u << 4,
+  All = Reflection | Transmission | Diffuse | Glossy | Specular
 };
+
+constexpr inline BxDFBits operator|(BxDFBits a, BxDFBits b) {
+  return static_cast<BxDFBits>(static_cast<unsigned>(a) |
+                               static_cast<unsigned>(b));
+}
+constexpr inline BxDFBits operator&(BxDFBits a, BxDFBits b) {
+  return static_cast<BxDFBits>(static_cast<unsigned>(a) &
+                               static_cast<unsigned>(b));
+}
+inline BxDFBits& operator|=(BxDFBits& a, BxDFBits b) {
+  a = a | b;
+  return a;
+}
+inline BxDFBits& operator&=(BxDFBits& a, BxDFBits b) {
+  a = a & b;
+  return a;
+}
 
 class BxDF;
 struct bxdfSample {
@@ -53,8 +50,10 @@ struct bxdfSample {
 
 class BxDF {
  public:
-  BxDF() {}
-  BxDF(const BxDFType& _flag) : flag(_flag) {}
+  BxDF() = default;
+  explicit BxDF(BxDFBits _flag) : flag(_flag) {}
+
+  virtual ~BxDF() noexcept = default;
 
   // returns the value of the distribution function for the given pair of
   // directions
@@ -62,21 +61,20 @@ class BxDF {
 
   // a method that uses importance sampling to draw a direction from a
   // distribution that approximately matches the scattering function's shape
-  virtual bxdfSample Sample_f(const Vector3& rin) const = 0;
+  virtual std::optional<bxdfSample> Sample_f(const Vector3& rin) const = 0;
 
   // returns the value of the probability density function for the given pair of
   // directions
   virtual double pdf(const Vector3& in_direction,
                      const Vector3& out_direction) const = 0;
 
-  bool MatchesFlag(unsigned int flag) const { return (this->flag & flag) != 0; }
-  bool MatchesFlag(const BxDFType& flag) const {
-    return (this->flag & flag) != 0;
+  bool MatchesFlag(BxDFBits flag) const {
+    return (this->flag & flag) != BxDFBits::None;
   }
-  BxDFType GetFlags(void) const { return this->flag; }
+  BxDFBits GetFlags(void) const { return this->flag; }
 
  private:
-  BxDFType flag;
+  BxDFBits flag{BxDFBits::None};
 
  protected:
   template <typename... Ts>
@@ -86,7 +84,7 @@ class BxDF {
 
   template <typename T>
   BxDF& SetFlags(T&& _flag) {
-    flag = BxDFType(std::forward<T>(_flag));
+    flag = static_cast<BxDFBits>(std::forward<T>(_flag));
     return *this;
   }
 };
@@ -94,9 +92,9 @@ class BxDF {
 class BSDF {
  public:
   BSDF() { bxdf = nullptr; }
-  BSDF(std::shared_ptr<BxDF> _bxdf) : bxdf(std::move(_bxdf)) {}
+  explicit BSDF(std::shared_ptr<const BxDF> _bxdf) : bxdf(std::move(_bxdf)) {}
 
-  BSDF& SetBxdf(std::shared_ptr<BxDF> _bxdf) {
+  BSDF& SetBxdf(std::shared_ptr<const BxDF> _bxdf) {
     bxdf = _bxdf;
     return *this;
   }
@@ -108,15 +106,15 @@ class BSDF {
 
   virtual Color f(const Vector3&,
                   const Vector3&,
-                  const BxDFType& flag = BxDFType::ALL) const;
-  virtual bxdfSample Sample_f(const Vector3&) const;
+                  BxDFBits flag = BxDFBits::All) const;
+  virtual std::optional<bxdfSample> Sample_f(const Vector3&) const;
   virtual double pdf(const Vector3&,
                      const Vector3&,
-                     const BxDFType& flag = BxDFType::ALL) const;
+                     BxDFBits flag = BxDFBits::All) const;
 
  private:
   Coordinate3 frame;
-  std::shared_ptr<BxDF> bxdf;
+  std::shared_ptr<const BxDF> bxdf;
 
  public:
   BSDF(const BSDF& rhs) : frame(rhs.frame), bxdf(rhs.bxdf) {}

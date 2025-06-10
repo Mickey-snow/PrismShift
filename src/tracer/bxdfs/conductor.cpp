@@ -1,18 +1,20 @@
 #include "conductor.hpp"
 #include <util/util.hpp>
 
-Vector3 Conductor_BRDF::Reflected_Direction(const Vector3& wi) const {
+namespace bxdfs {
+
+Vector3 Conductor::Reflected_Direction(const Vector3& wi) const {
   return Vector3{wi.x(), wi.y(), -wi.z()};
 }
 
-Color Conductor_BRDF::f(const Vector3& wi, const Vector3& wo) const {
+Color Conductor::f(const Vector3& wi, const Vector3& wo) const {
   if (pdf(wi, wo) > 0)
     return col;
   else
     return Color{0, 0, 0};
 }
 
-double Conductor_BRDF::pdf(const Vector3& wi, const Vector3& wo) const {
+double Conductor::pdf(const Vector3& wi, const Vector3& wo) const {
   if (isSpecular)
     return 0;
 
@@ -23,7 +25,7 @@ double Conductor_BRDF::pdf(const Vector3& wi, const Vector3& wo) const {
     return 0;
 }
 
-bxdfSample Conductor_BRDF::Sample_f(const Vector3& wi) const {
+std::optional<bxdfSample> Conductor::Sample_f(const Vector3& wi) const {
   auto wo = Reflected_Direction(wi);
   if (isSpecular)
     return BxDF::Make_Sample(col, wo, 1.0, this);
@@ -32,3 +34,5 @@ bxdfSample Conductor_BRDF::Sample_f(const Vector3& wi) const {
   return BxDF::Make_Sample(col, wo + delta_w * fuzz,
                            pdf_cosine_distributed_hemisphere(delta_w), this);
 }
+
+}  // namespace bxdfs

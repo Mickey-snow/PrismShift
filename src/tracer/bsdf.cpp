@@ -2,7 +2,7 @@
 
 Color BSDF::f(const Vector3& rin,
               const Vector3& rout,
-              const BxDFType& flag) const {
+              BxDFBits flag) const {
   if (bxdf != nullptr && bxdf->MatchesFlag(flag)) {
     auto rin_local = frame.World2Local(rin),
          rout_local = frame.World2Local(rout);
@@ -11,18 +11,20 @@ Color BSDF::f(const Vector3& rin,
     return Color{0, 0, 0};
 }
 
-bxdfSample BSDF::Sample_f(const Vector3& rin) const {
+std::optional<bxdfSample> BSDF::Sample_f(const Vector3& rin) const {
   if (bxdf != nullptr) {
-    auto sample = bxdf->Sample_f(frame.World2Local(rin));
+    auto sample_opt = bxdf->Sample_f(frame.World2Local(rin));
+    if (!sample_opt) return std::nullopt;
+    auto sample = *sample_opt;
     sample.out_direction = frame.Local2World(sample.out_direction);
     return sample;
-  } else
-    return {};
+  }
+  return std::nullopt;
 }
 
 double BSDF::pdf(const Vector3& rin,
                  const Vector3& rout,
-                 const BxDFType& flag) const {
+                 BxDFBits flag) const {
   double pdf = 0;
   if (bxdf != nullptr && bxdf->MatchesFlag(flag)) {
     auto rin_local = frame.World2Local(rin),

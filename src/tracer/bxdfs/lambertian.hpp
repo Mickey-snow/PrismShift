@@ -2,15 +2,20 @@
 
 #include <bsdf.hpp>
 
-class Lambertian_BRDF : public BxDF {
+namespace bxdfs {
+
+class Lambertian : public BxDF {
  public:
-  Lambertian_BRDF(const Color& _col)
-      : col(_col), BxDF(BxDFType::Diffuse | BxDFType::Reflection) {}
+  explicit Lambertian(const Color& _col)
+      : BxDF(BxDFBits::Diffuse | BxDFBits::Reflection), col(_col) {}
 
   Color f(const Vector3&, const Vector3&) const override { return col; }
-  bxdfSample Sample_f(const Vector3& in_direction) const override;
+  std::optional<bxdfSample> Sample_f(
+      const Vector3& in_direction) const override;
   double pdf(const Vector3& i_dir, const Vector3& o_dir) const override;
 
  private:
   Color col;
 };
+
+}  // namespace bxdfs
