@@ -191,11 +191,12 @@ TEST(MatrixTest, Inverse) {
     EXPECT_EQ(mat.inv(), expected);
   }
   {
+    Matrix<4, 4> result;
     Matrix<4, 4> mat{0.794645, 0.613787, 0.0587482, 0.493943,
                      0.222896, 0.882244, 0.828312,  0.504613,
                      0.44324,  0.945123, 0.774638,  0.65932,
                      0.434762, 0.8777,   0.855092,  0.253013};
-    EXPECT_NO_THROW(mat.inv());
+    EXPECT_NO_THROW(result = mat.inv());
   }
 
   // Test with identity matrix
@@ -214,7 +215,6 @@ TEST(MatrixTest, Inverse) {
     Matrix<2, 2> mat{1, 2, 2, 4};
     EXPECT_ANY_THROW(mat.inv());
   }
-
   // Test special cases
   {
     Matrix<2, 2> symmetricMat{1, 2, 2, 3};

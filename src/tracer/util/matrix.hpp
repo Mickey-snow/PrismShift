@@ -8,6 +8,7 @@
 #include <cmath>
 #include <cstddef>
 #include <iostream>
+#include <stdexcept>
 #include <utility>
 
 template <std::size_t R, std::size_t C, typename value_type = double>
@@ -155,8 +156,9 @@ class Matrix {
   [[nodiscard]] constexpr Matrix<R, C + K, value_type> append_right(
       const Matrix<R, K, value_type>& m) const noexcept {
     Matrix<R, C + K, value_type> out;
-    /* copy this */
-    std::copy_n(data_.begin(), data_.size(), out.data_.begin());
+    /* copy left part row by row to respect different strides */
+    for (std::size_t r = 0; r < R; ++r)
+      std::copy_n((*this)[r], C, out[r]);
     /* copy rhs */
     for (std::size_t r = 0; r < R; ++r)
       std::copy_n(m[r], K, out[r] + C);
@@ -238,7 +240,7 @@ class Matrix {
     return det;
   }
 
-  [[nodiscard]] constexpr Matrix inv() const noexcept
+  [[nodiscard]] constexpr Matrix inv() const
     requires(R == C)
   {
     /* augment with identity and run Gauss‑Jordan */
@@ -253,30 +255,26 @@ class Matrix {
     for (std::size_t i = 0; i < K; ++i)
       aug.at(i, i + C) = value_type{1};
 
-    /* RREF in‑place on augmented matrix */
-    std::size_t lead = 0;
-    for (std::size_t r = 0; r < R; ++r) {
-      if (lead >= 2 * K)
-        break;
-      std::size_t i = r;
-      while (std::abs(aug.at(i, lead)) <= eps) {
-        if (++i == R) {
-          i = r;
-          if (++lead == 2 * K)
-            throw std::runtime_error("singular matrix");
-        }
-      }
-      aug.swap_rows(i, r);
-      const value_type pivot = aug.at(r, lead);
-      aug.scale_row(r, value_type{1} / pivot);
-      for (std::size_t j = 0; j < R; ++j) {
-        if (j == r)
+    for (std::size_t c = 0; c < C; ++c) {
+      /* find pivot */
+      std::size_t pivot = c;
+      while (pivot < R && std::abs(aug.at(pivot, c)) <= eps)
+        ++pivot;
+      if (pivot == R)
+        throw std::runtime_error("singular matrix");
+      if (pivot != c)
+        aug.swap_rows(pivot, c);
+
+      const value_type piv = aug.at(c, c);
+      aug.scale_row(c, value_type{1} / piv);
+
+      for (std::size_t r = 0; r < R; ++r) {
+        if (r == c)
           continue;
-        const value_type f = aug.at(j, lead);
+        const value_type f = aug.at(r, c);
         if (std::abs(f) > eps)
-          aug.add_row(j, r, -f);
+          aug.add_row(r, c, -f);
       }
-      ++lead;
     }
 
     /* extract right half */
