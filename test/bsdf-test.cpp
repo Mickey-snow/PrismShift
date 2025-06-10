@@ -3,6 +3,7 @@
 
 #include "bsdf.hpp"
 #include "bxdfs/conductor.hpp"
+#include "bxdfs/dielectric.hpp"
 #include "bxdfs/lambertian.hpp"
 #include "util/util.hpp"
 
@@ -106,6 +107,26 @@ TEST(Conductor, GlossyHasPositivePdfAndReturnsColour) {
   ExpectColorEq(s.col, grey);
   EXPECT_EQ(s.bxdf, &glossy);
   EXPECT_NEAR(s.pdf, glossy.pdf(wi, s.out_direction), kEps);
+}
+
+TEST(Dielectric, SpecularSamplingProvidesEitherRefractionOrReflection) {
+  Dielectric glass(1.5);
+
+  EXPECT_TRUE(glass.MatchesFlag(BxDFBits::Specular));
+  EXPECT_TRUE(glass.MatchesFlag(BxDFBits::Reflection));
+  EXPECT_TRUE(glass.MatchesFlag(BxDFBits::Transmission));
+
+  Vector3 wi{0, 0, 1};
+  Vector3 refl{wi.x(), wi.y(), -wi.z()};
+  EXPECT_DOUBLE_EQ(glass.pdf(wi, refl), 0.0);
+
+  auto sampleOpt = glass.Sample_f(wi);
+  ASSERT_TRUE(sampleOpt.has_value());
+  const auto& s = *sampleOpt;
+  ExpectColorEq(s.col, {1, 1, 1});
+  EXPECT_EQ(s.bxdf, &glass);
+  EXPECT_DOUBLE_EQ(s.pdf, 1.0);
+  EXPECT_LT(s.out_direction.z(), 0.0);
 }
 
 // ---------------------------------------------------------------------------
