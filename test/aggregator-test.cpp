@@ -41,12 +41,14 @@ class AggregatorTest : public ::testing::Test {
     for (int i = 0; i < hittable_count; ++i) {
       auto shape =
           std::make_shared<FakeShape>(rand_bbox(), random_double(1, 100));
-      auto obj = std::make_shared<Primitive>(shape, /*material=*/nullptr);
+      auto obj = std::make_shared<Primitive>(shape, /*material=*/nullptr,
+                                             /*transform=*/nullptr);
       hittables.push_back(obj);
     }
     for (int i = 0; i < unhittable_count; ++i) {
       auto shape = std::make_shared<FakeShape>(rand_bbox(), -1);
-      auto obj = std::make_shared<Primitive>(shape, /*material=*/nullptr);
+      auto obj = std::make_shared<Primitive>(shape, /*material=*/nullptr,
+                                             /*transform=*/nullptr);
       unhittables.push_back(obj);
     }
 
@@ -105,7 +107,7 @@ TEST_F(AggregatorTest, hit) {
 TEST_F(AggregatorTest, SingleObject) {
   auto obj = std::make_shared<Primitive>(
       std::make_shared<FakeShape>(AABB{Point3(0, 0, 0), Point3(1, 1, 1)}, 1.0),
-      nullptr);
+      nullptr, nullptr);
   std::vector<std::shared_ptr<Primitive>> primitives{obj};
   aggregator = std::make_unique<BVT>(primitives);
 

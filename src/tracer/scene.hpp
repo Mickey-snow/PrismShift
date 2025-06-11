@@ -8,7 +8,6 @@
 #include <vector>
 
 class BVT;
-class IPrimitive;
 class AABB;
 
 class Scene {

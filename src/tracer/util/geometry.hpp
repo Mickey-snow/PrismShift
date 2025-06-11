@@ -148,8 +148,6 @@ class Normal : public basic_vector<double, 3> {
   using value_type = super::value_type;
   static constexpr auto dimension = super::dimension;
 
-  ~Normal() = default;
-
   template <typename... Ts>
   explicit Normal(Ts&&... param) : super(std::forward<Ts>(param)...) {
     Normalize();

@@ -141,7 +141,7 @@ AABB AABB::Pad() const {
   return AABB(xx, yy, zz);
 }
 
-AABB AABB::Transform(const MatrixTransformation& tr) const {
+AABB AABB::Transform(const ITransformation& tr) const {
   std::vector<Point3> v;
   std::function<double(const Interval<double>&)> vertex_component[] = {
       [](const Interval<double>& i) { return i.begin; },

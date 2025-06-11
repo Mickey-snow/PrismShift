@@ -7,7 +7,7 @@
 #include "util/interval.hpp"
 
 class Ray;
-class MatrixTransformation;
+class ITransformation;
 
 class AABB {
   // Approximate an visible object to a cube
@@ -41,7 +41,7 @@ class AABB {
 
   AABB Pad() const;
 
-  AABB Transform(const MatrixTransformation&) const;
+  AABB Transform(const ITransformation&) const;
 
   class Componentbased_Comparer {
    public:

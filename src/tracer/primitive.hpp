@@ -1,6 +1,7 @@
 #pragma once
 
 #include "shape.hpp"
+#include "util/transform.hpp"
 
 #include <memory>
 
@@ -12,28 +13,18 @@ class Ray;
 class BSDF;
 class AABB;
 
-class IPrimitive : public IShape {
- public:
-  virtual ~IPrimitive() = default;
-
-  // Hit_record Hit(const Ray&, const Interval<double>&) const
-  // AABB GetBbox(void) const
-  // methods for geometry calculation
-
-  virtual BSDF CalcBSDF(const HitRecord&) const = 0;
-  // methods for calculate scattering distribution
-};
-
 class Primitive {
  public:
   explicit Primitive(std::shared_ptr<IShape> shape,
-                     std::shared_ptr<IMaterial> mat);
-  ~Primitive();
+                     std::shared_ptr<IMaterial> mat,
+                     std::shared_ptr<ITransformation> trans = nullptr);
 
-  HitRecord Hit(const Ray& r, const Interval<double>& t) const;
+  HitRecord Hit(Ray r, Interval<double> t) const;
   AABB GetBbox(void) const;
 
  private:
   std::shared_ptr<IShape> shape_;
   std::shared_ptr<IMaterial> material_;
+  std::shared_ptr<ITransformation> transform_;
+  AABB bbox_;  // transformed bbox
 };

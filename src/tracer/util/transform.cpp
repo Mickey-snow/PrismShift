@@ -4,6 +4,18 @@
 #include <cassert>
 #include <cmath>
 
+const std::shared_ptr<ITransformation> identity_transform = []() {
+  struct EmptyTransform : public ITransformation {
+    Point3 Doit(const Point3& p) const final { return p; }
+    Vector3 Doit(const Vector3& v) const final { return v; }
+    Normal Doit(const Normal& n) const final { return n; }
+    Point3 Undo(const Point3& p) const final { return p; }
+    Vector3 Undo(const Vector3& v) const final { return v; }
+    Normal Undo(const Normal& n) const final { return n; }
+  };
+  return std::make_shared<EmptyTransform>();
+}();
+
 VectorTranslate::VectorTranslate(const Vector3& p)
     : dx(p.x()), dy(p.y()), dz(p.z()) {}
 

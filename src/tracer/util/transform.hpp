@@ -1,11 +1,12 @@
 #pragma once
 
-#include <ostream>
-#include <utility>
-
 #include "util/geometry.hpp"
 #include "util/matrix.hpp"
 #include "util/vecmath.hpp"
+
+#include <memory>
+#include <ostream>
+#include <utility>
 
 /**
  * @interface ITransformation
@@ -42,6 +43,7 @@ class ITransformation {
     return t.Transform(*this);
   }
 };
+extern std::shared_ptr<ITransformation> const identity_transform;
 
 /**
  * @brief Implements translating transformations.

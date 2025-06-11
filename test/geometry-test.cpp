@@ -66,6 +66,11 @@ TEST(geometryPrimitiveTest, BasicVector3) {
   EXPECT_EQ(Vector3::Cross(v1, v2), Vector3(-1390.8, -372.2, 13486.8));
 }
 
+TEST(geometryPrimitiveTest, Normal) {
+  const double scale = 1.0 / pow(2.0, 1.0 / 3);
+  EXPECT_EQ((Normal{1, 1, 0}), (Normal{scale, scale, 0}));
+}
+
 TEST(geometryPrimitiveTest, typesafe) {
   using vpv_t = decltype(std::declval<Vector2>() + std::declval<Vector2>());
   using vmv_t = decltype(std::declval<Vector2>() - std::declval<Vector2>());

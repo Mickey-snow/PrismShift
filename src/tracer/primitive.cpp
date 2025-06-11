@@ -6,26 +6,28 @@
 #include "util/util.hpp"
 
 Primitive::Primitive(std::shared_ptr<IShape> shape,
-                     std::shared_ptr<IMaterial> mat)
-    : shape_(shape), material_(mat) {}
+                     std::shared_ptr<IMaterial> mat,
+                     std::shared_ptr<ITransformation> trans)
+    : shape_(shape),
+      material_(mat),
+      transform_(trans ? trans : identity_transform),
+      bbox_(shape->GetBbox().Transform(*transform_)) {}
 
-Primitive::~Primitive() = default;
+HitRecord Primitive::Hit(Ray r, Interval<double> t) const {
+  Ray ray = r.Transform(*transform_);
 
-HitRecord Primitive::Hit(const Ray& r, const Interval<double>& t) const {
-  if (shape_ == nullptr)
-    return HitRecord();
-
-  auto rec = shape_->Hit(r, t);
+  auto rec = shape_->Hit(ray, t);
   if (rec.hits) {
     rec.hitted_obj = this;
     rec.material = material_.get();
+    // Note: in the future, material properties should be computed using local
+    // coordinates
+
+    rec.ray = r;
+    rec.normal = transform_->Undo(rec.front_face ? rec.normal : -rec.normal);
+    rec.position = transform_->Undo(rec.position);
   }
   return rec;
 }
 
-AABB Primitive::GetBbox(void) const {
-  if (shape_ == nullptr)
-    return AABB();
-  else
-    return shape_->GetBbox();
-}
+AABB Primitive::GetBbox(void) const { return bbox_; }

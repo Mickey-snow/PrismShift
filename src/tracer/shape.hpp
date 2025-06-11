@@ -25,31 +25,6 @@ class IShape {
   virtual AABB GetBbox(void) const = 0;
 };
 
-class ConcreteShape : public IShape {
- public:
-  ConcreteShape();
-  ~ConcreteShape();
-
-  virtual HitRecord Hit(const Ray&, const Interval<double>&) const override;
-  virtual AABB GetBbox(void) const override;
-
-  ConcreteShape& Set_Shape(IShape const* shape) {
-    m_shape = shape;
-    m_bbox_rec.reset();
-    return *this;
-  }
-  ConcreteShape& Set_Frame(const MatrixTransformation& frame) {
-    m_frame = frame;
-    m_bbox_rec.reset();
-    return *this;
-  }
-
- private:
-  IShape const* m_shape;
-  MatrixTransformation m_frame;
-  mutable std::optional<AABB> m_bbox_rec;
-};
-
 struct HitRecord {
   HitRecord() = default;
 
@@ -64,7 +39,7 @@ struct HitRecord {
 
   IMaterial const* material = nullptr;
 
-  void Set_Face_Normal(Ray r, Normal outward_normal) {
+  void SetFaceNormal(Ray r, Normal outward_normal) {
     front_face = Vector3::Dot(r.Direction(), outward_normal) < 0;
     normal = front_face ? outward_normal : -outward_normal;
     ray = r;
@@ -76,7 +51,7 @@ struct HitRecord {
     rec.hitted_obj = nullptr;
     rec.time = time;
     rec.position = ray.At(time);
-    rec.Set_Face_Normal(ray, normal);
+    rec.SetFaceNormal(ray, normal);
     return rec;
   }
 };
