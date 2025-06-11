@@ -10,7 +10,7 @@
 #include <type_traits>
 #include <utility>
 
-#include "util/geometry_fwd.hpp"
+#include "util/vector_fwd.hpp"
 #include "util/vecmath.hpp"
 
 class ITransformation;

@@ -48,7 +48,7 @@ TEST(PrimitiveTest, HitTransformsRayAndUndoHit) {
 
   auto rec = prim.Hit(world_ray, Interval<double>::Universe());
   EXPECT_TRUE(rec.hits);
-  EXPECT_EQ(rec.hitted_obj, &prim);
+  EXPECT_EQ(rec.primitive, &prim);
   EXPECT_EQ(rec.ray, world_ray);
   EXPECT_DOUBLE_EQ(rec.time, 2.0);
   Point3 expected_pos = tr.Undo(local_rec.position);

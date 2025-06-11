@@ -6,7 +6,7 @@
 #include "aabb.hpp"
 #include "color.hpp"
 #include "constant.hpp"
-#include "geometry.hpp"
+#include "vector.hpp"
 #include "interval.hpp"
 #include "mat.hpp"
 #include "matrix.hpp"

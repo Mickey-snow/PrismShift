@@ -1,6 +1,6 @@
 #pragma once
 
-#include "util/geometry_fwd.hpp"
+#include "util/vector_fwd.hpp"
 
 double pdf_cosine_distributed_hemisphere(const Vector3& wo);
 

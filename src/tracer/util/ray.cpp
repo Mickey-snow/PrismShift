@@ -1,5 +1,5 @@
 #include "ray.hpp"
-#include "geometry.hpp"
+#include "util/vector.hpp"
 #include "transform.hpp"
 
 #include <cmath>

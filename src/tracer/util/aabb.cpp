@@ -9,7 +9,7 @@
 #include <stdexcept>
 #include <vector>
 
-#include "geometry.hpp"
+#include "util/vector.hpp"
 #include "ray.hpp"
 #include "util/transform.hpp"
 

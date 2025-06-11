@@ -2,7 +2,7 @@
 
 #include <shape.hpp>
 
-class Ray;
+struct Ray;
 class AABB;
 template <typename>
 class Interval;

@@ -7,7 +7,7 @@
 // class Camera;
 // class Scene;
 // class Color;
-// class Ray;
+// struct Ray;
 
 // class Renderer{
 //   public:

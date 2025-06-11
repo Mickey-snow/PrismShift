@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "util/geometry.hpp"
+#include "util/vector.hpp"
 #include "util/matrix.hpp"
 
 TEST(MatrixTest, MultVector) {

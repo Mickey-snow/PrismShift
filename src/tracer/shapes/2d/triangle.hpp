@@ -3,7 +3,7 @@
 #include <shape.hpp>
 
 class AABB;
-class Ray;
+struct Ray;
 template <typename>
 class Interval;
 

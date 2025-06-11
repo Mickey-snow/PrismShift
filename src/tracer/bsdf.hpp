@@ -34,26 +34,23 @@ inline BxDFBits& operator&=(BxDFBits& a, BxDFBits b) {
 
 class BxDF;
 struct bxdfSample {
-  Color col;
-  Vector3 out_direction;
+  Color f;
+  Vector3 wo;
   double pdf;
   BxDF const* bxdf;
 
-  bxdfSample()
-      : col{0, 0, 0}, out_direction{0, 0, 0}, pdf(0.0), bxdf(nullptr) {}
+  bxdfSample() : f{0, 0, 0}, wo{0, 0, 0}, pdf(0.0), bxdf(nullptr) {}
   bxdfSample(const Color& _col,
              const Vector3& _rout,
              const double& _pdf,
              BxDF const* _bxdf)
-      : col(_col), out_direction(_rout), pdf(_pdf), bxdf(_bxdf) {}
+      : f(_col), wo(_rout), pdf(_pdf), bxdf(_bxdf) {}
 };
 
 class BxDF {
  public:
-  BxDF() = default;
+  virtual ~BxDF() = default;
   explicit BxDF(BxDFBits _flag) : flag(_flag) {}
-
-  virtual ~BxDF() noexcept = default;
 
   // returns the value of the distribution function for the given pair of
   // directions
@@ -91,13 +88,8 @@ class BxDF {
 
 class BSDF {
  public:
-  BSDF() { bxdf = nullptr; }
-  explicit BSDF(std::shared_ptr<const BxDF> _bxdf) : bxdf(std::move(_bxdf)) {}
-
-  BSDF& SetBxdf(std::shared_ptr<const BxDF> _bxdf) {
-    bxdf = _bxdf;
-    return *this;
-  }
+  explicit BSDF() { bxdf = nullptr; }
+  explicit BSDF(std::shared_ptr<BxDF> _bxdf) : bxdf(std::move(_bxdf)) {}
 
   virtual Color f(const Vector3&,
                   const Vector3&,
@@ -108,5 +100,5 @@ class BSDF {
                      BxDFBits flag = BxDFBits::All) const;
 
  private:
-  std::shared_ptr<const BxDF> bxdf;
+  std::shared_ptr<BxDF> bxdf;
 };

@@ -18,7 +18,7 @@ HitRecord Primitive::Hit(Ray r, Interval<double> t) const {
 
   auto rec = shape_->Hit(ray, t);
   if (rec.hits) {
-    rec.hitted_obj = this;
+    rec.primitive = this;
     rec.material = material_.get();
     // Note: in the future, material properties should be computed using local
     // coordinates

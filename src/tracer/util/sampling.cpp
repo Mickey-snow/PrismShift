@@ -1,6 +1,6 @@
 #include "sampling.hpp"
 #include <util/constant.hpp>
-#include <util/geometry.hpp>
+#include <util/vector.hpp>
 #include <util/random.hpp>
 
 double pdf_cosine_distributed_hemisphere(const Vector3& wo) {

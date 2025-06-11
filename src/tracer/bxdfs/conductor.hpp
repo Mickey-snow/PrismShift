@@ -1,7 +1,7 @@
 #pragma once
 
 #include "bsdf.hpp"
-#include "util/geometry_fwd.hpp"
+#include "util/vector_fwd.hpp"
 
 namespace bxdfs {
 

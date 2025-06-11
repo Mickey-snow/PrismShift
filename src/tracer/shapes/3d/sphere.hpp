@@ -9,7 +9,7 @@
 
 class AABB;
 class HitRecord;
-class Ray;
+struct Ray;
 template <typename>
 class Interval;
 

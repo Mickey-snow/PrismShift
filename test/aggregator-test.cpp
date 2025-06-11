@@ -92,14 +92,14 @@ TEST_F(AggregatorTest, hit) {
     auto rec = aggregator->Hit(r, t);
     auto it = std::find_if(hittables.cbegin(), hittables.cend(),
                            [&rec](const std::shared_ptr<Primitive>& ptr) {
-                             return ptr.get() == rec.hitted_obj;
+                             return ptr.get() == rec.primitive;
                            });
 
     if (!rec.hits)
       EXPECT_EQ(it, hittables.cend());
     else {
       ASSERT_NE(it, hittables.cend());
-      EXPECT_EQ((*it).get(), rec.hitted_obj);
+      EXPECT_EQ((*it).get(), rec.primitive);
     }
   }
 }
@@ -115,6 +115,6 @@ TEST_F(AggregatorTest, SingleObject) {
   auto rec = aggregator->Hit(r, Interval<double>::Positive());
 
   ASSERT_TRUE(rec.hits);
-  EXPECT_EQ(rec.hitted_obj, obj.get());
+  EXPECT_EQ(rec.primitive, obj.get());
   EXPECT_TRUE(aggregator->GetBbox().Contains(obj->GetBbox()));
 }

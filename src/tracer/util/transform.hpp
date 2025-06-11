@@ -1,6 +1,6 @@
 #pragma once
 
-#include "util/geometry.hpp"
+#include "util/vector.hpp"
 #include "util/matrix.hpp"
 #include "util/vecmath.hpp"
 

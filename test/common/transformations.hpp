@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include <util/geometry.hpp>
+#include <util/vector.hpp>
 #include <util/random.hpp>
 #include <util/transform.hpp>
 

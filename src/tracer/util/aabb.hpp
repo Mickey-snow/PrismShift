@@ -1,13 +1,13 @@
 #pragma once
 
-#include "util/geometry_fwd.hpp"
+#include "util/vector_fwd.hpp"
 #include "util/interval.hpp"
 #include "util/transform.hpp"
 
 #include <cmath>
 #include <ostream>
 
-class Ray;
+struct Ray;
 
 class AABB {
   // Approximate an visible object to a cube

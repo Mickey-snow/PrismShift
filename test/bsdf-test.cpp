@@ -38,14 +38,14 @@ TEST(Lambertian, SampleF_ProvidesSelfConsistentSample) {
   ASSERT_TRUE(sampleOpt.has_value());
 
   const auto& s = *sampleOpt;
-  ExpectColorEq(s.col, c);
+  ExpectColorEq(s.f, c);
   EXPECT_EQ(s.bxdf, &lambert);  // pointer identity
 
   // PDF in the sample must match calling pdf() directly
-  EXPECT_NEAR(s.pdf, lambert.pdf(wi, s.out_direction), kEps);
+  EXPECT_NEAR(s.pdf, lambert.pdf(wi, s.wo), kEps);
 
   // All cosine–hemisphere samples must point into the +Z half–space
-  EXPECT_GT(s.out_direction.z(), 0.0);
+  EXPECT_GT(s.wo.z(), 0.0);
 }
 
 TEST(Conductor, SpecularFlagsAndSampling) {
@@ -71,13 +71,13 @@ TEST(Conductor, SpecularFlagsAndSampling) {
   ASSERT_TRUE(sampleOpt.has_value());
 
   const auto& s = *sampleOpt;
-  ExpectColorEq(s.col, white);
+  ExpectColorEq(s.f, white);
   EXPECT_EQ(s.bxdf, &mirror);
   EXPECT_DOUBLE_EQ(s.pdf, 1.0);
 
-  EXPECT_NEAR(s.out_direction.x(), expectedWo.x(), kEps);
-  EXPECT_NEAR(s.out_direction.y(), expectedWo.y(), kEps);
-  EXPECT_NEAR(s.out_direction.z(), expectedWo.z(), kEps);
+  EXPECT_NEAR(s.wo.x(), expectedWo.x(), kEps);
+  EXPECT_NEAR(s.wo.y(), expectedWo.y(), kEps);
+  EXPECT_NEAR(s.wo.z(), expectedWo.z(), kEps);
 }
 
 TEST(Conductor, GlossyHasPositivePdfAndReturnsColour) {
@@ -104,9 +104,9 @@ TEST(Conductor, GlossyHasPositivePdfAndReturnsColour) {
   ASSERT_TRUE(sampleOpt.has_value());
   const auto& s = *sampleOpt;
 
-  ExpectColorEq(s.col, grey);
+  ExpectColorEq(s.f, grey);
   EXPECT_EQ(s.bxdf, &glossy);
-  EXPECT_NEAR(s.pdf, glossy.pdf(wi, s.out_direction), kEps);
+  EXPECT_NEAR(s.pdf, glossy.pdf(wi, s.wo), kEps);
 }
 
 TEST(Dielectric, SpecularSamplingProvidesEitherRefractionOrReflection) {
@@ -123,10 +123,10 @@ TEST(Dielectric, SpecularSamplingProvidesEitherRefractionOrReflection) {
   auto sampleOpt = glass.Sample_f(wi);
   ASSERT_TRUE(sampleOpt.has_value());
   const auto& s = *sampleOpt;
-  ExpectColorEq(s.col, {1, 1, 1});
+  ExpectColorEq(s.f, {1, 1, 1});
   EXPECT_EQ(s.bxdf, &glass);
   EXPECT_DOUBLE_EQ(s.pdf, 1.0);
-  EXPECT_LT(s.out_direction.z(), 0.0);
+  EXPECT_LT(s.wo.z(), 0.0);
 }
 
 // ---------------------------------------------------------------------------
@@ -146,7 +146,6 @@ TEST(BSDF, EmptyBsdfReturnsBlackAndZero) {
 TEST(BSDF, ForwardsToLambertianCorrectly) {
   const Color green{0, 1, 0};
   auto lambert = std::make_shared<Lambertian>(green);
-
   BSDF bsdf(lambert);  // default frame = identity
 
   Vector3 wi{0, 0, 1};
@@ -167,8 +166,8 @@ TEST(BSDF, ForwardsToLambertianCorrectly) {
   ASSERT_TRUE(sampleOpt.has_value());
 
   const auto& s = *sampleOpt;
-  ExpectColorEq(s.col, green);
+  ExpectColorEq(s.f, green);
   EXPECT_EQ(s.bxdf, lambert.get());
-  EXPECT_NEAR(s.pdf, lambert->pdf(wi, s.out_direction), kEps);
-  EXPECT_GT(s.out_direction.z(), 0.0);  // still upper hemisphere
+  EXPECT_NEAR(s.pdf, lambert->pdf(wi, s.wo), kEps);
+  EXPECT_GT(s.wo.z(), 0.0);  // still upper hemisphere
 }

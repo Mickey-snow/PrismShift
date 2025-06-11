@@ -1,25 +1,24 @@
 #pragma once
 
-#include "geometry.hpp"
 #include "util/transform.hpp"
+#include "util/vector.hpp"
 
 #include <memory>
 #include <ostream>
 
-class Ray {
- public:
-  Ray() {}
-  Ray(const Point3& origin_, const Vector3& direction_)
-      : origin(origin_), direction(direction_) {}
+struct Ray {
+  constexpr Ray() {}
+  constexpr Ray(Point3 origin_, Vector3 direction_)
+      : origin(std::move(origin_)), direction(std::move(direction_)) {}
 
   Point3 const Origin() const { return origin; }
   Vector3 const Direction() const { return direction; }
-  Ray& SetOrigin(const Point3& orig) {
-    origin = orig;
+  Ray& SetOrigin(Point3 orig) {
+    origin = std::move(orig);
     return *this;
   }
-  Ray& SetDirection(const Vector3& dir) {
-    direction = dir;
+  Ray& SetDirection(Vector3 dir) {
+    direction = std::move(dir);
     return *this;
   }
 
@@ -38,7 +37,6 @@ class Ray {
     return os;
   }
 
- private:
   Point3 origin;
   Vector3 direction;
 };
