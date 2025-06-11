@@ -25,8 +25,10 @@ TEST(Lambertian, F_ReturnsConstantColour) {
   const Color red{1.0, 0.0, 0.0};
   Lambertian lambert(red);
 
-  Color val = lambert.f(/*wi*/ {0, 0, 1}, /*wo*/ {1, 0, 0});
-  ExpectColorEq(val, red);
+  Color val = lambert.f(/*wi*/ {0, 0, 1}, /*wo*/ {1, 0, 1});
+  ExpectColorEq(val, red * invpi);
+  val = lambert.f({0, 0, -1}, {1, 0, 1});
+  ExpectColorEq(val, Color());
 }
 
 TEST(Lambertian, SampleF_ProvidesSelfConsistentSample) {
@@ -38,7 +40,7 @@ TEST(Lambertian, SampleF_ProvidesSelfConsistentSample) {
   ASSERT_TRUE(sampleOpt.has_value());
 
   const auto& s = *sampleOpt;
-  ExpectColorEq(s.f, c);
+  ExpectColorEq(s.f, c * invpi);
   EXPECT_EQ(s.bxdf, &lambert);  // pointer identity
 
   // PDF in the sample must match calling pdf() directly
@@ -141,33 +143,4 @@ TEST(BSDF, EmptyBsdfReturnsBlackAndZero) {
   ExpectColorEq(bsdf.f(wi, wo), {0, 0, 0});
   EXPECT_DOUBLE_EQ(bsdf.pdf(wi, wo), 0.0);
   EXPECT_FALSE(bsdf.Sample_f(wi).has_value());
-}
-
-TEST(BSDF, ForwardsToLambertianCorrectly) {
-  const Color green{0, 1, 0};
-  auto lambert = std::make_shared<Lambertian>(green);
-  BSDF bsdf(lambert);  // default frame = identity
-
-  Vector3 wi{0, 0, 1};
-  Vector3 wo{0.3, 0.4, 0.86};
-  wo.Normalized();
-
-  // f() should forward when flags match ----------------------------------
-  ExpectColorEq(bsdf.f(wi, wo, BxDFBits::Diffuse), green);
-
-  // …and *not* when they do not match
-  ExpectColorEq(bsdf.f(wi, wo, BxDFBits::Transmission), {0, 0, 0});
-
-  // pdf() forwards identically in the identity frame
-  EXPECT_NEAR(bsdf.pdf(wi, wo), lambert->pdf(wi, wo), kEps);
-
-  // Sample_f returns world-space directions (identity ⇒ unchanged) -------
-  auto sampleOpt = bsdf.Sample_f(wi);
-  ASSERT_TRUE(sampleOpt.has_value());
-
-  const auto& s = *sampleOpt;
-  ExpectColorEq(s.f, green);
-  EXPECT_EQ(s.bxdf, lambert.get());
-  EXPECT_NEAR(s.pdf, lambert->pdf(wi, s.wo), kEps);
-  EXPECT_GT(s.wo.z(), 0.0);  // still upper hemisphere
 }

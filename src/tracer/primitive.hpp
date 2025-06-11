@@ -21,6 +21,7 @@ class Primitive {
 
   HitRecord Hit(Ray r, Interval<double> t) const;
   AABB GetBbox(void) const;
+  std::shared_ptr<ITransformation> GetTransform() const;
 
  private:
   std::shared_ptr<IShape> shape_;

@@ -14,20 +14,18 @@ Primitive::Primitive(std::shared_ptr<IShape> shape,
       bbox_(shape->GetBbox().Transform(*transform_)) {}
 
 HitRecord Primitive::Hit(Ray r, Interval<double> t) const {
-  Ray ray = r.Transform(*transform_);
+  r = r.UndoTransform(*transform_);  // to shape local coordinate system
 
-  auto rec = shape_->Hit(ray, t);
+  auto rec = shape_->Hit(r, t);
   if (rec.hits) {
     rec.primitive = this;
     rec.material = material_.get();
-    // Note: in the future, material properties should be computed using local
-    // coordinates
-
-    rec.ray = r;
-    rec.normal = transform_->Undo(rec.front_face ? rec.normal : -rec.normal);
-    rec.position = transform_->Undo(rec.position);
   }
   return rec;
 }
 
 AABB Primitive::GetBbox(void) const { return bbox_; }
+
+std::shared_ptr<ITransformation> Primitive::GetTransform() const {
+  return transform_;
+}

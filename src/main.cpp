@@ -54,7 +54,7 @@ Scene Get_World() {
   auto mat2 =
       std::make_shared<Material>(std::make_shared<SolidColor>(0.4, 0.2, 0.1));
   objs.emplace_back(
-      std::make_shared<Primitive>(sphere, mat2, translate(-4, 1, 0)));
+      std::make_shared<Primitive>(sphere, mat2, translate(0, 1, 0)));
 
   // auto material3 = make_shared<metal>(color(0.7, 0.6, 0.5), 0.0);
   // world.add(make_shared<sphere>(point3(4, 1, 0), 1.0, material3));

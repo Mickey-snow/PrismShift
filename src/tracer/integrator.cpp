@@ -61,7 +61,7 @@ void Integrator::Render(const Camera& cam, std::string output_filename) {
           view.pixel00_loc + view.pixel_delta_u * x + view.pixel_delta_v * y;
 
       Color raw(0, 0, 0);
-      for (int i = 0; i < 8; ++i) {
+      for (int i = 0; i < 32; ++i) {
         Point3 center = pixel_center +
                         random_uniform_01() * view.pixel_delta_u +
                         random_uniform_01() * view.pixel_delta_v;
@@ -69,7 +69,7 @@ void Integrator::Render(const Camera& cam, std::string output_filename) {
         Ray r(origin, center - origin);
         raw += Li(r);
       }
-      raw /= 8;
+      raw /= 32;
       Color rgb = Format_Color(raw, 255.999);
       static Interval<int> col_range(0, 255);
       out << col_range.Clamp(static_cast<int>(rgb.r())) << ' '

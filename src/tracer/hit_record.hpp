@@ -9,6 +9,7 @@ struct Material;
 struct HitRecord {
   HitRecord() = default;
 
+  // note: everythin in local coordinate system
   bool hits = false;
   Primitive const* primitive = nullptr;
   double time;
