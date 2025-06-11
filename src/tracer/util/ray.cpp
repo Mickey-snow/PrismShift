@@ -7,8 +7,9 @@
 Point3 Ray::At(const double& time) const { return origin + time * direction; }
 
 Ray Ray::Transform(const ITransformation& tr) const {
-  Ray ret = *this;
-  ret.SetOrigin(tr.Doit(Origin()));
-  ret.SetDirection(tr.Doit(Direction()));
-  return ret;
+  return Ray(tr.Doit(Origin()), tr.Doit(Direction()));
+}
+
+Ray Ray::UndoTransform(const ITransformation& tr) const {
+  return Ray(tr.Undo(Origin()), tr.Undo(Direction()));
 }

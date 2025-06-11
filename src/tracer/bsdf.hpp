@@ -98,11 +98,6 @@ class BSDF {
     bxdf = _bxdf;
     return *this;
   }
-  template <typename T>
-  BSDF& SetCoord(T&& coord) {
-    frame = std::forward<T>(coord);
-    return *this;
-  }
 
   virtual Color f(const Vector3&,
                   const Vector3&,
@@ -113,20 +108,5 @@ class BSDF {
                      BxDFBits flag = BxDFBits::All) const;
 
  private:
-  Coordinate3 frame;
   std::shared_ptr<const BxDF> bxdf;
-
- public:
-  BSDF(const BSDF& rhs) : frame(rhs.frame), bxdf(rhs.bxdf) {}
-  BSDF& operator=(const BSDF& rhs) {
-    frame = rhs.frame;
-    bxdf = rhs.bxdf;
-    return *this;
-  }
-  BSDF(BSDF&& rhs) : frame(std::move(rhs.frame)), bxdf(std::move(rhs.bxdf)) {}
-  BSDF& operator=(BSDF&& rhs) {
-    frame = std::move(rhs.frame);
-    bxdf = std::move(rhs.bxdf);
-    return *this;
-  }
 };

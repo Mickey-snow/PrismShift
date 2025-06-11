@@ -1,13 +1,13 @@
 #pragma once
 
+#include "util/geometry_fwd.hpp"
+#include "util/interval.hpp"
+#include "util/transform.hpp"
+
 #include <cmath>
 #include <ostream>
 
-#include "util/geometry_fwd.hpp"
-#include "util/interval.hpp"
-
 class Ray;
-class ITransformation;
 
 class AABB {
   // Approximate an visible object to a cube
@@ -42,6 +42,7 @@ class AABB {
   AABB Pad() const;
 
   AABB Transform(const ITransformation&) const;
+  AABB UndoTransform(const ITransformation&) const;
 
   class Componentbased_Comparer {
    public:
@@ -64,3 +65,5 @@ class AABB {
  private:
   Interval<double> x_interval, y_interval, z_interval;
 };
+
+static_assert(Transformable<AABB>);

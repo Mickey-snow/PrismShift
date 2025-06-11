@@ -194,11 +194,12 @@ TYPED_TEST(RotateTest, zeroVector) {
 }
 
 TYPED_TEST(RotateTest, rotate180DegAxis) {
-  Vector3 v{random_uniform_01(), 0, 0};
+  Vector3 v1{random_uniform_01(), 0, 0}, v2{0, 0, 0};
   Normal n{0, 1, 0};
   double angle = pi;
   auto tr = this->axisTr(n, angle);
-  EXPECT_EQ(tr->Doit(v), -v);
+  EXPECT_EQ(tr->Doit(v1), -v1);
+  EXPECT_EQ(tr->Doit(v2), v2);
 }
 
 TYPED_TEST(RotateTest, basicfrto) {

@@ -135,7 +135,8 @@ class aabbTransformTest : public TestWithParam<MatrixTransformation> {
                << " before transformation!";
 
     box = box.Transform(tr);
-    for (const auto& it : v | std::views::transform(tr))
+    for (const auto& it :
+         v | std::views::transform([&tr](auto v) { return tr.Doit(v); }))
       if (not box.Contains(it))
         return testing::AssertionFailure()
                << "Point v=" << it << " is not inside the bbox " << box
@@ -154,7 +155,8 @@ class aabbTransformTest : public TestWithParam<MatrixTransformation> {
                << " before transformation!";
 
     box = box.Transform(tr);
-    for (const auto& it : v | std::views::transform(tr))
+    for (const auto& it :
+         v | std::views::transform([&tr](auto v) { return tr.Doit(v); }))
       if (box.Contains(it))
         return testing::AssertionFailure()
                << "Point v=" << it << " is inside the bbox " << box

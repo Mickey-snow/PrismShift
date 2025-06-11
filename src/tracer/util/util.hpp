@@ -6,7 +6,6 @@
 #include "aabb.hpp"
 #include "color.hpp"
 #include "constant.hpp"
-#include "coordinate.hpp"
 #include "geometry.hpp"
 #include "interval.hpp"
 #include "mat.hpp"
@@ -18,8 +17,12 @@
 #include "vecmath.hpp"
 
 // Utility Functions
-inline double Degree2Rad(const double& degrees) { return degrees * pi / 180.0; }
-inline double Rad2Degree(const double& rad) { return rad / 180.0 * pi; }
+inline constexpr auto Degree2Rad(std::floating_point auto degrees) {
+  return degrees * pi / 180.0;
+}
+inline constexpr auto Rad2Degree(std::floating_point auto rad) {
+  return rad / 180.0 * pi;
+}
 
 template <typename... Ts>
 struct overload : Ts... {

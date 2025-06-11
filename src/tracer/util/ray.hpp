@@ -1,11 +1,10 @@
 #pragma once
 
 #include "geometry.hpp"
+#include "util/transform.hpp"
 
 #include <memory>
 #include <ostream>
-
-class ITransformation;
 
 class Ray {
  public:
@@ -27,6 +26,7 @@ class Ray {
   Point3 At(const double&) const;
 
   Ray Transform(const ITransformation&) const;
+  Ray UndoTransform(const ITransformation&) const;
 
   bool operator==(const Ray& rhs) const {
     return origin == rhs.Origin() && direction == rhs.Direction();
@@ -42,3 +42,5 @@ class Ray {
   Point3 origin;
   Vector3 direction;
 };
+
+static_assert(Transformable<Ray>);

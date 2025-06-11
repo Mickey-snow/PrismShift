@@ -1,4 +1,5 @@
 #include "transform.hpp"
+
 #include "geometry.hpp"
 
 #include <cassert>
@@ -6,42 +7,41 @@
 
 const std::shared_ptr<ITransformation> identity_transform = []() {
   struct EmptyTransform : public ITransformation {
-    Point3 Doit(const Point3& p) const final { return p; }
-    Vector3 Doit(const Vector3& v) const final { return v; }
-    Normal Doit(const Normal& n) const final { return n; }
-    Point3 Undo(const Point3& p) const final { return p; }
-    Vector3 Undo(const Vector3& v) const final { return v; }
-    Normal Undo(const Normal& n) const final { return n; }
+    Point3 Doit(Point3 p) const final { return p; }
+    Vector3 Doit(Vector3 v) const final { return v; }
+    Normal Doit(Normal n) const final { return n; }
+    Point3 Undo(Point3 p) const final { return p; }
+    Vector3 Undo(Vector3 v) const final { return v; }
+    Normal Undo(Normal n) const final { return n; }
   };
   return std::make_shared<EmptyTransform>();
 }();
 
-VectorTranslate::VectorTranslate(const Vector3& p)
-    : dx(p.x()), dy(p.y()), dz(p.z()) {}
+VectorTranslate::VectorTranslate(Vector3 p) : dx(p.x()), dy(p.y()), dz(p.z()) {}
 
-Point3 VectorTranslate::Doit(const Point3& p) const {
+Point3 VectorTranslate::Doit(Point3 p) const {
   return Point3{p.x() + dx, p.y() + dy, p.z() + dz};
 }
-Point3 VectorTranslate::Undo(const Point3& p) const {
+Point3 VectorTranslate::Undo(Point3 p) const {
   return Point3{p.x() - dx, p.y() - dy, p.z() - dz};
 }
-Vector3 VectorTranslate::Doit(const Vector3& v) const { return v; }
-Vector3 VectorTranslate::Undo(const Vector3& v) const { return v; }
-Normal VectorTranslate::Doit(const Normal& n) const { return n; }
-Normal VectorTranslate::Undo(const Normal& n) const { return n; }
+Vector3 VectorTranslate::Doit(Vector3 v) const { return v; }
+Vector3 VectorTranslate::Undo(Vector3 v) const { return v; }
+Normal VectorTranslate::Doit(Normal n) const { return n; }
+Normal VectorTranslate::Undo(Normal n) const { return n; }
 
-VectorScale::VectorScale(const Vector3& v) : dx(v.x()), dy(v.y()), dz(v.z()) {}
+VectorScale::VectorScale(Vector3 v) : dx(v.x()), dy(v.y()), dz(v.z()) {}
 
-Point3 VectorScale::Doit(const Point3& p) const {
+Point3 VectorScale::Doit(Point3 p) const {
   return Point3(p.x() * dx, p.y() * dy, p.z() * dz);
 }
-Point3 VectorScale::Undo(const Point3& p) const {
+Point3 VectorScale::Undo(Point3 p) const {
   return Point3(p.x() / dx, p.y() / dy, p.z() / dz);
 }
-Vector3 VectorScale::Doit(const Vector3& v) const {
+Vector3 VectorScale::Doit(Vector3 v) const {
   return Vector3(v.x() * dx, v.y() * dy, v.z() * dz);
 }
-Vector3 VectorScale::Undo(const Vector3& v) const {
+Vector3 VectorScale::Undo(Vector3 v) const {
   return Vector3(v.x() / dx, v.y() / dy, v.z() / dz);
 }
 /**
@@ -55,14 +55,14 @@ Vector3 VectorScale::Undo(const Vector3& v) const {
  *
  * @return Normal The transformed normal.
  */
-Normal VectorScale::Doit(const Normal& n) const {
+Normal VectorScale::Doit(Normal n) const {
   return Normal(n.x() / dx, n.y() / dy, n.z() / dz);
 }
-Normal VectorScale::Undo(const Normal& n) const {
+Normal VectorScale::Undo(Normal n) const {
   return Normal(n.x() * dx, n.y() * dy, n.z() * dz);
 }
 
-Point3 MatrixTransformation::Doit(const Point3& p) const {
+Point3 MatrixTransformation::Doit(Point3 p) const {
   basic_vector<double, 4> w(p.x(), p.y(), p.z(), 1);
   w = m * w;
   static constexpr auto EPS = 1e-9;
@@ -71,17 +71,11 @@ Point3 MatrixTransformation::Doit(const Point3& p) const {
     ans /= w[3];
   return Point3(ans);
 }
-Point3 MatrixTransformation::operator()(const Point3& p) const {
-  return Doit(p);
-}
 
-Vector3 MatrixTransformation::Doit(const Vector3& p) const {
+Vector3 MatrixTransformation::Doit(Vector3 p) const {
   basic_vector<double, 4> w(p.x(), p.y(), p.z(), 0);
   w = m * w;
   return Vector3(w.x(), w.y(), w.z());
-}
-Vector3 MatrixTransformation::operator()(const Vector3& p) const {
-  return Doit(p);
 }
 
 /**
@@ -98,44 +92,36 @@ Vector3 MatrixTransformation::operator()(const Vector3& p) const {
  *
  * @return A new Normal object: the transformed normal.
  */
-Normal MatrixTransformation::Doit(const Normal& p) const {
+Normal MatrixTransformation::Doit(Normal p) const {
   basic_vector<double, 4> w(p.x(), p.y(), p.z(), 0);
   w = minv.T() * w;
   return Normal(w.x(), w.y(), w.z());
 }
 
-Normal MatrixTransformation::operator()(const Normal& p) const {
-  return Doit(p);
+Point3 MatrixTransformation::Undo(Point3 p) const { return Inverse().Doit(p); }
+Vector3 MatrixTransformation::Undo(Vector3 p) const {
+  return Inverse().Doit(p);
 }
+Normal MatrixTransformation::Undo(Normal p) const { return Inverse().Doit(p); }
 
-Point3 MatrixTransformation::Undo(const Point3& p) const {
-  return Inverse().Doit(p);
-}
-Vector3 MatrixTransformation::Undo(const Vector3& p) const {
-  return Inverse().Doit(p);
-}
-Normal MatrixTransformation::Undo(const Normal& p) const {
-  return Inverse().Doit(p);
-}
-
-MatrixTransformation MatrixTransformation::Translate(const Vector3& p) {
+MatrixTransformation MatrixTransformation::Translate(Vector3 p) {
   return MatrixTransformation(
       Matrix4{1, 0, 0, p.x(), 0, 1, 0, p.y(), 0, 0, 1, p.z(), 0, 0, 0, 1},
       Matrix4{1, 0, 0, -p.x(), 0, 1, 0, -p.y(), 0, 0, 1, -p.z(), 0, 0, 0, 1});
 }
-MatrixTransformation MatrixTransformation::Translate(const double& dx,
-                                                     const double& dy,
-                                                     const double& dz) {
+MatrixTransformation MatrixTransformation::Translate(double dx,
+                                                     double dy,
+                                                     double dz) {
   return Translate(Vector3{dx, dy, dz});
 }
 
 MatrixTransformation MatrixTransformation::Rotate(basic_vector<double, 3> axis,
-                                                  const double& costheta,
-                                                  const double& sintheta) {
+                                                  double costheta,
+                                                  double sintheta) {
   axis = axis.normalised();
 
-  auto R = [](const basic_vector<double, 3>& axis, const double& costheta,
-              const double& sintheta) {
+  auto R = [](const basic_vector<double, 3>& axis, double costheta,
+              double sintheta) {
     const double nx = axis.x(), ny = axis.y(), nz = axis.z();
     return Matrix4{nx * nx * (1 - costheta) + costheta,
                    nx * ny * (1 - costheta) + nz * sintheta,
@@ -162,30 +148,30 @@ MatrixTransformation MatrixTransformation::Rotate(basic_vector<double, 3> axis,
 }
 MatrixTransformation MatrixTransformation::Rotate(
     const basic_vector<double, 3>& axis,
-    const double& theta) {
+    double theta) {
   double costheta = cos(theta);
   double sintheta = sin(theta);
   return Rotate(axis, costheta, sintheta);
 }
-MatrixTransformation MatrixTransformation::RotateX(const double& theta) {
+MatrixTransformation MatrixTransformation::RotateX(double theta) {
   return Rotate(Vector3{1, 0, 0}, theta);
 }
-MatrixTransformation MatrixTransformation::RotateX(const double& costheta,
-                                                   const double& sintheta) {
+MatrixTransformation MatrixTransformation::RotateX(double costheta,
+                                                   double sintheta) {
   return Rotate(Vector3{1, 0, 0}, costheta, sintheta);
 }
-MatrixTransformation MatrixTransformation::RotateY(const double& theta) {
+MatrixTransformation MatrixTransformation::RotateY(double theta) {
   return Rotate(Vector3{0, 1, 0}, theta);
 }
-MatrixTransformation MatrixTransformation::RotateY(const double& costheta,
-                                                   const double& sintheta) {
+MatrixTransformation MatrixTransformation::RotateY(double costheta,
+                                                   double sintheta) {
   return Rotate(Vector3{0, 1, 0}, costheta, sintheta);
 }
-MatrixTransformation MatrixTransformation::RotateZ(const double& theta) {
+MatrixTransformation MatrixTransformation::RotateZ(double theta) {
   return Rotate(Vector3{0, 0, 1}, theta);
 }
-MatrixTransformation MatrixTransformation::RotateZ(const double& costheta,
-                                                   const double& sintheta) {
+MatrixTransformation MatrixTransformation::RotateZ(double costheta,
+                                                   double sintheta) {
   return Rotate(Vector3{0, 0, 1}, costheta, sintheta);
 }
 
@@ -212,8 +198,7 @@ MatrixTransformation MatrixTransformation::RotateZ(const double& costheta,
  *
  * @note Requires `fr` and `to` to be unit vectors.
  */
-MatrixTransformation MatrixTransformation::RotateFrTo(const Vector3& fr,
-                                                      const Vector3& to) {
+MatrixTransformation MatrixTransformation::RotateFrTo(Vector3 fr, Vector3 to) {
   assert(fr.Normalized() == fr);
   assert(to.Normalized() == to);
   Vector3 refl;
@@ -234,9 +219,9 @@ MatrixTransformation MatrixTransformation::RotateFrTo(const Vector3& fr,
   return MatrixTransformation(r, r.T());
 }
 
-MatrixTransformation MatrixTransformation::AlignXYZ(const Vector3& i,
-                                                    const Vector3& j,
-                                                    const Vector3& k) {
+MatrixTransformation MatrixTransformation::AlignXYZ(Vector3 i,
+                                                    Vector3 j,
+                                                    Vector3 k) {
   Matrix4 mat_rotate_toworld{i.x(), j.x(), k.x(), 0, i.y(), j.y(), k.y(), 0,
                              i.z(), j.z(), k.z(), 0, 0,     0,     0,     1};
   return MatrixTransformation(mat_rotate_toworld.inv(), mat_rotate_toworld);
@@ -246,13 +231,11 @@ MatrixTransformation MatrixTransformation::AlignXYZ(
   return MatrixTransformation::AlignXYZ(basis.x(), basis.y(), basis.z());
 }
 
-MatrixTransformation MatrixTransformation::Scale(const double& x,
-                                                 const double& y,
-                                                 const double& z) {
+MatrixTransformation MatrixTransformation::Scale(double x, double y, double z) {
   return MatrixTransformation::Scale(Vector3{x, y, z});
 }
-MatrixTransformation MatrixTransformation::Scale(const Vector3& n) {
-  auto ScaleMat = [](const double& kx, const double& ky, const double& kz) {
+MatrixTransformation MatrixTransformation::Scale(Vector3 n) {
+  auto ScaleMat = [](double kx, double ky, double kz) {
     return Matrix4{kx, 0, 0, 0, 0, ky, 0, 0, 0, 0, kz, 0, 0, 0, 0, 1};
   };
 
@@ -261,8 +244,7 @@ MatrixTransformation MatrixTransformation::Scale(const Vector3& n) {
 
   return MatrixTransformation(mat, matinv);
 }
-MatrixTransformation MatrixTransformation::Scale(const Vector3& n,
-                                                 const double& k) {
+MatrixTransformation MatrixTransformation::Scale(Vector3 n, double k) {
   auto ScaleMat = [](const Vector3& n, double k) {
     const double nx = n.x(), ny = n.y(), nz = n.z();
     --k;
@@ -303,11 +285,11 @@ Quaternion Quaternion::operator*(const Quaternion& rhs) const {
                     v.Cross(rhs.v) + s * rhs.v + rhs.s * v);
 }
 
-Quaternion Quaternion::operator*(const double& r) const {
+Quaternion Quaternion::operator*(double r) const {
   return Quaternion(r * s, r * v);
 }
 
-Quaternion Quaternion::operator/(const double& r) const {
+Quaternion Quaternion::operator/(double r) const {
   return Quaternion(s / r, v / r);
 }
 
@@ -334,22 +316,22 @@ basic_vector<double, 3> QuaternionTransform::Undo_impl(
   p = qinv * p * q;
   return (basic_vector<double, 3>)p.v;
 }
-Point3 QuaternionTransform::Doit(const Point3& pt) const {
+Point3 QuaternionTransform::Doit(Point3 pt) const {
   return (Point3)Doit_impl(pt);
 }
-Point3 QuaternionTransform::Undo(const Point3& pt) const {
+Point3 QuaternionTransform::Undo(Point3 pt) const {
   return (Point3)Undo_impl(pt);
 }
-Vector3 QuaternionTransform::Doit(const Vector3& v) const {
+Vector3 QuaternionTransform::Doit(Vector3 v) const {
   return (Vector3)Doit_impl(v);
 }
-Vector3 QuaternionTransform::Undo(const Vector3& v) const {
+Vector3 QuaternionTransform::Undo(Vector3 v) const {
   return (Vector3)Undo_impl(v);
 }
-Normal QuaternionTransform::Doit(const Normal& n) const {
+Normal QuaternionTransform::Doit(Normal n) const {
   return (Normal)Doit_impl(n);
 }
-Normal QuaternionTransform::Undo(const Normal& n) const {
+Normal QuaternionTransform::Undo(Normal n) const {
   return (Normal)Undo_impl(n);
 }
 
@@ -363,8 +345,7 @@ QuaternionTransform QuaternionTransform::Rotate(
   return QuaternionTransform(q);
 }
 
-QuaternionTransform QuaternionTransform::RotateFrTo(const Vector3& fr,
-                                                    const Vector3& to) {
+QuaternionTransform QuaternionTransform::RotateFrTo(Vector3 fr, Vector3 to) {
   double theta = acos(fr.Dot(to));
   auto axis = fr.Cross(to).Normalized();
   return QuaternionTransform::Rotate(axis, -theta);
@@ -378,9 +359,9 @@ QuaternionTransform QuaternionTransform::RotateFrTo(const Vector3& fr,
 // y = (R13-R31) / 4w
 // z = (R21-R12) / 4w
 // The quaternion should be normalized to ensure it represents a valid rotation.
-QuaternionTransform QuaternionTransform::AlignXYZ(const Vector3& i,
-                                                  const Vector3& j,
-                                                  const Vector3& k) {
+QuaternionTransform QuaternionTransform::AlignXYZ(Vector3 i,
+                                                  Vector3 j,
+                                                  Vector3 k) {
   double w = sqrt(1 + i.x() + j.y() + k.z()) / 2;
   double wquarter = 1.0 / (4 * w);
   double x = (j.z() - k.y()) * wquarter;

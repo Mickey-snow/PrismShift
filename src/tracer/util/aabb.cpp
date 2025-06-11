@@ -142,19 +142,33 @@ AABB AABB::Pad() const {
 }
 
 AABB AABB::Transform(const ITransformation& tr) const {
-  std::vector<Point3> v;
-  std::function<double(const Interval<double>&)> vertex_component[] = {
-      [](const Interval<double>& i) { return i.begin; },
-      [](const Interval<double>& i) { return i.end; }};
-  for (int i = 0; i < 2; ++i)
-    for (int j = 0; j < 2; ++j)
-      for (int k = 0; k < 2; ++k)
-        v.emplace_back(Point3{vertex_component[i](Axis(0)),
-                              vertex_component[j](Axis(1)),
-                              vertex_component[k](Axis(2))});
-
+  std::array<Point3, 8> v{
+      Point3(x_interval.begin, y_interval.begin, z_interval.begin),
+      Point3(x_interval.begin, y_interval.begin, z_interval.end),
+      Point3(x_interval.begin, y_interval.end, z_interval.begin),
+      Point3(x_interval.begin, y_interval.end, z_interval.end),
+      Point3(x_interval.end, y_interval.begin, z_interval.begin),
+      Point3(x_interval.end, y_interval.begin, z_interval.end),
+      Point3(x_interval.end, y_interval.end, z_interval.begin),
+      Point3(x_interval.end, y_interval.end, z_interval.end)};
   for (auto& it : v)
     it = tr.Doit(it);
+
+  return AABB{v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7]};
+}
+
+AABB AABB::UndoTransform(const ITransformation& tr) const {
+  std::array<Point3, 8> v{
+      Point3(x_interval.begin, y_interval.begin, z_interval.begin),
+      Point3(x_interval.begin, y_interval.begin, z_interval.end),
+      Point3(x_interval.begin, y_interval.end, z_interval.begin),
+      Point3(x_interval.begin, y_interval.end, z_interval.end),
+      Point3(x_interval.end, y_interval.begin, z_interval.begin),
+      Point3(x_interval.end, y_interval.begin, z_interval.end),
+      Point3(x_interval.end, y_interval.end, z_interval.begin),
+      Point3(x_interval.end, y_interval.end, z_interval.end)};
+  for (auto& it : v)
+    it = tr.Undo(it);
 
   return AABB{v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7]};
 }

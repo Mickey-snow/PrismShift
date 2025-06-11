@@ -8,6 +8,13 @@
 #include <ostream>
 #include <utility>
 
+class ITransformation;
+template <class T>
+concept Transformable = requires(const T t, const ITransformation& tr) {
+  { t.Transform(tr) } -> std::same_as<T>;
+  { t.UndoTransform(tr) } -> std::same_as<T>;
+};
+
 /**
  * @interface ITransformation
  *
@@ -27,20 +34,18 @@ class ITransformation {
  public:
   virtual ~ITransformation() = default;
 
-  virtual Point3 Doit(const Point3&) const = 0;
-  virtual Vector3 Doit(const Vector3&) const = 0;
-  virtual Normal Doit(const Normal&) const = 0;
-  template <typename T>
-  T Doit(const T& t) const {
+  virtual Point3 Doit(Point3) const = 0;
+  virtual Vector3 Doit(Vector3) const = 0;
+  virtual Normal Doit(Normal) const = 0;
+  inline auto Doit(Transformable auto const& t) const {
     return t.Transform(*this);
   }
 
-  virtual Point3 Undo(const Point3&) const = 0;
-  virtual Vector3 Undo(const Vector3&) const = 0;
-  virtual Normal Undo(const Normal&) const = 0;
-  template <typename T>
-  T Undo(const T& t) const {
-    return t.Transform(*this);
+  virtual Point3 Undo(Point3) const = 0;
+  virtual Vector3 Undo(Vector3) const = 0;
+  virtual Normal Undo(Normal) const = 0;
+  inline auto Undo(Transformable auto const& t) const {
+    return t.UndoTransform(*this);
   }
 };
 extern std::shared_ptr<ITransformation> const identity_transform;
@@ -56,26 +61,24 @@ class VectorTranslate : public ITransformation {
   double dx, dy, dz;
 
  public:
-  VectorTranslate() : dx(0.0), dy(0.0), dz(0.0) {}
-  VectorTranslate(const double& ix, const double& iy, const double& iz)
+  constexpr VectorTranslate() noexcept : dx(0.0), dy(0.0), dz(0.0) {}
+  constexpr VectorTranslate(double ix, double iy, double iz) noexcept
       : dx(ix), dy(iy), dz(iz) {}
-  VectorTranslate(const Vector3& v);
+  VectorTranslate(Vector3 v);
 
-  Point3 Doit(const Point3&) const override;
-  Vector3 Doit(const Vector3&) const override;
-  Normal Doit(const Normal&) const override;
-  Point3 Undo(const Point3&) const override;
-  Vector3 Undo(const Vector3&) const override;
-  Normal Undo(const Normal&) const override;
+  Point3 Doit(Point3) const override;
+  Vector3 Doit(Vector3) const override;
+  Normal Doit(Normal) const override;
+  Point3 Undo(Point3) const override;
+  Vector3 Undo(Vector3) const override;
+  Normal Undo(Normal) const override;
 
  public:
-  static VectorTranslate Translate(const double& x,
-                                   const double& y,
-                                   const double& z) {
+  static VectorTranslate Translate(double x, double y, double z) {
     return VectorTranslate(x, y, z);
   }
-  static VectorTranslate Translate(const Vector3& v) {
-    return VectorTranslate(v);
+  inline static VectorTranslate Translate(Vector3 v) {
+    return VectorTranslate(std::move(v));
   }
 };
 
@@ -90,23 +93,25 @@ class VectorScale : public ITransformation {
   double dx, dy, dz;
 
  public:
-  VectorScale() : dx(1.0), dy(1.0), dz(1.0) {}
-  VectorScale(const double& ix, const double& iy, const double& iz)
+  constexpr VectorScale() noexcept : dx(1.0), dy(1.0), dz(1.0) {}
+  constexpr VectorScale(double ix, double iy, double iz) noexcept
       : dx(ix), dy(iy), dz(iz) {}
-  VectorScale(const Vector3& v);
+  VectorScale(Vector3 v);
 
-  Point3 Doit(const Point3&) const override;
-  Vector3 Doit(const Vector3&) const override;
-  Normal Doit(const Normal&) const override;
-  Point3 Undo(const Point3&) const override;
-  Vector3 Undo(const Vector3&) const override;
-  Normal Undo(const Normal&) const override;
+  Point3 Doit(Point3) const override;
+  Vector3 Doit(Vector3) const override;
+  Normal Doit(Normal) const override;
+  Point3 Undo(Point3) const override;
+  Vector3 Undo(Vector3) const override;
+  Normal Undo(Normal) const override;
 
  public:
-  static VectorScale Scale(const double& x, const double& y, const double& z) {
+  static VectorScale Scale(double x, double y, double z) {
     return VectorScale(x, y, z);
   }
-  static VectorScale Scale(const Vector3& v) { return VectorScale(v); }
+  inline static VectorScale Scale(Vector3 v) {
+    return VectorScale(std::move(v));
+  }
 };
 
 /**
@@ -140,12 +145,12 @@ class MatrixTransformation : public ITransformation {
   Matrix4 const Matrix(void) const { return m; }
   Matrix4 const InvMatrix(void) const { return minv; }
 
-  Point3 Doit(const Point3& it) const override;
-  Vector3 Doit(const Vector3& it) const override;
-  Normal Doit(const Normal& it) const override;
-  Point3 Undo(const Point3& it) const override;
-  Vector3 Undo(const Vector3& it) const override;
-  Normal Undo(const Normal& it) const override;
+  Point3 Doit(Point3 it) const override;
+  Vector3 Doit(Vector3 it) const override;
+  Normal Doit(Normal it) const override;
+  Point3 Undo(Point3 it) const override;
+  Vector3 Undo(Vector3 it) const override;
+  Normal Undo(Normal it) const override;
 
   static MatrixTransformation Inverse(const MatrixTransformation& t) {
     return MatrixTransformation(t.InvMatrix(), t.Matrix());
@@ -170,18 +175,6 @@ class MatrixTransformation : public ITransformation {
 
   bool isIdentity(void) const { return m == Matrix4::I(); }
 
-  [[deprecated]]
-  Point3 operator()(const Point3&) const;
-  [[deprecated]]
-  Vector3 operator()(const Vector3&) const;
-  [[deprecated]]
-  Normal operator()(const Normal&) const;
-  template <typename T>
-  [[deprecated]]
-  T operator()(const T& t) const {
-    return t.Transform(*this);
-  }
-
   friend std::ostream& operator<<(std::ostream& os,
                                   const MatrixTransformation& tr) {
     os << "m=" << tr.m << " minv=" << tr.minv;
@@ -193,26 +186,21 @@ class MatrixTransformation : public ITransformation {
 
   // factory methods for creating the transformation matrix
  public:
-  static MatrixTransformation Translate(const Vector3& p);
-  static MatrixTransformation Translate(const double& dx,
-                                        const double& dy,
-                                        const double& dz);
+  static MatrixTransformation Translate(Vector3 p);
+  static MatrixTransformation Translate(double dx, double dy, double dz);
 
   static MatrixTransformation Rotate(basic_vector<double, 3> axis,
-                                     const double& costheta,
-                                     const double& sintheta);
+                                     double costheta,
+                                     double sintheta);
   static MatrixTransformation Rotate(const basic_vector<double, 3>& axis,
-                                     const double& theta);
-  static MatrixTransformation RotateX(const double& theta);
-  static MatrixTransformation RotateX(const double& costheta,
-                                      const double& sintheta);
-  static MatrixTransformation RotateY(const double& theta);
-  static MatrixTransformation RotateY(const double& costheta,
-                                      const double& sintheta);
-  static MatrixTransformation RotateZ(const double& theta);
-  static MatrixTransformation RotateZ(const double& costheta,
-                                      const double& sintheta);
-  static MatrixTransformation RotateFrTo(const Vector3& fr, const Vector3& to);
+                                     double theta);
+  static MatrixTransformation RotateX(double theta);
+  static MatrixTransformation RotateX(double costheta, double sintheta);
+  static MatrixTransformation RotateY(double theta);
+  static MatrixTransformation RotateY(double costheta, double sintheta);
+  static MatrixTransformation RotateZ(double theta);
+  static MatrixTransformation RotateZ(double costheta, double sintheta);
+  static MatrixTransformation RotateFrTo(Vector3 fr, Vector3 to);
   /**
    * @brief Creates a transformation matrix that aligns the global coordinate
    * system to a given local coordinate system.
@@ -222,26 +210,18 @@ class MatrixTransformation : public ITransformation {
    * @return MatrixTransformation representing the rotation.
    */
   static MatrixTransformation AlignXYZ(const basic_vector<Vector3, 3>&);
-  static MatrixTransformation AlignXYZ(const Vector3&,
-                                       const Vector3&,
-                                       const Vector3&);
+  static MatrixTransformation AlignXYZ(Vector3, Vector3, Vector3);
 
-  static MatrixTransformation Scale(const double&,
-                                    const double&,
-                                    const double&);
-  static MatrixTransformation Scale(const Vector3& n);
-  static MatrixTransformation Scale(const Vector3& n, const double& k);
+  static MatrixTransformation Scale(double, double, double);
+  static MatrixTransformation Scale(Vector3 n);
+  static MatrixTransformation Scale(Vector3 n, double k);
 };
 
 class Quaternion {
  public:
-  Quaternion(const double& is,
-             const double& ix,
-             const double& iy,
-             const double& iz)
+  constexpr Quaternion(double is, double ix, double iy, double iz) noexcept
       : s(is), v(ix, iy, iz) {}
-  Quaternion(const double& is, const basic_vector<double, 3>& iv)
-      : s(is), v(iv) {}
+  Quaternion(double is, basic_vector<double, 3> iv) : s(is), v(std::move(iv)) {}
 
   ~Quaternion() = default;
 
@@ -252,13 +232,13 @@ class Quaternion {
 
   Quaternion operator*(const Quaternion& rhs) const;
   Quaternion& operator*=(const Quaternion& rhs) { return *this = *this * rhs; }
-  Quaternion operator*(const double& r) const;
-  Quaternion& operator*=(const double& r) { return *this = *this * r; }
-  friend Quaternion operator*(const double& r, const Quaternion& rhs) {
+  Quaternion operator*(double r) const;
+  Quaternion& operator*=(double r) { return *this = *this * r; }
+  friend Quaternion operator*(double r, const Quaternion& rhs) {
     return rhs * r;
   }
-  Quaternion operator/(const double& r) const;
-  Quaternion& operator/=(const double& r) { return *this = *this / r; }
+  Quaternion operator/(double r) const;
+  Quaternion& operator/=(double r) { return *this = *this / r; }
 
   Quaternion conj(void) const;
 
@@ -276,17 +256,17 @@ class Quaternion {
 
 class QuaternionTransform : public ITransformation {
  public:
-  QuaternionTransform(const Quaternion& quat) : q(quat), qinv(quat.inv()) {}
-  QuaternionTransform(const Quaternion& quat, const Quaternion& quatinv)
-      : q(quat), qinv(quatinv) {}
+  QuaternionTransform(Quaternion quat) : q(std::move(quat)), qinv(q.inv()) {}
+  QuaternionTransform(Quaternion quat, Quaternion quatinv)
+      : q(std::move(quat)), qinv(std::move(quatinv)) {}
   ~QuaternionTransform() = default;
 
-  Point3 Doit(const Point3&) const override;
-  Point3 Undo(const Point3&) const override;
-  Vector3 Doit(const Vector3&) const override;
-  Vector3 Undo(const Vector3&) const override;
-  Normal Doit(const Normal&) const override;
-  Normal Undo(const Normal&) const override;
+  Point3 Doit(Point3) const override;
+  Point3 Undo(Point3) const override;
+  Vector3 Doit(Vector3) const override;
+  Vector3 Undo(Vector3) const override;
+  Normal Doit(Normal) const override;
+  Normal Undo(Normal) const override;
 
  private:
   Quaternion q, qinv;
@@ -310,7 +290,7 @@ class QuaternionTransform : public ITransformation {
    * // Rotate 45 degrees around the Z-axis
    */
   static QuaternionTransform Rotate(const basic_vector<double, 3>&, double);
-  static QuaternionTransform RotateFrTo(const Vector3& fr, const Vector3& to);
+  static QuaternionTransform RotateFrTo(Vector3 fr, Vector3 to);
 
   /**
    * @brief Creates a quaternion transformation that aligns the global
@@ -323,7 +303,5 @@ class QuaternionTransform : public ITransformation {
    * Note: the basis must form a proper coordinate system.
    */
   static QuaternionTransform AlignXYZ(const basic_vector<Vector3, 3>&);
-  static QuaternionTransform AlignXYZ(const Vector3&,
-                                      const Vector3&,
-                                      const Vector3&);
+  static QuaternionTransform AlignXYZ(Vector3, Vector3, Vector3);
 };
