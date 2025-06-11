@@ -4,8 +4,6 @@
 #include <primitive.hpp>
 #include <util/util.hpp>
 
-Scene::~Scene() = default;
-
 Scene::Scene(std::vector<std::shared_ptr<Primitive>> objs)
     : objs_(std::move(objs)), aggregator_(std::make_unique<BVT>(objs_)) {}
 

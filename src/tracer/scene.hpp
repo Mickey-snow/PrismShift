@@ -1,5 +1,6 @@
 #pragma once
 
+#include "aggregator.hpp"
 #include "shape.hpp"
 #include "util/util.hpp"
 
@@ -13,7 +14,10 @@ class AABB;
 class Scene {
  public:
   Scene(std::vector<std::shared_ptr<Primitive>> objs);
-  ~Scene();
+  ~Scene() = default;
+
+  Scene(Scene&&) noexcept = default;
+  Scene& operator=(Scene&&) noexcept = default;
 
   HitRecord Hit(Ray ray, Interval<double> interval) const;
   AABB GetBbox(void) const;

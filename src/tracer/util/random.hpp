@@ -1,7 +1,7 @@
 #pragma once
 
-double random_uniform_01(void);
+double random_uniform_01();
 
-double random_double(const double& min, const double& max);
+double random_double(double min, double max);
 
-int random_int(const int& min, const int& max);
+int random_int(int min, int max);

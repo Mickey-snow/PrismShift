@@ -11,7 +11,8 @@ class Interval {
   T begin, end;
 
   explicit constexpr Interval() : begin(0), end(0) {}
-  constexpr Interval(const T& _min, const T& _max) : begin(_min), end(_max) {}
+  explicit constexpr Interval(T _min, T _max)
+      : begin(std::move(_min)), end(std::move(_max)) {}
   constexpr Interval(const Interval& a, const Interval& b) {
     begin = a.begin < b.begin ? a.begin : b.begin;
     end = a.end > b.end ? a.end : b.end;

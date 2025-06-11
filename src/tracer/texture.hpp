@@ -13,6 +13,7 @@ class SolidColor : public Texture<Color> {
   Color col_;
 
  public:
+  SolidColor(double r, double g, double b) : SolidColor(Color(r, g, b)) {}
   SolidColor(Color col = {}) : col_(col) {}
 
   Color Evaluate(Point2) override { return col_; }

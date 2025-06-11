@@ -9,6 +9,6 @@ template <typename T>
 class Texture;
 
 struct Material {
-  std::shared_ptr<Texture<Color>> diffuse;
-  std::shared_ptr<Texture<Color>> emission;
+  std::shared_ptr<Texture<Color>> diffuse = nullptr;
+  std::shared_ptr<Texture<Color>> emission = nullptr;
 };

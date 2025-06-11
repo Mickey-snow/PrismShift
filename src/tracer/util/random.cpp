@@ -7,17 +7,17 @@ static std::mt19937 gen([] {
   return rd();
 }());
 
-double random_uniform_01(void) {
+double random_uniform_01() {
   static std::uniform_real_distribution<double> distribution(0.0, 1.0);
   return distribution(gen);
 }
 
-double random_double(const double& min, const double& max) {
+double random_double(double min, double max) {
   std::uniform_real_distribution<double> distribution(min, max);
   return distribution(gen);
 }
 
-int random_int(const int& min, const int& max) {
+int random_int(int min, int max) {
   std::uniform_int_distribution<int> distribution(min, max);
   return distribution(gen);
 }

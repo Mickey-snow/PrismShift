@@ -35,6 +35,10 @@ class Color : public basic_vector<double, 3> {
   inline constexpr Color operator*(arithmetic auto rhs) const {
     return Color(super::operator*(rhs));
   }
+  inline constexpr friend Color operator*(arithmetic auto lhs,
+                                          const Color& rhs) {
+    return rhs * lhs;
+  }
   inline constexpr Color& operator*=(arithmetic auto rhs) {
     return *this = *this * rhs;
   }
@@ -47,7 +51,7 @@ class Color : public basic_vector<double, 3> {
   inline constexpr Color operator/(arithmetic auto rhs) {
     return Color(super::operator/(rhs));
   }
-  inline constexpr Color operator/=(arithmetic auto rhs) const {
+  inline constexpr Color& operator/=(arithmetic auto rhs) {
     return *this = *this / rhs;
   }
 };

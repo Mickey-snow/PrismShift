@@ -3,8 +3,11 @@
 #include "bsdf.hpp"
 #include "bxdfs/lambertian.hpp"
 #include "material.hpp"
+#include "primitive.hpp"
 #include "scene.hpp"
 #include "texture.hpp"
+
+#include <fstream>
 
 static inline double absCosTheta(Vector3 wi, Normal n) {
   return std::abs(wi.Dot(n));
@@ -43,4 +46,35 @@ Color Integrator::Li(Ray r, int depth) {
   }
 
   return L;
+}
+
+void Integrator::Render(const Camera& cam, std::string output_filename) {
+  int image_width = cam.imageWidth(), image_height = cam.imageHeight();
+  auto view = cam.initializeView();
+  Point3 origin = cam.position();
+
+  std::ofstream out(output_filename);
+  out << "P3\n" << image_width << ' ' << image_height << "\n255\n";
+  for (int y = 0; y < image_height; ++y) {
+    for (int x = 0; x < image_width; ++x) {
+      Point3 pixel_center =
+          view.pixel00_loc + view.pixel_delta_u * x + view.pixel_delta_v * y;
+
+      Color raw(0, 0, 0);
+      for (int i = 0; i < 8; ++i) {
+        Point3 center = pixel_center +
+                        random_uniform_01() * view.pixel_delta_u +
+                        random_uniform_01() * view.pixel_delta_v;
+
+        Ray r(origin, center - origin);
+        raw += Li(r);
+      }
+      raw /= 8;
+      Color rgb = Format_Color(raw, 255.999);
+      static Interval<int> col_range(0, 255);
+      out << col_range.Clamp(static_cast<int>(rgb.r())) << ' '
+          << col_range.Clamp(static_cast<int>(rgb.g())) << ' '
+          << col_range.Clamp(static_cast<int>(rgb.b())) << '\n';
+    }
+  }
 }
