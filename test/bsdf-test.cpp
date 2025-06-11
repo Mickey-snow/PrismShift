@@ -21,17 +21,17 @@ static void ExpectColorEq(const Color& a, const Color& b, double eps = kEps) {
 // Tests for the concrete BxDF implementations
 // ---------------------------------------------------------------------------
 
-TEST(Lambertian, F_ReturnsConstantColour) {
+TEST(LambertianTest, F_ReturnsConstantColour) {
   const Color red{1.0, 0.0, 0.0};
   Lambertian lambert(red);
 
-  Color val = lambert.f(/*wi*/ {0, 0, 1}, /*wo*/ {1, 0, 1});
+  Color val = lambert.f(/*wi*/ {0, 1, 1}, /*wo*/ {0, 1, 1});
   ExpectColorEq(val, red * invpi);
-  val = lambert.f({0, 0, -1}, {1, 0, 1});
+  val = lambert.f({0, -1, -1}, {0, 1, 1});
   ExpectColorEq(val, Color());
 }
 
-TEST(Lambertian, SampleF_ProvidesSelfConsistentSample) {
+TEST(LambertianTest, SampleF_ProvidesSelfConsistentSample) {
   const Color c{0.2, 0.6, 0.8};
   Lambertian lambert(c);
 
@@ -50,7 +50,7 @@ TEST(Lambertian, SampleF_ProvidesSelfConsistentSample) {
   EXPECT_GT(s.wo.z(), 0.0);
 }
 
-TEST(Conductor, SpecularFlagsAndSampling) {
+TEST(ConductorTest, SpecularFlagsAndSampling) {
   const Color white{1, 1, 1};
   Conductor mirror(white, /*fuzz=*/0.0);  // perfect mirror
 
@@ -82,7 +82,7 @@ TEST(Conductor, SpecularFlagsAndSampling) {
   EXPECT_NEAR(s.wo.z(), expectedWo.z(), kEps);
 }
 
-TEST(Conductor, GlossyHasPositivePdfAndReturnsColour) {
+TEST(ConductorTest, GlossyHasPositivePdfAndReturnsColour) {
   const double fuzz = 0.5;
   const Color grey{0.5, 0.5, 0.5};
   Conductor glossy(grey, fuzz);
@@ -111,7 +111,7 @@ TEST(Conductor, GlossyHasPositivePdfAndReturnsColour) {
   EXPECT_NEAR(s.pdf, glossy.pdf(wi, s.wo), kEps);
 }
 
-TEST(Dielectric, SpecularSamplingProvidesEitherRefractionOrReflection) {
+TEST(DielectricTest, SpecularSamplingProvidesEitherRefractionOrReflection) {
   Dielectric glass(1.5);
 
   EXPECT_TRUE(glass.MatchesFlag(BxDFBits::Specular));
@@ -129,18 +129,4 @@ TEST(Dielectric, SpecularSamplingProvidesEitherRefractionOrReflection) {
   EXPECT_EQ(s.bxdf, &glass);
   EXPECT_DOUBLE_EQ(s.pdf, 1.0);
   EXPECT_LT(s.wo.z(), 0.0);
-}
-
-// ---------------------------------------------------------------------------
-// Tests for the BSDF wrapper/aggregator
-// ---------------------------------------------------------------------------
-
-TEST(BSDF, EmptyBsdfReturnsBlackAndZero) {
-  BSDF bsdf;  // no bxdf attached
-
-  Vector3 wi{0, 0, 1}, wo{0, 1, 0};
-
-  ExpectColorEq(bsdf.f(wi, wo), {0, 0, 0});
-  EXPECT_DOUBLE_EQ(bsdf.pdf(wi, wo), 0.0);
-  EXPECT_FALSE(bsdf.Sample_f(wi).has_value());
 }

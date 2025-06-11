@@ -1,8 +1,9 @@
 #pragma once
 
+#include "util/util.hpp"
+
 #include <memory>
 #include <optional>
-#include <util/util.hpp>
 #include <utility>
 
 enum class [[nodiscard]] BxDFBits : unsigned {
@@ -86,10 +87,10 @@ class BxDF {
   }
 };
 
+struct HitRecord;
 class BSDF {
  public:
-  explicit BSDF() { bxdf = nullptr; }
-  explicit BSDF(std::shared_ptr<BxDF> _bxdf) : bxdf(std::move(_bxdf)) {}
+  explicit BSDF(const HitRecord& rec);
 
   virtual Color f(const Vector3&,
                   const Vector3&,
@@ -100,5 +101,6 @@ class BSDF {
                      BxDFBits flag = BxDFBits::All) const;
 
  private:
-  std::shared_ptr<BxDF> bxdf;
+  std::shared_ptr<BxDF> bxdf_;
+  QuaternionTransform transform;
 };

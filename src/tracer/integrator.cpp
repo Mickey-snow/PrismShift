@@ -26,19 +26,16 @@ Color Integrator::Li(Ray r, int depth) {
   // TODO: sample emission
   Color L;
 
-  // TODO: texture coordinate and mapping
-  Point2 uv(0, 0);
-
   // Sample material parameters
-  Color kd = mat->diffuse->Evaluate(uv);
-  BSDF bsdf(std::make_shared<bxdfs::Lambertian>(kd));
+  BSDF bsdf(rec);
 
   // Indirect reflection via BSDF sampling
-  auto bsdf_sample = bsdf.Sample_f(r.Direction());
+  auto bsdf_sample = bsdf.Sample_f(rec.ray.Direction());
   if (bsdf_sample && bsdf_sample->pdf > 0.0) {
     double cos0 = absCosTheta(bsdf_sample->wo, rec.normal);
 
-    Ray scattered(rec.position, bsdf_sample->wo);
+    Ray scattered(r.At(rec.time - 1e-6),
+                  rec.primitive->GetTransform()->Undo(bsdf_sample->wo));
     scattered.origin = scattered.At(1e-6);
     Color Li_scatter = Li(scattered, depth + 1);
 
