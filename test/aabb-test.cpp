@@ -21,7 +21,7 @@ class aabbTest : public ::testing::Test {
                     Interval<double>::Universe());
 
     b1 = AABB(Point3(-0.5, -1, -1), Point3(0.5, 1, 1));
-    b2 = AABB(Interval<double>::Universe(), Interval<double>::Empty(),
+    b2 = AABB(Interval<double>::Universe(), Interval<double>::Empty,
               Interval<double>::Universe());
   }
 

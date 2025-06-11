@@ -15,7 +15,7 @@ struct HitRecord;
 template <typename T>
 class Interval;
 class Primitive;
-class IMaterial;
+class Material;
 
 class IShape {
  public:
@@ -37,7 +37,7 @@ struct HitRecord {
   Normal normal;  // normal is at the same side with ray
   bool front_face;
 
-  IMaterial const* material = nullptr;
+  Material const* material = nullptr;
 
   void SetFaceNormal(Ray r, Normal outward_normal) {
     front_face = Vector3::Dot(r.Direction(), outward_normal) < 0;

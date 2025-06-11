@@ -15,7 +15,7 @@
 
 AABB::AABB(std::initializer_list<Point3> li) {
   if (li.size() == 0) {
-    x_interval = y_interval = z_interval = Interval<double>::Empty();
+    x_interval = y_interval = z_interval = Interval<double>::Empty;
     return;
   }
 
@@ -37,7 +37,7 @@ AABB::AABB(std::initializer_list<Point3> li) {
 
 AABB::AABB(std::initializer_list<AABB> li) {
   if (li.size() == 0) {
-    x_interval = y_interval = z_interval = Interval<double>::Empty();
+    x_interval = y_interval = z_interval = Interval<double>::Empty;
     return;
   }
 

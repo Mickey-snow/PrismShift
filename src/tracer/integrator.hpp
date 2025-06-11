@@ -12,7 +12,7 @@ class Integrator {
   Integrator(Scene& scene, int max_depth)
       : scene_(scene), max_depth_(max_depth) {}
 
-  Color Li(const Ray& ray, int depth = 0) { return {}; }
+  Color Li(Ray ray, int depth = 0);
 
   void Render(const Camera& cam, std::string output_filename) {}
 

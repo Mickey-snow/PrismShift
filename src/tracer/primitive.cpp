@@ -6,7 +6,7 @@
 #include "util/util.hpp"
 
 Primitive::Primitive(std::shared_ptr<IShape> shape,
-                     std::shared_ptr<IMaterial> mat,
+                     std::shared_ptr<Material> mat,
                      std::shared_ptr<ITransformation> trans)
     : shape_(shape),
       material_(mat),

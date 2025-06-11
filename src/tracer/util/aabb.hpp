@@ -13,11 +13,11 @@ class AABB {
   // Approximate an visible object to a cube
   // All rays miss this cube thus miss the object
  public:
-  explicit AABB()
-      : x_interval(Interval<double>::Empty()),
-        y_interval(Interval<double>::Empty()),
-        z_interval(Interval<double>::Empty()) {}
-  AABB(Interval<double> x, Interval<double> y, Interval<double> z)
+  explicit constexpr AABB()
+      : x_interval(Interval<double>::Empty),
+        y_interval(Interval<double>::Empty),
+        z_interval(Interval<double>::Empty) {}
+  constexpr AABB(Interval<double> x, Interval<double> y, Interval<double> z)
       : x_interval(std::move(x)),
         y_interval(std::move(y)),
         z_interval(std::move(z)) {}
