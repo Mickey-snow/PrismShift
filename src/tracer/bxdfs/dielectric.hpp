@@ -9,12 +9,12 @@ class Dielectric : public BxDF {
  public:
   explicit Dielectric(double index)
       : BxDF(BxDFBits::Reflection | BxDFBits::Transmission |
-              BxDFBits::Specular),
+             BxDFBits::Specular),
         eta(index) {}
 
-  Color f(const Vector3&, const Vector3&) const override;
-  std::optional<bxdfSample> Sample_f(const Vector3& in) const override;
-  double pdf(const Vector3&, const Vector3&) const override;
+  Color f(const Vector3& wi, const Vector3& wo) const override;
+  std::optional<bxdfSample> Sample_f(const Vector3& wi) const override;
+  double pdf(const Vector3& wi, const Vector3& wo) const override;
 
  private:
   double eta;

@@ -28,39 +28,34 @@ BSDF::BSDF(const HitRecord& rec)
   }
 }
 
-Color BSDF::f(Vector3 rin, Vector3 rout, BxDFBits flag) const {
+Color BSDF::f(Vector3 wi, Vector3 wo, BxDFBits flag) const {
   if (bxdf_ != nullptr && bxdf_->MatchesFlag(flag)) {
-    rin = transform.Doit(rin).Normalized();
-    rout = transform.Doit(rout).Normalized();
-    return bxdf_->f(rin.Transform(transform), rout.Transform(transform));
+    wi = transform.Doit(wi).Normalized();
+    wo = transform.Doit(wo).Normalized();
+    return bxdf_->f(wi.Transform(transform), wo.Transform(transform));
   }
   return Color{0, 0, 0};
 }
 
-std::optional<bxdfSample> BSDF::Sample_f(Vector3 rin) const {
+std::optional<bxdfSample> BSDF::Sample_f(Vector3 wi) const {
   if (!bxdf_)
     return std::nullopt;
 
-  const auto len = rin.Length();
-  rin /= len;
-
-  auto sample_opt = bxdf_->Sample_f(rin.Transform(transform));
+  auto sample_opt = bxdf_->Sample_f(transform.Doit(wi).Normalized());
   if (!sample_opt)
     return std::nullopt;
 
   auto sample = *sample_opt;
-  sample.wo = transform.Undo(sample.wo);
-  sample.wo = len * sample.wo.Normalized();
+  sample.wo = transform.Undo(sample.wo).Normalized();
   return sample;
 
   return std::nullopt;
 }
 
-double BSDF::pdf(Vector3 rin, Vector3 rout, BxDFBits flag) const {
-  rin = rin.Normalized();
-  rout = rout.Normalized();
-
+double BSDF::pdf(Vector3 wi, Vector3 wo, BxDFBits flag) const {
+  wi = transform.Doit(wi).Normalized();
+  wo = transform.Doit(wo).Normalized();
   if (bxdf_ != nullptr && bxdf_->MatchesFlag(flag))
-    return bxdf_->pdf(rin, rout);
+    return bxdf_->pdf(wi, wo);
   return 0.0;
 }
