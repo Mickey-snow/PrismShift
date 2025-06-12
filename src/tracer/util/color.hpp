@@ -11,6 +11,7 @@ class Color : public basic_vector<double, 3> {
   using value_type = typename super::value_type;
   static constexpr auto dimension = super::dimension;
 
+  explicit constexpr Color(double c) : super(c, c, c) {}
   explicit constexpr Color(vector_like auto c) : super(std::move(c)) {}
 
   inline constexpr value_type r() const { return v[0]; }

@@ -7,11 +7,11 @@ namespace bxdfs {
 
 class Conductor : public BxDF {
  public:
-  Conductor(const Color& _col, const double& f = 0)
+  Conductor(Color _col, double f = 0)
       : BxDF(BxDFBits::Reflection),
         isSpecular(fabs(f) < 1e-6),
         fuzz(fabs(f) > 1 ? 1 : fabs(f)),
-        col(_col) {
+        col(std::move(_col)) {
     if (isSpecular)
       SetFlags(GetFlags() | BxDFBits::Specular);
     else
@@ -26,8 +26,6 @@ class Conductor : public BxDF {
   bool isSpecular;
   double fuzz;
   Color col;
-
-  Vector3 Reflected_Direction(const Vector3&) const;
 };
 
 }  // namespace bxdfs

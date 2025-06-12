@@ -54,21 +54,12 @@ void Integrator::Render(const Camera& cam,
   };
   std::vector<Pixel> framebuffer(image_width * image_height);
 
-  // Random number setup
-  std::random_device rd;
-
   unsigned num_threads = std::thread::hardware_concurrency();
   if (num_threads == 0)
     num_threads = 4;
 
   // Render a range of rows [y_start, y_end)
   auto render_rows = [&](int y_start, int y_end) {
-    // Each thread gets its own RNG
-    thread_local std::mt19937 gen(
-        rd() ^ (std::mt19937::result_type)std::hash<std::thread::id>()(
-                   std::this_thread::get_id()));
-    std::uniform_real_distribution<double> distr(0.0, 1.0);
-
     for (int y = y_start; y < y_end; ++y) {
       for (int x = 0; x < image_width; ++x) {
         // base point on the film
@@ -77,8 +68,9 @@ void Integrator::Render(const Camera& cam,
 
         Color raw(0, 0, 0);
         for (int i = 0; i < spp; ++i) {
-          Point3 jittered = pixel_center + distr(gen) * view.pixel_delta_u +
-                            distr(gen) * view.pixel_delta_v;
+          Point3 jittered = pixel_center +
+                            random_uniform_01() * view.pixel_delta_u +
+                            random_uniform_01() * view.pixel_delta_v;
           Ray r(origin, jittered - origin);
           raw += Li(r);
         }

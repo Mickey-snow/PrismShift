@@ -18,10 +18,6 @@ class Dielectric : public BxDF {
 
  private:
   double eta;
-
-  static Vector3 Reflect(const Vector3& v);
-  static std::optional<Vector3> Refract(const Vector3& v, double etaRel);
-  static double FresnelSchlick(double cosTheta, double etaI, double etaT);
 };
 
 }  // namespace bxdfs

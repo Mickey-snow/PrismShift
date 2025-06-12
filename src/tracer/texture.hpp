@@ -18,3 +18,12 @@ class SolidColor : public Texture<Color> {
 
   Color Evaluate(Point2) override { return col_; }
 };
+
+class FloatConst : public Texture<double> {
+  double val_;
+
+ public:
+  constexpr FloatConst(double v) : val_(v) {}
+
+  double Evaluate(Point2) override { return val_; }
+};

@@ -10,5 +10,5 @@ class Texture;
 
 struct Material {
   std::shared_ptr<Texture<Color>> diffuse = nullptr;
-  std::shared_ptr<Texture<Color>> emission = nullptr;
+  std::shared_ptr<Texture<double>> dielectric = nullptr;
 };

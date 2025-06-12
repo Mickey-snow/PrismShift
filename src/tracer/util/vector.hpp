@@ -10,8 +10,8 @@
 #include <type_traits>
 #include <utility>
 
-#include "util/vector_fwd.hpp"
 #include "util/vecmath.hpp"
+#include "util/vector_fwd.hpp"
 
 class ITransformation;
 
@@ -149,20 +149,22 @@ class Normal : public basic_vector<double, 3> {
   static constexpr auto dimension = super::dimension;
 
   template <typename... Ts>
-  explicit Normal(Ts&&... param) : super(std::forward<Ts>(param)...) {
+  explicit constexpr Normal(Ts&&... param) : super(std::forward<Ts>(param)...) {
     Normalize();
   }
-  explicit Normal(vector_like auto it) : super(std::move(it)) { Normalize(); }
+  explicit constexpr Normal(vector_like auto it) : super(std::move(it)) {
+    Normalize();
+  }
 
   Normal Transform(const ITransformation&) const;
 
-  Normal operator+(const Vector3& rhs) const {
+  constexpr Normal operator+(const Vector3& rhs) const {
     return Normal(x() + rhs.x(), y() + rhs.y(), z() + rhs.z());
   }
-  Normal operator-(const Vector3& rhs) const {
+  constexpr Normal operator-(const Vector3& rhs) const {
     return Normal(x() - rhs.x(), y() - rhs.y(), z() - rhs.z());
   }
-  Normal operator-() const { return Normal(-x(), -y(), -z()); }
+  constexpr Normal operator-() const { return Normal(-x(), -y(), -z()); }
 
  private:
   void Normalize() {

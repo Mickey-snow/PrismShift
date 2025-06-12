@@ -3,8 +3,14 @@
 
 namespace bxdfs {
 
-Vector3 Conductor::Reflected_Direction(const Vector3& wi) const {
-  return Vector3{wi.x(), wi.y(), -wi.z()};
+inline static Vector3 ReflectedDirection(Vector3 wi) {
+  return Vector3(
+      basic_vector<double, 3>{-wi.x(), -wi.y(), wi.z()}.normalised());
+}
+
+inline static double AbsCosTheta(Vector3 v) {
+  // supposing v.Length() == 1
+  return std::abs(v.z());
 }
 
 Color Conductor::f(const Vector3& wi, const Vector3& wo) const {
@@ -18,7 +24,7 @@ double Conductor::pdf(const Vector3& wi, const Vector3& wo) const {
   if (isSpecular)
     return 0;
 
-  auto delta_w = wo - Reflected_Direction(wi);
+  auto delta_w = wo - ReflectedDirection(wi);
   if (delta_w.Length_squared() <= fuzz * fuzz + 1e-7)
     return pdf_cosine_distributed_hemisphere(delta_w);
   else
@@ -26,12 +32,13 @@ double Conductor::pdf(const Vector3& wi, const Vector3& wo) const {
 }
 
 std::optional<bxdfSample> Conductor::Sample_f(const Vector3& wi) const {
-  auto wo = Reflected_Direction(wi);
-  if (isSpecular)
-    return BxDF::Make_Sample(col, wo, 1.0, this);
+  auto wo = ReflectedDirection(wi);
+  if (isSpecular) {
+    return BxDF::MakeSample(col, wo, 1.0, this);
+  }
 
   auto delta_w = Spawn_cosine_distributed_hemisphere();
-  return BxDF::Make_Sample(col, wo + delta_w * fuzz,
+  return BxDF::MakeSample(col, wo + delta_w * fuzz,
                            pdf_cosine_distributed_hemisphere(delta_w), this);
 }
 

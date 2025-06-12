@@ -41,11 +41,8 @@ struct bxdfSample {
   BxDF const* bxdf;
 
   bxdfSample() : f{0, 0, 0}, wo{0, 0, 0}, pdf(0.0), bxdf(nullptr) {}
-  bxdfSample(const Color& _col,
-             const Vector3& _rout,
-             const double& _pdf,
-             BxDF const* _bxdf)
-      : f(_col), wo(_rout), pdf(_pdf), bxdf(_bxdf) {}
+  bxdfSample(Color _col, Vector3 _rout, double _pdf, BxDF const* _bxdf)
+      : f(std::move(_col)), wo(std::move(_rout)), pdf(_pdf), bxdf(_bxdf) {}
 };
 
 class BxDF {
@@ -55,16 +52,15 @@ class BxDF {
 
   // returns the value of the distribution function for the given pair of
   // directions
-  virtual Color f(const Vector3&, const Vector3&) const = 0;
+  virtual Color f(const Vector3& wi, const Vector3& wo) const = 0;
 
   // a method that uses importance sampling to draw a direction from a
   // distribution that approximately matches the scattering function's shape
-  virtual std::optional<bxdfSample> Sample_f(const Vector3& rin) const = 0;
+  virtual std::optional<bxdfSample> Sample_f(const Vector3& wi) const = 0;
 
   // returns the value of the probability density function for the given pair of
   // directions
-  virtual double pdf(const Vector3& in_direction,
-                     const Vector3& out_direction) const = 0;
+  virtual double pdf(const Vector3& wi, const Vector3& wo) const = 0;
 
   bool MatchesFlag(BxDFBits flag) const {
     return (this->flag & flag) != BxDFBits::None;
@@ -76,7 +72,7 @@ class BxDF {
 
  protected:
   template <typename... Ts>
-  bxdfSample Make_Sample(Ts&&... params) const {
+  bxdfSample MakeSample(Ts&&... params) const {
     return bxdfSample(std::forward<Ts>(params)...);
   }
 
@@ -92,13 +88,9 @@ class BSDF {
  public:
   explicit BSDF(const HitRecord& rec);
 
-  virtual Color f(const Vector3&,
-                  const Vector3&,
-                  BxDFBits flag = BxDFBits::All) const;
-  virtual std::optional<bxdfSample> Sample_f(const Vector3&) const;
-  virtual double pdf(const Vector3&,
-                     const Vector3&,
-                     BxDFBits flag = BxDFBits::All) const;
+  Color f(Vector3 wi, Vector3 wo, BxDFBits flag = BxDFBits::All) const;
+  std::optional<bxdfSample> Sample_f(Vector3 wi) const;
+  double pdf(Vector3 wi, Vector3 wo, BxDFBits flag = BxDFBits::All) const;
 
  private:
   std::shared_ptr<BxDF> bxdf_;

@@ -7,9 +7,9 @@ double pdf_cosine_distributed_hemisphere(const Vector3& wo) {
   const double len_sq = wo.Length_squared();
   if (len_sq == 0)
     return invpi;  // treat as aligned with +Z
-  if (wo.z() <= 0)
+  if (wo.y() <= 0)
     return 0;
-  double costheta = wo.z() / std::sqrt(len_sq);
+  double costheta = wo.y() / std::sqrt(len_sq);
   return costheta * invpi;
 }
 
