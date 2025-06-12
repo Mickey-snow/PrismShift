@@ -184,23 +184,52 @@ TEST(ConductorTest, GlossyHasPositivePdfAndReturnsColour) {
 
 // ---------------------------------------------------------------------------
 
-TEST(DielectricTest, SpecularSamplingProvidesEitherRefractionOrReflection) {
-  GTEST_SKIP();
+TEST(DielectricTest, Flags) {
   Dielectric glass(1.5);
-
   EXPECT_TRUE(glass.MatchesFlag(BxDFBits::Specular));
   EXPECT_TRUE(glass.MatchesFlag(BxDFBits::Reflection));
   EXPECT_TRUE(glass.MatchesFlag(BxDFBits::Transmission));
+}
 
-  Vector3 wi{0, 0, 1};
-  Vector3 refl{wi.x(), wi.y(), -wi.z()};
-  EXPECT_DOUBLE_EQ(glass.pdf(wi, refl), 0.0);
+TEST(DielectricTest, fAndpdf) {
+  Dielectric glass(1.6);
 
-  auto sampleOpt = glass.Sample_f(wi);
-  ASSERT_TRUE(sampleOpt.has_value());
-  const auto& s = *sampleOpt;
-  EXPECT_EQ(s.f, Color(1, 1, 1));
-  EXPECT_EQ(s.bxdf, &glass);
-  EXPECT_DOUBLE_EQ(s.pdf, 1.0);
-  EXPECT_LT(s.wo.z(), 0.0);
+  for (int i = 0; i < 10; ++i) {
+    Vector3 wi = rand_hemisphere_uniform(), wo = rand_hemisphere_uniform();
+    EXPECT_EQ(glass.f(wi, wo), Color(0));
+    EXPECT_NEAR(glass.pdf(wi, wo), 0, kEps);
+  }
+}
+
+TEST(DielectricTest, ReflectAndRefract) {
+  static constexpr auto N = 128;
+  static const Normal n{0, 1, 0};
+
+  const double eta = 1.6;
+  Dielectric glass(eta);
+
+  int reflects = 0, refracts = 0;
+  for (int i = 0; i < N; ++i) {
+    const Vector3 wi = rand_sphere_uniform();
+    auto sample = glass.Sample_f(wi);
+    ASSERT_TRUE(sample.has_value());
+
+    const Vector3 wo = sample->wo;
+    EXPECT_EQ(Normal(wi.x(), 0, wi.z()), Normal(wo.x(), 0, wo.z()))
+        << wi << ' ' << wo;             // phi_r = phi_i + pi
+    if (wo.Dot(n) * wi.Dot(n) < 0.0) {  // reflect
+      ++reflects;
+      EXPECT_NEAR(-wi.y(), wo.y(), kEps)
+          << wi << ' ' << wo;  // theta_r = theta_i
+    } else {                   // refract
+      ++refracts;
+      const double e = wi.y() < 0 ? eta : 1.0 / eta;
+      EXPECT_NEAR(std::sqrt(1.0 - wi.y() * wi.y()),
+                  e * std::sqrt(1.0 - wo.y() * wo.y()), kEps)
+          << wi << ' ' << wo;
+    }
+  }
+
+  EXPECT_GT(reflects, 0);
+  EXPECT_GT(refracts, 0);
 }

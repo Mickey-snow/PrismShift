@@ -158,13 +158,17 @@ class Normal : public basic_vector<double, 3> {
 
   Normal Transform(const ITransformation&) const;
 
-  constexpr Normal operator+(const Vector3& rhs) const {
+  inline constexpr Normal operator+(const Vector3& rhs) const {
     return Normal(x() + rhs.x(), y() + rhs.y(), z() + rhs.z());
   }
-  constexpr Normal operator-(const Vector3& rhs) const {
+  inline constexpr Normal operator-(const Vector3& rhs) const {
     return Normal(x() - rhs.x(), y() - rhs.y(), z() - rhs.z());
   }
-  constexpr Normal operator-() const { return Normal(-x(), -y(), -z()); }
+  inline constexpr Normal operator-() const { return Normal(-x(), -y(), -z()); }
+
+  inline constexpr bool operator==(vector_like auto const& rhs) const {
+    return super::operator==(rhs);
+  }
 
  private:
   void Normalize() {

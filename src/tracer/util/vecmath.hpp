@@ -127,10 +127,12 @@ class basic_vector {
         return false;
     return true;
   }
-  [[nodiscard]] constexpr bool operator==(const basic_vector& rhs) const {
+  [[nodiscard]] inline constexpr bool operator==(
+      const basic_vector& rhs) const {
     return (*this - rhs).near_zero();
   }
-  [[nodiscard]] constexpr bool operator!=(const basic_vector& rhs) const {
+  [[nodiscard]] inline constexpr bool operator!=(
+      const basic_vector& rhs) const {
     return !(*this == rhs);
   }
 
@@ -145,7 +147,7 @@ class basic_vector {
 std::ostream& operator<<(std::ostream& os, const vector_like auto& it) {
   os << '{' << it.v[0];
   for (std::size_t i = 1; i < it.dimension; ++i)
-    os << ',' << it.v[1];
+    os << ',' << it.v[i];
   os << '}';
   return os;
 }

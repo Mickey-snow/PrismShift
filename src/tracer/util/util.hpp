@@ -43,10 +43,6 @@ inline Vector3 Reflect(const Vector3& v, const Vector3& n) {
   return v - 2.0 * v.Dot(n) * n;
 }
 
-/* Convenience overload for the tracer’s local shading frame
- * (normal is always +Y = (0, 1, 0)).  Saves a dot-product. */
-inline Vector3 Reflect(const Vector3& v) { return {v.x(), -v.y(), v.z()}; }
-
 /**
  * Snell refraction.
  *
