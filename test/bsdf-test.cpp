@@ -118,68 +118,40 @@ TEST(LambertianTest, SampleConvergence) {
 
 // ---------------------------------------------------------------------------
 
-TEST(ConductorTest, SpecularFlagsAndSampling) {
-  GTEST_SKIP();
-
+TEST(ConductorTest, Flags) {
   const Color white{1, 1, 1};
-  Conductor mirror(white, /*fuzz=*/0.0);  // perfect mirror
-
+  Conductor mirror(white, /*fuzz=*/0.0);
   EXPECT_TRUE(mirror.MatchesFlag(BxDFBits::Specular));
   EXPECT_TRUE(mirror.MatchesFlag(BxDFBits::Reflection));
-
-  Vector3 wi{0.2, -0.4, 0.9};
-  wi.Normalized();
-  Vector3 expectedWo{wi.x(), wi.y(), -wi.z()};
-
-  // pdf() is zero for ideal specular events ------------------------------
-  EXPECT_DOUBLE_EQ(mirror.pdf(wi, expectedWo), 0.0);
-
-  // Therefore f() must return black
-  Color fval = mirror.f(wi, expectedWo);
-  EXPECT_EQ(fval, Color(0, 0, 0));
-
-  // Sample_f must give the perfect reflection with pdf == 1 --------------
-  auto sampleOpt = mirror.Sample_f(wi);
-  ASSERT_TRUE(sampleOpt.has_value());
-
-  const auto& s = *sampleOpt;
-  EXPECT_EQ(s.f, white);
-  EXPECT_EQ(s.bxdf, &mirror);
-  EXPECT_DOUBLE_EQ(s.pdf, 1.0);
-
-  EXPECT_NEAR(s.wo.x(), expectedWo.x(), kEps);
-  EXPECT_NEAR(s.wo.y(), expectedWo.y(), kEps);
-  EXPECT_NEAR(s.wo.z(), expectedWo.z(), kEps);
 }
 
-TEST(ConductorTest, GlossyHasPositivePdfAndReturnsColour) {
-  GTEST_SKIP();
-  const double fuzz = 0.5;
-  const Color grey{0.5, 0.5, 0.5};
-  Conductor glossy(grey, fuzz);
+TEST(ConductorTest, pdfPerfectSpecular) {
+  const Color white{1, 1, 1};
+  Conductor mirror(white, /*fuzz=*/0.0);
 
-  EXPECT_TRUE(glossy.MatchesFlag(BxDFBits::Glossy));
-  EXPECT_FALSE(glossy.MatchesFlag(BxDFBits::Specular));
+  static constexpr auto N = 16;
+  for (size_t i = 0; i < N; ++i) {
+    Vector3 wi = rand_sphere_uniform(), wo = rand_sphere_uniform();
+    EXPECT_EQ(mirror.f(wi, wo), Color(0));
+    EXPECT_NEAR(mirror.pdf(wi, wo), 0, kEps);
+  }
+}
 
-  Vector3 wi{0, 0.7, 0.7};
-  wi = wi.Normalized();
-  Vector3 woPerfect{wi.x(), wi.y(), -wi.z()};
+TEST(ConductorTest, SamplePerfectSpecular) {
+  const Color c{0.9, 0.8, 0.7};
+  Conductor mirror(c, /*fuzz=*/0.0);
 
-  // For glossy conductors pdf() is non-zero close to the perfect direction
-  double pdfPerfect = glossy.pdf(wi, woPerfect);
-  EXPECT_GT(pdfPerfect, 0.0);
+  static constexpr auto N = 16;
+  for (size_t i = 0; i < N; ++i) {
+    Vector3 wi = rand_sphere_uniform();
+    auto sample = mirror.Sample_f(wi);
+    ASSERT_TRUE(sample.has_value());
+    EXPECT_NEAR(sample->pdf, 1.0, kEps);
 
-  // Consequently f() returns the base colour there
-  EXPECT_EQ(glossy.f(wi, woPerfect), grey);
-
-  // Consistency checks on a random sample -------------------------------
-  auto sampleOpt = glossy.Sample_f(wi);
-  ASSERT_TRUE(sampleOpt.has_value());
-  const auto& s = *sampleOpt;
-
-  EXPECT_EQ(s.f, grey);
-  EXPECT_EQ(s.bxdf, &glossy);
-  EXPECT_NEAR(s.pdf, glossy.pdf(wi, s.wo), kEps);
+    sample->wo.y() = -sample->wo.y();
+    EXPECT_EQ(sample->wo, wi);
+    EXPECT_EQ(sample->f, c);
+  }
 }
 
 // ---------------------------------------------------------------------------

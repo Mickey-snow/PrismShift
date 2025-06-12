@@ -13,7 +13,7 @@ inline static Vector3 Reflect(const Vector3& v) {
 }
 
 inline static std::optional<Vector3> Refract(const Vector3& wi, double etaRel) {
-  double cosThetaI = wi.y() / wi.Length();
+  double cosThetaI = wi.y();
   double sin2ThetaI = std::max(0.0, 1.0 - cosThetaI * cosThetaI);
   double sin2ThetaT = etaRel * etaRel * sin2ThetaI;
   if (sin2ThetaT > 1.0)

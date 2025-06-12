@@ -33,7 +33,6 @@ Color Integrator::Li(Ray r, int depth) {
   if (bsdf_sample && bsdf_sample->pdf > 0.0) {
     double cos0 = absCosTheta(bsdf_sample->wo, rec.normal);
     Ray scattered(rec.position, bsdf_sample->wo);
-    scattered.origin = scattered.At(1e-6);
     Color Li_scatter = Li(scattered, depth + 1);
     L += bsdf_sample->f * Li_scatter * cos0 / bsdf_sample->pdf;
   }

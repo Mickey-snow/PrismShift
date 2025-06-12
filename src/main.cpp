@@ -7,7 +7,7 @@
 #include "util/util.hpp"
 
 Camera Get_Camera() {
-  int image_h = 360;
+  int image_h = 720;
   double aspect = 16.0 / 9.0;
   double vFovDeg = 23;
   // Camera(center, lookAt, imageHeight, aspect, verticalFovDegrees)
@@ -55,13 +55,13 @@ Scene Get_World() {
 
   objs.emplace_back(make_sphere(Color(0.4, 0.1, 0.9), Point3(-4, 1, 1), 1));
   objs.emplace_back(make_sphere(
-      std::make_shared<Material>(nullptr, std::make_shared<FloatConst>(1.5)),
+      std::make_shared<Material>(nullptr, std::make_shared<FloatConst>(1.6)),
       Point3(0, 1, 1), 1));
-  // objs.emplace_back(
-  //     make_sphere(std::make_shared<Material>(
-  //                     std::make_shared<SolidColor>(Color(0.7, 0.6, 0.5)),
-  //                     std::make_shared<FloatConst>(0.03)),
-  //                 Point3(4, 1, 1), 1));
+  objs.emplace_back(
+      make_sphere(std::make_shared<Material>(
+                      std::make_shared<SolidColor>(Color(0.5, 0.5, 0.5)),
+                      std::make_shared<FloatConst>(0)),
+                  Point3(4, 1, 1), 1));
 
   Scene scene(std::move(objs));
   scene.SetBackground(  // simple blue to white gradient
@@ -76,6 +76,6 @@ Scene Get_World() {
 int main() {
   auto camera = Get_Camera();
   auto scene = Get_World();
-  Integrator integrator(scene, 50);
-  integrator.Render(camera, "output.ppm", 32);
+  Integrator integrator(scene, 64);
+  integrator.Render(camera, "output.ppm", 128);
 }
