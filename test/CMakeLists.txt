@@ -14,11 +14,11 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(googletest)
 
-target_link_libraries(unit_test
-	gtest_main
-	gmock_main
-	raytracer
-	)
+target_link_libraries(unit_test PRIVATE
+  gtest_main
+  gmock_main
+  raytracer
+)
 
 
 include(GoogleTest)
@@ -26,4 +26,4 @@ include(GoogleTest)
 gtest_discover_tests(unit_test)
 
 add_test(test_all
-	unit_test)
+  unit_test)
