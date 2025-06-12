@@ -61,7 +61,6 @@ TEST_F(sphereTest, rayHits) {
       auto rec = ball->Hit(r, Interval<double>(0, 10.5));
 
       ASSERT_TRUE(rec.hits);
-      EXPECT_EQ(rec.ray, r);
       if (isInside(r.Origin()))
         EXPECT_FALSE(rec.front_face);
       else

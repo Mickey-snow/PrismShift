@@ -21,7 +21,6 @@ HitRecord Primitive::Hit(Ray ray, Interval<double> t) const {
     rec.primitive = this;
     rec.material = material_.get();
     rec.position = transform_->Doit(rec.position);
-    rec.ray = ray;
     rec.normal = transform_->Doit(rec.normal);
   }
   return rec;

@@ -49,6 +49,5 @@ TEST(PrimitiveTest, HitTransformsRay) {
   auto rec = prim.Hit(world_ray, Interval<double>::Universe());
   EXPECT_TRUE(rec.hits);
   EXPECT_EQ(rec.primitive, &prim);
-  EXPECT_EQ(rec.ray, world_ray);
   EXPECT_DOUBLE_EQ(rec.time, 2.0);
 }

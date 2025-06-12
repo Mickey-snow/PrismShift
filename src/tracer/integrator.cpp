@@ -29,7 +29,7 @@ Color Integrator::Li(Ray r, int depth) {
 
   Color L;
   BSDF bsdf(rec);
-  auto bsdf_sample = bsdf.Sample_f(rec.ray.Direction());
+  auto bsdf_sample = bsdf.Sample_f(r.Direction());
   if (bsdf_sample && bsdf_sample->pdf > 0.0) {
     double cos0 = absCosTheta(bsdf_sample->wo, rec.normal);
     Ray scattered(rec.position, bsdf_sample->wo);
