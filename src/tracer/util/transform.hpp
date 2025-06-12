@@ -1,8 +1,8 @@
 #pragma once
 
-#include "util/vector.hpp"
 #include "util/matrix.hpp"
 #include "util/vecmath.hpp"
+#include "util/vector.hpp"
 
 #include <memory>
 #include <ostream>
@@ -223,8 +223,6 @@ class Quaternion {
       : s(is), v(ix, iy, iz) {}
   Quaternion(double is, basic_vector<double, 3> iv) : s(is), v(std::move(iv)) {}
 
-  ~Quaternion() = default;
-
   Quaternion operator+(const Quaternion& rhs) const;
   Quaternion& operator+=(const Quaternion& rhs) { return *this = *this + rhs; }
   Quaternion operator-(const Quaternion& rhs) const;
@@ -259,7 +257,6 @@ class QuaternionTransform : public ITransformation {
   QuaternionTransform(Quaternion quat) : q(std::move(quat)), qinv(q.inv()) {}
   QuaternionTransform(Quaternion quat, Quaternion quatinv)
       : q(std::move(quat)), qinv(std::move(quatinv)) {}
-  ~QuaternionTransform() = default;
 
   Point3 Doit(Point3) const override;
   Point3 Undo(Point3) const override;

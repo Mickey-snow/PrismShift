@@ -30,6 +30,7 @@ Vector3 VectorTranslate::Undo(Vector3 v) const { return v; }
 Normal VectorTranslate::Doit(Normal n) const { return n; }
 Normal VectorTranslate::Undo(Normal n) const { return n; }
 
+// --------------------------------------------------------------------------------
 VectorScale::VectorScale(Vector3 v) : dx(v.x()), dy(v.y()), dz(v.z()) {}
 
 Point3 VectorScale::Doit(Point3 p) const {
@@ -62,6 +63,7 @@ Normal VectorScale::Undo(Normal n) const {
   return Normal(n.x() * dx, n.y() * dy, n.z() * dz);
 }
 
+// --------------------------------------------------------------------------------
 Point3 MatrixTransformation::Doit(Point3 p) const {
   basic_vector<double, 4> w(p.x(), p.y(), p.z(), 1);
   w = m * w;
@@ -272,6 +274,7 @@ MatrixTransformation MatrixTransformation::Scale(Vector3 n, double k) {
   return MatrixTransformation(mat, matinv);
 }
 
+// --------------------------------------------------------------------------------
 Quaternion Quaternion::operator+(const Quaternion& rhs) const {
   return Quaternion(s + rhs.s, v + rhs.v);
 }
@@ -304,6 +307,7 @@ double Quaternion::Dot(const Quaternion& rhs) const {
 
 Quaternion Quaternion::inv(void) const { return conj() / sqrnorm(); }
 
+// --------------------------------------------------------------------------------
 basic_vector<double, 3> QuaternionTransform::Doit_impl(
     const basic_vector<double, 3>& it) const {
   auto p = Quaternion(0, it.x(), it.y(), it.z());

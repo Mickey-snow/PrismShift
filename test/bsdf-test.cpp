@@ -46,8 +46,8 @@ TEST(LambertianTest, SampleF_ProvidesSelfConsistentSample) {
   // PDF in the sample must match calling pdf() directly
   EXPECT_NEAR(s.pdf, lambert.pdf(wi, s.wo), kEps);
 
-  // All cosine–hemisphere samples must point into the +Z half–space
-  EXPECT_GT(s.wo.z(), 0.0);
+  // All cosine–hemisphere samples must point into the +y half–space
+  EXPECT_GT(s.wo.y(), 0.0);
 }
 
 TEST(ConductorTest, SpecularFlagsAndSampling) {
