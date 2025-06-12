@@ -302,3 +302,23 @@ class QuaternionTransform : public ITransformation {
   static QuaternionTransform AlignXYZ(const basic_vector<Vector3, 3>&);
   static QuaternionTransform AlignXYZ(Vector3, Vector3, Vector3);
 };
+
+class CompositeTransformation : public ITransformation {
+ public:
+  CompositeTransformation(
+      std::initializer_list<std::shared_ptr<ITransformation>> sub)
+      : subtr_(std::move(sub)) {}
+  template <typename... Ts>
+  CompositeTransformation(Ts&&... params)
+      : subtr_({std::forward<Ts>(params)...}) {}
+
+  Point3 Doit(Point3) const override;
+  Point3 Undo(Point3) const override;
+  Vector3 Doit(Vector3) const override;
+  Vector3 Undo(Vector3) const override;
+  Normal Doit(Normal) const override;
+  Normal Undo(Normal) const override;
+
+ private:
+  std::vector<std::shared_ptr<ITransformation>> subtr_;
+};

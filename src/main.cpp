@@ -9,52 +9,52 @@
 Camera Get_Camera() {
   int image_h = 360;
   double aspect = 16.0 / 9.0;
-  double vFovDeg = 60.0;
+  double vFovDeg = 45;
   // Camera(center, lookAt, imageHeight, aspect, verticalFovDegrees)
-  Camera cam({12, 2, 3}, {0, 0, 0}, image_h, aspect, vFovDeg);
+  Camera cam({12, 2, -2.5}, {0, 0, 0}, image_h, aspect, vFovDeg);
   return cam;
 }
 
-inline static std::shared_ptr<ITransformation> translate(double x,
-                                                         double y,
-                                                         double z) {
-  return std::make_shared<VectorTranslate>(x, y, z);
-}
-inline static std::shared_ptr<ITransformation> translate(vector_like auto v) {
-  return translate(v.x(), v.y(), v.z());
-}
-inline static Color rand_color(double l = 0, double r = 1) {
-  return Color(random_double(l, r), random_double(l, r), random_double(l, r));
+inline static std::shared_ptr<Primitive> make_sphere(Color color,
+                                                     Point3 pos,
+                                                     double d) {
+  static const auto sphere = std::make_shared<Sphere>();
+
+  auto mat = std::make_shared<Material>(
+      std::make_shared<SolidColor>(std::move(color)));
+  auto trans = std::make_shared<CompositeTransformation>(
+      std::make_shared<VectorScale>(d, d, d),
+      std::make_shared<VectorTranslate>(Vector3(pos)));
+  // Note: transformation order is equivalent to
+  // MatrixTransformation::Translate(Vector3(pos)) *
+  //     MatrixTransformation::Scale(d, d, d)
+
+  return std::make_shared<Primitive>(sphere, std::move(mat), std::move(trans));
 }
 
 Scene Get_World() {
   std::vector<std::shared_ptr<Primitive>> objs;
-  auto sphere = std::make_shared<Sphere>();
 
-  auto ground_mat =
-      std::make_shared<Material>(std::make_shared<SolidColor>(0.5, 0.5, 0.5));
+  // ground
   objs.emplace_back(
-      std::make_shared<Primitive>(sphere, ground_mat, translate(0, -1000, 0)));
-  for (int a = -11; a < 11; ++a)
-    for (int b = -11; b < 11; ++b) {
+      make_sphere(Color(0.5, 0.5, 0.5), Point3(0, -1000, 0), 1000));
+  for (int a = -7; a < 7; ++a)
+    for (int b = -7; b < 7; ++b) {
       Point3 center(a + random_double(0, 0.9), 0.2, b + random_double(0, 0.9));
 
       if ((center - Point3(4, 0.2, 0)).Length() > 0.9) {
-        auto albedo = rand_color();
-        auto mat =
-            std::make_shared<Material>(std::make_shared<SolidColor>(albedo));
-        objs.emplace_back(
-            std::make_shared<Primitive>(sphere, mat, translate(center)));
+        auto albedo = Color(random_double(0.65, 1), random_double(0.65, 1),
+                            random_double(0.65, 1));
+        objs.emplace_back(make_sphere(albedo, center, 0.2));
       }
     }
 
   // auto material1 = make_shared<dielectric>(1.5);
   //   world.add(make_shared<sphere>(point3(0, 1, 0), 1.0, material1));
 
-  auto mat2 =
-      std::make_shared<Material>(std::make_shared<SolidColor>(0.4, 0.2, 0.1));
-  objs.emplace_back(
-      std::make_shared<Primitive>(sphere, mat2, translate(0, 1, 0)));
+  objs.emplace_back(make_sphere(Color(0.2, 0.8, 0.3), Point3(0, 1.6, 1), 1.6));
+  objs.emplace_back(make_sphere(Color(0.4, 0.2, 0.1), Point3(2, 1.6, 1), 1.6));
+  objs.emplace_back(make_sphere(Color(0.4, 0.1, 0.9), Point3(4, 1.6, 1), 1.6));
 
   // auto material3 = make_shared<metal>(color(0.7, 0.6, 0.5), 0.0);
   // world.add(make_shared<sphere>(point3(4, 1, 0), 1.0, material3));
@@ -73,5 +73,5 @@ int main() {
   auto camera = Get_Camera();
   auto scene = Get_World();
   Integrator integrator(scene, 32);
-  integrator.Render(camera, "output.ppm");
+  integrator.Render(camera, "output.ppm", 128);
 }

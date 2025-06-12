@@ -380,3 +380,35 @@ QuaternionTransform QuaternionTransform::AlignXYZ(
     const basic_vector<Vector3, 3>& basis) {
   return QuaternionTransform::AlignXYZ(basis.x(), basis.y(), basis.z());
 }
+
+// --------------------------------------------------------------------------------
+Point3 CompositeTransformation::Doit(Point3 p) const {
+  for (const auto& tr : subtr_)
+    p = tr->Doit(p);
+  return p;
+}
+Point3 CompositeTransformation::Undo(Point3 p) const {
+  for (auto it = subtr_.crbegin(); it != subtr_.crend(); ++it)
+    p = (*it)->Undo(p);
+  return p;
+}
+Vector3 CompositeTransformation::Doit(Vector3 p) const {
+  for (const auto& tr : subtr_)
+    p = tr->Doit(p);
+  return p;
+}
+Vector3 CompositeTransformation::Undo(Vector3 p) const {
+  for (auto it = subtr_.crbegin(); it != subtr_.crend(); ++it)
+    p = (*it)->Undo(p);
+  return p;
+}
+Normal CompositeTransformation::Doit(Normal p) const {
+  for (const auto& tr : subtr_)
+    p = tr->Doit(p);
+  return p;
+}
+Normal CompositeTransformation::Undo(Normal p) const {
+  for (auto it = subtr_.crbegin(); it != subtr_.crend(); ++it)
+    p = (*it)->Undo(p);
+  return p;
+}
