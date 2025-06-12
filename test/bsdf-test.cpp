@@ -14,6 +14,13 @@ using namespace bxdfs;
 
 static constexpr auto kEps = 1e-6;
 
+namespace {  // helpers
+inline static Vector3 rand_wi() {
+  Vector3 v = rand_hemisphere_uniform();
+  v.y() *= -1;
+  return v;
+}
+}  // namespace
 // ---------------------------------------------------------------------------
 // Tests for the concrete BxDF implementations
 // ---------------------------------------------------------------------------
@@ -22,9 +29,9 @@ TEST(LambertianTest, F_ReturnsConstantColour) {
   const Color red{1.0, 0.0, 0.0};
   Lambertian lambert(red);
 
-  Color val = lambert.f(/*wi*/ {0, 1, 1}, /*wo*/ {0, 1, 1});
+  Color val = lambert.f(/*wi*/ {0, -1, 1}, /*wo*/ {0, 1, 1});
   EXPECT_EQ(val, red * invpi);
-  val = lambert.f({0, -1, -1}, {0, 1, 1});
+  val = lambert.f({0, 11, -1}, {0, 1, 1});
   EXPECT_EQ(val, Color());
 }
 
@@ -32,7 +39,7 @@ TEST(LambertianTest, SampleF_ProvidesSelfConsistentSample) {
   const Color c{0.2, 0.6, 0.8};
   Lambertian lambert(c);
 
-  Vector3 wi{0, 0, 1};  // normal incidence
+  Vector3 wi{0, -1, 0};  // normal incidence
   auto sampleOpt = lambert.Sample_f(wi);
   ASSERT_TRUE(sampleOpt.has_value());
 
@@ -54,11 +61,11 @@ TEST(LambertianTest, SampleF_IsCosineWeighted) {
 
   std::vector<double> cos_thetas(N, 0);
   for (size_t i = 0; i < N; ++i) {
-    const auto wi = rand_hemisphere_uniform();
+    const auto wi = rand_wi();
     auto sample = lambert.Sample_f(wi);
     ASSERT_TRUE(sample.has_value());
     EXPECT_NEAR(sample->wo.Length_squared(), 1, kEps);
-    EXPECT_GE(wi.Dot(n), 0);
+    EXPECT_GE(sample->wo.Dot(n), 0);
 
     cos_thetas[i] = sample->wo.Dot(n);
   }
@@ -95,18 +102,17 @@ TEST(LambertianTest, SampleConvergence) {
 
   double Iu = 0, Icos = 0;
   for (size_t i = 0; i < N; ++i) {
-    auto wi = rand_hemisphere_uniform();
+    auto wi = rand_wi();
     auto sample = lambert.Sample_f(wi);
     Icos += sample->wo.y() / sample->pdf;
 
-    auto wo = rand_hemisphere_uniform();
-    Iu += wo.y() * 2 * std::numbers::pi;
+    auto wo = rand_wi();
+    Iu += wo.y() * 2 * pi;
   }
 
   Iu /= N;
   Icos /= N;
-  double err_iu = std::fabs(Iu - std::numbers::pi),
-         err_icos = std::fabs(Icos - std::numbers::pi);
+  double err_iu = std::fabs(Iu - pi), err_icos = std::fabs(Icos - pi);
   EXPECT_LT(err_icos, err_iu) << "errors are: " << err_icos << " vs " << err_iu;
 }
 
