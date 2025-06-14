@@ -380,10 +380,26 @@ QuaternionTransform QuaternionTransform::Rotate(
 }
 
 QuaternionTransform QuaternionTransform::RotateFrTo(Vector3 fr, Vector3 to) {
+  fr = fr.Normalized();
+  to = to.Normalized();
+  if (fr == to)
+    return QuaternionTransform(Quaternion(1, 0, 0, 0));
+  if (fr == -to) {
+    // pick an arbitrary vector not parallel to fr
+    Vector3 ortho;
+    if (std::abs(fr.x()) < std::abs(fr.y()) &&
+        std::abs(fr.x()) < std::abs(fr.z()))
+      ortho = Vector3(1, 0, 0);
+    else if (std::abs(fr.y()) < std::abs(fr.z()))
+      ortho = Vector3(0, 1, 0);
+    else
+      ortho = Vector3(0, 0, 1);
+    Vector3 axis = fr.Cross(ortho);
+    return Rotate(axis.Normalized(), M_PI);
+  }
+
   double theta = acos(fr.Dot(to));
   auto axis = fr.Cross(to).Normalized();
-  if (fr == to)  // edge case
-    axis = Vector3(0, 1, 0);
   return QuaternionTransform::Rotate(axis, -theta);
 }
 

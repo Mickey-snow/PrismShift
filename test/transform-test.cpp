@@ -203,9 +203,14 @@ TYPED_TEST(RotateTest, rotate180DegAxis) {
 }
 
 TYPED_TEST(RotateTest, basicfrto) {
-  Vector3 fr, to;
+  Vector3 fr, to, v = rand_sphere_uniform();
   fr = Vector3(0, 0, 1), to = Vector3(0, 0, 1);  // same direction
   auto tr = this->frtoTr(fr, to);
+  EXPECT_EQ(tr->Doit(fr), to);
+  EXPECT_EQ(tr->Undo(to), fr);
+  EXPECT_EQ(tr->Doit(v), v);
+  to *= -1;
+  tr = this->frtoTr(fr, to);
   EXPECT_EQ(tr->Doit(fr), to);
   EXPECT_EQ(tr->Undo(to), fr);
 
