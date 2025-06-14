@@ -128,7 +128,7 @@ void SceneFactory::add_cube(Point3 o,
 
 /* -- scene -------------------------------------------------------------- */
 
-Scene SceneFactory::parse_scene(const json& array) {
+Scene SceneFactory::parse_objects(const json& array) {
   objs_.clear();
   objs_.reserve(array.size());
 
@@ -144,21 +144,21 @@ Scene SceneFactory::parse_scene(const json& array) {
       light = lights_[it.at("light")];
 
     if (type == "sphere") {
-      add_sphere(parse_point3(it.cbegin()), it.at(4), mat, light);
+      add_sphere(parse_point3(v.cbegin()), v.at(4), mat, light);
     } else if (type == "plane") {
-      add_2d<Plane>(parse_point3(it.cbegin()), parse_point3(it.cbegin() + 3),
-                    parse_point3(it.cbegin() + 6), mat, light);
+      add_2d<Plane>(parse_point3(v.cbegin()), parse_point3(v.cbegin() + 3),
+                    parse_point3(v.cbegin() + 6), mat, light);
     } else if (type == "triangle") {
-      add_2d<Triangle>(parse_point3(it.cbegin()), parse_point3(it.cbegin() + 3),
-                       parse_point3(it.cbegin() + 6), mat, light);
+      add_2d<Triangle>(parse_point3(v.cbegin()), parse_point3(v.cbegin() + 3),
+                       parse_point3(v.cbegin() + 6), mat, light);
     } else if (type == "quad") {
-      add_2d<Parallelogram>(parse_point3(it.cbegin()),
-                            parse_point3(it.cbegin() + 3),
-                            parse_point3(it.cbegin() + 6), mat, light);
+      add_2d<Parallelogram>(parse_point3(v.cbegin()),
+                            parse_point3(v.cbegin() + 3),
+                            parse_point3(v.cbegin() + 6), mat, light);
     } else if (type == "cube") {
-      add_cube(parse_point3(it.cbegin()), parse_point3(it.cbegin() + 3),
-               parse_point3(it.cbegin() + 6), parse_point3(it.cbegin() + 9),
-               mat, light);
+      add_cube(parse_point3(v.cbegin()), parse_point3(v.cbegin() + 3),
+               parse_point3(v.cbegin() + 6), parse_point3(v.cbegin() + 9), mat,
+               light);
     } else {
       spdlog::error("unsupported shape: {}", type);
     }
@@ -173,4 +173,19 @@ Camera SceneFactory::CreateCamera() const {
   return parse_camera(root_.at("camera"));
 }
 
-Scene SceneFactory::CreateScene() { return parse_scene(root_.at("objects")); }
+Scene SceneFactory::CreateScene() {
+  Scene scene = parse_objects(root_.at("objects"));
+
+  scene.SetBackground([](Ray) { return Color(0); });
+
+  if (root_.contains("background")) {
+    if (root_.at("background") == "sky")
+      scene.SetBackground([](Ray r) -> Color {
+        auto direction = r.direction.normalised();
+        double a = 0.5 * (1.0 + direction.y());
+        return (1.0 - a) * Color(1.0, 1.0, 1.0) + a * Color(0.5, 0.7, 1.0);
+      });
+  }
+
+  return scene;
+}

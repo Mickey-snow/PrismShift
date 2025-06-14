@@ -7,7 +7,7 @@ class ILight {
  public:
   virtual ~ILight() = default;
 
-  virtual Color Le(const Ray& r) const;
+  virtual Color Le(const Ray& r) const = 0;
 };
 
 class Light : public ILight {

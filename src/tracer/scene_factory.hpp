@@ -37,6 +37,7 @@ class SceneFactory {
  private:
   /* ---------- parsing helpers ---------- */
   static Camera parse_camera(const nlohmann::json& r);
+  Scene parse_objects(const nlohmann::json& array);
   void parse_materials(const nlohmann::json& array);
   void parse_lights(const nlohmann::json& r);
 
@@ -65,8 +66,6 @@ class SceneFactory {
     objs_.emplace_back(std::make_shared<Primitive>(
         shape, std::move(mat), std::move(light), std::move(trans)));
   }
-
-  Scene parse_scene(const nlohmann::json& array);
 
  private:
   nlohmann::json root_;  // raw JSON tree

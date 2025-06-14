@@ -2,6 +2,7 @@
 
 #include "bsdf.hpp"
 #include "bxdfs/lambertian.hpp"
+#include "light.hpp"
 #include "material.hpp"
 #include "primitive.hpp"
 #include "scene.hpp"
@@ -23,12 +24,15 @@ Color Integrator::Li(Ray r, int depth) {
   if (depth >= max_depth_)
     return {};
 
-  auto rec = scene_.Hit(r, Interval<double>::Positive());
+  HitRecord rec = scene_.Hit(r, Interval<double>::Positive());
   if (!rec.hits)
     return scene_.Background(r);
 
   Color L;
-  BSDF bsdf(rec);
+  if (auto light = rec.primitive->GetLight())
+    L = light->Le(r);  // TODO: ray should be transformed to local coordinates
+
+  BSDF bsdf = BSDF::Create(rec.normal, rec.primitive->GetMaterial());
   auto bsdf_sample = bsdf.Sample_f(r.Direction());
   if (bsdf_sample && bsdf_sample->pdf > 0.0) {
     double cos0 = absCosTheta(bsdf_sample->wo, rec.normal);
@@ -36,6 +40,7 @@ Color Integrator::Li(Ray r, int depth) {
     Color Li_scatter = Li(scattered, depth + 1);
     L += bsdf_sample->f * Li_scatter * cos0 / bsdf_sample->pdf;
   }
+
   return L;
 }
 

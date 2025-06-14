@@ -84,9 +84,11 @@ class BxDF {
 };
 
 struct HitRecord;
+class Material;
 class BSDF {
  public:
-  explicit BSDF(const HitRecord& rec);
+  static BSDF Create(Normal normal, std::shared_ptr<Material> mat);
+  explicit BSDF(std::shared_ptr<BxDF> bxdf, QuaternionTransform trans);
 
   Color f(Vector3 wi, Vector3 wo, BxDFBits flag = BxDFBits::All) const;
   std::optional<bxdfSample> Sample_f(Vector3 wi) const;

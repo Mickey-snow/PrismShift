@@ -21,7 +21,8 @@ TEST(PrimitiveTest, BboxIsCachedAndTransformed) {
 
   EXPECT_CALL(*shape, GetBbox()).Times(1).WillOnce(Return(base_box));
 
-  Primitive prim(shape, nullptr, std::make_shared<MatrixTransformation>(tr));
+  Primitive prim(shape, nullptr, nullptr,
+                 std::make_shared<MatrixTransformation>(tr));
   AABB expected = base_box.Transform(tr);
   EXPECT_EQ(prim.GetBbox(), expected);
   EXPECT_EQ(prim.GetBbox(), expected);  // ensure cached
@@ -44,7 +45,8 @@ TEST(PrimitiveTest, HitTransformsRay) {
       .Times(1)
       .WillOnce(Return(local_rec));
 
-  Primitive prim(shape, nullptr, std::make_shared<MatrixTransformation>(tr));
+  Primitive prim(shape, nullptr, nullptr,
+                 std::make_shared<MatrixTransformation>(tr));
 
   auto rec = prim.Hit(world_ray, Interval<double>::Universe());
   EXPECT_TRUE(rec.hits);

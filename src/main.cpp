@@ -28,11 +28,6 @@ int main(int argc, char** argv) {
   Camera camera = factory.CreateCamera();
   Scene scene = factory.CreateScene();
 
-  scene.SetBackground([](Ray r) -> Color {
-    auto direction = r.direction.normalised();
-    double a = 0.5 * (1.0 + direction.y());
-    return (1.0 - a) * Color(1.0, 1.0, 1.0) + a * Color(0.5, 0.7, 1.0);
-  });
 
   spdlog::info("scene setup complete.");
 
