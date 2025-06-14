@@ -60,8 +60,8 @@ TYPED_TEST(PlaneTest, bbox) {
   auto box = this->shape->GetBbox();
 
   if (dynamic_cast<Plane*>(this->shape.get()))
-    EXPECT_TRUE(box.Contains(AABB(Point3(this->MIN, this->MIN, 0),
-                                  Point3(this->MAX, this->MAX, 0))));
+    EXPECT_TRUE(box.Contains(AABB(Point3(this->MIN, 0, this->MIN),
+                                  Point3(this->MAX, 0, this->MAX))));
   else if (dynamic_cast<Parallelogram*>(this->shape.get()))
     EXPECT_TRUE(box.Contains(AABB(Point3(0, 0, 0), Point3(1, 0, 1))));
   else if (dynamic_cast<Triangle*>(this->shape.get()))

@@ -3,8 +3,8 @@
 #include <util/util.hpp>
 
 AABB Plane::GetBbox(void) const {
-  static const AABB box = AABB(Interval<double>::Universe(),
-                               Interval<double>::Universe(), Interval<double>())
+  static const AABB box = AABB(Interval<double>::Universe(), Interval<double>(),
+                               Interval<double>::Universe())
                               .Pad();
   return box;
 }
