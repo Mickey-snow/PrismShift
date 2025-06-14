@@ -81,7 +81,7 @@ void Integrator::Render(const Camera& cam,
         raw /= spp;
 
         Color rgb = Format_Color(raw, 255.999);
-        static Interval<int> col_range(0, 255);
+        static const Interval<int> col_range(0, 255);
         Pixel p;
         p.r = static_cast<uint8_t>(col_range.Clamp(static_cast<int>(rgb.r())));
         p.g = static_cast<uint8_t>(col_range.Clamp(static_cast<int>(rgb.g())));

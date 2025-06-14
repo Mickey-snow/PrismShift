@@ -14,16 +14,7 @@ struct HitRecord {
   Primitive const* primitive = nullptr;
   double time;
   Point3 position;
-
-  Normal normal;  // normal is at the same side with ray
-  bool front_face;
-
-  Material const* material = nullptr;
-
-  void SetFaceNormal(const Ray& r, Normal outward_normal) {
-    front_face = Vector3::Dot(r.Direction(), outward_normal) < 0;
-    normal = front_face ? outward_normal : -outward_normal;
-  }
+  Normal normal;
 
   static HitRecord RTN(Ray ray, double time, Normal normal) {
     HitRecord rec;
@@ -31,7 +22,7 @@ struct HitRecord {
     rec.primitive = nullptr;
     rec.time = time;
     rec.position = ray.At(time);
-    rec.SetFaceNormal(ray, normal);
+    rec.normal = normal;
     return rec;
   }
 };

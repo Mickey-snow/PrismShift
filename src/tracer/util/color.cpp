@@ -1,10 +1,12 @@
-#include <cmath>
+
 
 #include "color.hpp"
 #include "interval.hpp"
 
-inline double Linear2Gamma(const double& linear_component) {
-  return std::sqrt(linear_component);
+#include <cmath>
+
+inline static double Linear2Gamma(double linear_component) {
+  return std::pow(linear_component, 1.0 / 2.2);
 }
 
 Color Format_Color(const Color& pixel_color, const double& scale) {
