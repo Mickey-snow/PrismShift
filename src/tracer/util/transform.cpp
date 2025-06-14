@@ -275,14 +275,14 @@ MatrixTransformation MatrixTransformation::Scale(Vector3 n, double k) {
   return MatrixTransformation(mat, matinv);
 }
 
-MatrixTransformation MatrixTransformation::TriangleToUnit(Point3 o,
-                                                          Point3 a,
-                                                          Point3 b) {
+MatrixTransformation MatrixTransformation::ChangeCoordinate(Point3 o,
+                                                            Point3 a,
+                                                            Point3 b) {
   Vector3 v = a - o;  // edge o->a
   Vector3 w = b - o;  // edge o->b
-  Vector3 n = w.Cross(v);
+  Vector3 n = v.Cross(w);
 
-  // pack those into a 3×3 matrix P = [ v | n | w ]
+  // pack those into matrix P = [ v | n | w | t ]
   Matrix4 P = Matrix4::I();
   P[0][0] = v.x();
   P[1][0] = v.y();
@@ -293,6 +293,13 @@ MatrixTransformation MatrixTransformation::TriangleToUnit(Point3 o,
   P[0][2] = w.x();
   P[1][2] = w.y();
   P[2][2] = w.z();
+
+  // P[0][3] = -o.Dot(Vector3(P[0][0], P[0][1], P[0][2]));
+  // P[1][3] = -o.Dot(Vector3(P[1][0], P[1][1], P[1][2]));
+  // P[2][3] = -o.Dot(Vector3(P[2][0], P[2][1], P[2][2]));
+  P[0][3] = o.x();
+  P[1][3] = o.y();
+  P[2][3] = o.z();
 
   return MatrixTransformation(P);
 }

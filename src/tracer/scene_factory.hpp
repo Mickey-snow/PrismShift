@@ -61,7 +61,7 @@ class SceneFactory {
     static const std::shared_ptr<IShape> shape = std::make_shared<T>();
 
     auto trans = std::make_shared<MatrixTransformation>(
-        MatrixTransformation::TriangleToUnit(std::move(o), std::move(a),
+        MatrixTransformation::ChangeCoordinate(std::move(o), std::move(a),
                                              std::move(b)));
     objs_.emplace_back(std::make_shared<Primitive>(
         shape, std::move(mat), std::move(light), std::move(trans)));

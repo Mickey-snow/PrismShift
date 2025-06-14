@@ -13,17 +13,17 @@ using json = nlohmann::json;
 
 /* -- helpers ------------------------------------------------------------ */
 
+inline static Point3 parse_point3(auto it) {
+  return Point3(it[0], it[1], it[2]);
+}
+
 Camera SceneFactory::parse_camera(const json& r) {
-  Point3 center(r.at(0), r.at(1), r.at(2));
-  Point3 lookat(r.at(3), r.at(4), r.at(5));
+  Point3 center(parse_point3(r.cbegin()));
+  Point3 lookat(parse_point3(r.cbegin() + 3));
   int image_h = r.at(6);
   double aspect = r.at(7);
   double vFovDeg = r.at(8);
   return Camera(center, lookat, image_h, aspect, vFovDeg);
-}
-
-inline static Point3 parse_point3(auto it) {
-  return Point3(it[0], it[1], it[2]);
 }
 
 /* -- ctor / loader ------------------------------------------------------ */
@@ -117,13 +117,16 @@ void SceneFactory::add_cube(Point3 o,
                             Point3 c,
                             std::shared_ptr<Material> mat,
                             std::shared_ptr<ILight> light) {
+  Vector3 e1 = a - o, e2 = b - o, e3 = c - o;
+
   add_2d<Parallelogram>(o, a, b, mat, light);
   add_2d<Parallelogram>(o, a, c, mat, light);
   add_2d<Parallelogram>(o, b, c, mat, light);
-  o += Vector3(a) + Vector3(b) + Vector3(c);
-  add_2d<Parallelogram>(o, a, b, mat, light);
-  add_2d<Parallelogram>(o, a, c, mat, light);
-  add_2d<Parallelogram>(o, b, c, mat, light);
+
+  auto o2 = o + e1 + e2 + e3;
+  add_2d<Parallelogram>(o2, o2 - e1, o2 - e2, mat, light);
+  add_2d<Parallelogram>(o2, o2 - e1, o2 - e3, mat, light);
+  add_2d<Parallelogram>(o2, o2 - e2, o2 - e3, mat, light);
 }
 
 /* -- scene -------------------------------------------------------------- */
@@ -144,7 +147,7 @@ Scene SceneFactory::parse_objects(const json& array) {
       light = lights_[it.at("light")];
 
     if (type == "sphere") {
-      add_sphere(parse_point3(v.cbegin()), v.at(4), mat, light);
+      add_sphere(parse_point3(v.cbegin()), v.at(3), mat, light);
     } else if (type == "plane") {
       add_2d<Plane>(parse_point3(v.cbegin()), parse_point3(v.cbegin() + 3),
                     parse_point3(v.cbegin() + 6), mat, light);

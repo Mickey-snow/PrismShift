@@ -11,8 +11,8 @@ int main(int argc, char** argv) {
   program.add_argument("-o", "--output")
       .help("specify the output file.")
       .default_value("output.ppm");
-  program.add_argument("--spp").default_value(32);
-  program.add_argument("--max_depth").default_value(64);
+  program.add_argument("--spp").scan<'d', int>().default_value(32);
+  program.add_argument("--max_depth").scan<'d', int>().default_value(64);
 
   try {
     program.parse_args(argc, argv);
@@ -27,7 +27,6 @@ int main(int argc, char** argv) {
 
   Camera camera = factory.CreateCamera();
   Scene scene = factory.CreateScene();
-
 
   spdlog::info("scene setup complete.");
 

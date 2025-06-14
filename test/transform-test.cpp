@@ -293,24 +293,42 @@ TEST(MatTransformationTest, rotateXyzAxis) {
   EXPECT_NEAR(vp.z(), -8.3826, 0.05);
 }
 
+inline static Vector3 randvec(double k = 1000) {
+  return Vector3{random_double(-k, k), random_double(-k, k),
+                 random_double(-k, k)};
+}
+
 TEST(MatTransformationTest, anyAxisAlign) {
   // AlignXYZ rotation using Matrix can perform the change of basis
   // transformation with any set of basis unlike QuaternionTransform, which
   // requires the basis to be normalized and mutually perpendicular it has the
   // potential to perform rotating and scaling at the same time but the use of
   // this should not be encouraged
-  auto randVec = []() {
-    return Vector3{random_double(-1000, 1000), random_double(-1000, 1000),
-                   random_double(-1000, 1000)};
-  };
   constexpr auto testcases = 100;
   for (int _ = 0; _ < testcases; ++_) {
-    basic_vector<Vector3, 3> basis(randVec(), randVec(), randVec());
-    Vector3 world = randVec();
+    basic_vector<Vector3, 3> basis(randvec(), randvec(), randvec());
+    Vector3 world = randvec();
     auto tr = MatrixTransformation::AlignXYZ(basis);
     Vector3 local = tr.Doit(world);
 
     EXPECT_EQ(local.Dot(basis), world);
     EXPECT_EQ(tr.Undo(local), world);
   }
+}
+
+TEST(MatTransformationTest, Affine) {
+  static constexpr auto k = 555;
+
+  Point3 o(0, 0, 0);
+  Vector3 x(1, 0, 0), z(0, 0, 1);
+  Point3 o1 = Point3(randvec(k));
+  Vector3 u = randvec(k), v = randvec(k);
+  auto trans = MatrixTransformation::ChangeCoordinate(o1, o1 + u, o1 + v);
+
+  double a = random_double(-k, k), b = random_double(-k, k);
+  Point3 p1 = o1 + a * u + b * v;
+
+  Point3 p = trans.Undo(p1);
+  EXPECT_EQ(p, (o + a * x + b * z));
+  EXPECT_EQ(trans.Doit(p), p1);
 }
