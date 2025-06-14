@@ -129,7 +129,7 @@ class basic_vector {
   }
   [[nodiscard]] inline constexpr bool operator==(
       const basic_vector& rhs) const {
-    return (*this - rhs).near_zero();
+    return !has_nan() && !rhs.has_nan() && (*this - rhs).near_zero();
   }
   [[nodiscard]] inline constexpr bool operator!=(
       const basic_vector& rhs) const {
@@ -142,6 +142,11 @@ class basic_vector {
   constexpr value_type& y() { return v[1]; }
   constexpr value_type z() const { return v[2]; }
   constexpr value_type& z() { return v[2]; }
+
+  constexpr bool has_nan() const {
+    return std::any_of(v.cbegin(), v.cend(),
+                       [](arithmetic auto v) { return std::isnan(v); });
+  }
 };
 
 std::ostream& operator<<(std::ostream& os, const vector_like auto& it) {

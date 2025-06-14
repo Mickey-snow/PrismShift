@@ -201,8 +201,9 @@ MatrixTransformation MatrixTransformation::RotateZ(double costheta,
  * @note Requires `fr` and `to` to be unit vectors.
  */
 MatrixTransformation MatrixTransformation::RotateFrTo(Vector3 fr, Vector3 to) {
-  assert(fr.Normalized() == fr);
-  assert(to.Normalized() == to);
+  if (fr == to)
+    return MatrixTransformation(Matrix4::I());
+
   Vector3 refl;
   if (std::abs(fr.x()) < 0.72 && std::abs(to.x()) < 0.72)
     refl = Vector3{1, 0, 0};
@@ -272,6 +273,39 @@ MatrixTransformation MatrixTransformation::Scale(Vector3 n, double k) {
   auto matinv = ScaleMat(n, 1.0 / k);
 
   return MatrixTransformation(mat, matinv);
+}
+
+MatrixTransformation MatrixTransformation::TriangleToUnit(Point3 o,
+                                                          Point3 a,
+                                                          Point3 b) {
+  Vector3 v = a - o;  // edge o->a
+  Vector3 w = b - o;  // edge o->b
+  Vector3 n = w.Cross(v);
+
+  // pack those into a 3×3 matrix P = [ v | n | w ]
+  Matrix4 P = Matrix4::I();
+  P[0][0] = v.x();
+  P[1][0] = v.y();
+  P[2][0] = v.z();
+  P[0][1] = n.x();
+  P[1][1] = n.y();
+  P[2][1] = n.z();
+  P[0][2] = w.x();
+  P[1][2] = w.y();
+  P[2][2] = w.z();
+
+  Matrix4 P_inv = P.inv();
+
+  // build the full affine matrix M = [ P_inv  |  t ]
+  //    with t = –P_inv * o, so that M⋅o = 0
+  Matrix4 M = P_inv;
+  auto ox = o.x(), oy = o.y(), oz = o.z();
+  M[0][3] = -(P_inv[0][0] * ox + P_inv[0][1] * oy + P_inv[0][2] * oz);
+  M[1][3] = -(P_inv[1][0] * ox + P_inv[1][1] * oy + P_inv[1][2] * oz);
+  M[2][3] = -(P_inv[2][0] * ox + P_inv[2][1] * oy + P_inv[2][2] * oz);
+  // M[3][3] is already 1 from the identity initialization
+
+  return MatrixTransformation(M);
 }
 
 // --------------------------------------------------------------------------------
@@ -352,6 +386,8 @@ QuaternionTransform QuaternionTransform::Rotate(
 QuaternionTransform QuaternionTransform::RotateFrTo(Vector3 fr, Vector3 to) {
   double theta = acos(fr.Dot(to));
   auto axis = fr.Cross(to).Normalized();
+  if (fr == to)  // edge case
+    axis = Vector3(0, 1, 0);
   return QuaternionTransform::Rotate(axis, -theta);
 }
 

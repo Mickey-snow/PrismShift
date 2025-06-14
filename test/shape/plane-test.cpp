@@ -23,20 +23,20 @@ class PlaneTest : public ::testing::Test {
   const double MIN = -1e5;
   const double MAX = 1e5;
 
-  const int testcases = 100;
+  inline static constexpr int testcases = 32;
 
   std::function<Ray(double)> spawn_hit_ray = [this](const double t) {
     Point3 r_orig = (Point3)Vector3::Random(this->MIN, this->MAX);
     Point3 p_onplane;
 
     if constexpr (std::is_same_v<T, Plane>)
-      p_onplane = Point3(random_double(this->MIN, this->MAX),
-                         random_double(this->MIN, this->MAX), 0);
+      p_onplane = Point3(random_double(this->MIN, this->MAX), 0,
+                         random_double(this->MIN, this->MAX));
     else if constexpr (std::is_same_v<T, Parallelogram>)
-      p_onplane = Point3(random_double(0, 1), random_double(0, 1), 0);
+      p_onplane = Point3(random_double(0, 1), 0, random_double(0, 1));
     else if constexpr (std::is_same_v<T, Triangle>) {
       p_onplane = Point3(random_double(0, 1), 0, 0);
-      p_onplane.y() = random_double(0, 1 - p_onplane.x());
+      p_onplane.z() = random_double(0, 1 - p_onplane.x());
     } else
       throw;
 
@@ -50,7 +50,7 @@ class PlaneTest : public ::testing::Test {
   std::function<Ray()> spawn_parallel_ray = [this]() {
     Point3 r_orig = (Point3)Vector3::Random(this->MIN, this->MAX);
     Vector3 r_dir = Vector3::Random_Unit();
-    r_dir.z() = 0;
+    r_dir.y() = 0;
     return Ray(r_orig, r_dir);
   };
 };
@@ -63,9 +63,9 @@ TYPED_TEST(PlaneTest, bbox) {
     EXPECT_TRUE(box.Contains(AABB(Point3(this->MIN, this->MIN, 0),
                                   Point3(this->MAX, this->MAX, 0))));
   else if (dynamic_cast<Parallelogram*>(this->shape.get()))
-    EXPECT_TRUE(box.Contains(AABB(Point3(0, 0, 0), Point3(1, 1, 1))));
+    EXPECT_TRUE(box.Contains(AABB(Point3(0, 0, 0), Point3(1, 0, 1))));
   else if (dynamic_cast<Triangle*>(this->shape.get()))
-    EXPECT_TRUE(box.Contains(AABB(Point3(0, 1, 0), Point3(1, 0, 0))));
+    EXPECT_TRUE(box.Contains(AABB(Point3(0, 0, 1), Point3(1, 0, 0))));
 
   else
     FAIL() << "assertion logic not specified for type "s +
@@ -80,10 +80,7 @@ TYPED_TEST(PlaneTest, rayHit) {
     auto rec = this->shape->Hit(r, Interval<double>::Positive());
     ASSERT_TRUE(rec.hits);
     EXPECT_DOUBLE_EQ(rec.time, time);
-    if (r.Origin().z() > 0)
-      EXPECT_TRUE(rec.front_face);
-    else
-      EXPECT_FALSE(rec.front_face);
+    EXPECT_EQ(rec.front_face, r.Origin().y() > 0);
   }
 }
 

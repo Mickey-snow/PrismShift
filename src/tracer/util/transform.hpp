@@ -215,6 +215,17 @@ class MatrixTransformation : public ITransformation {
   static MatrixTransformation Scale(double, double, double);
   static MatrixTransformation Scale(Vector3 n);
   static MatrixTransformation Scale(Vector3 n, double k);
+
+  
+  /// Returns a transformation T such that
+  ///   T.Doit(a) == Point3(0,0,0),
+  ///   T.Doit(b) == Point3(1,0,0),
+  ///   T.Doit(c) == Point3(0,0,1).
+  /// We do this by solving for the affine matrix K = [A | t] with
+  ///   A*(b–a) = (1,0,0),  A*(c–a) = (0,0,1),  A*(n) = (0,1,0)   (n = plane
+  ///   normal)
+  /// and  A*a + t = 0.
+  static MatrixTransformation TriangleToUnit(Point3 origin, Point3 a, Point3 b);
 };
 
 class Quaternion {
