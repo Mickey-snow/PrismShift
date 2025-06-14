@@ -294,18 +294,7 @@ MatrixTransformation MatrixTransformation::TriangleToUnit(Point3 o,
   P[1][2] = w.y();
   P[2][2] = w.z();
 
-  Matrix4 P_inv = P.inv();
-
-  // build the full affine matrix M = [ P_inv  |  t ]
-  //    with t = –P_inv * o, so that M⋅o = 0
-  Matrix4 M = P_inv;
-  auto ox = o.x(), oy = o.y(), oz = o.z();
-  M[0][3] = -(P_inv[0][0] * ox + P_inv[0][1] * oy + P_inv[0][2] * oz);
-  M[1][3] = -(P_inv[1][0] * ox + P_inv[1][1] * oy + P_inv[1][2] * oz);
-  M[2][3] = -(P_inv[2][0] * ox + P_inv[2][1] * oy + P_inv[2][2] * oz);
-  // M[3][3] is already 1 from the identity initialization
-
-  return MatrixTransformation(M);
+  return MatrixTransformation(P);
 }
 
 // --------------------------------------------------------------------------------
