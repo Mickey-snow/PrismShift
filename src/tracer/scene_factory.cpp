@@ -1,5 +1,6 @@
 #include "scene_factory.hpp"
 
+#include "light.hpp"
 #include "material.hpp"
 #include "shapes/shape.hpp"
 #include "texture.hpp"
@@ -21,10 +22,17 @@ Camera SceneFactory::parse_camera(const json& r) {
   return Camera(center, lookat, image_h, aspect, vFovDeg);
 }
 
+inline static Point3 parse_point3(auto it) {
+  return Point3(it[0], it[1], it[2]);
+}
+
 /* -- ctor / loader ------------------------------------------------------ */
 
 SceneFactory::SceneFactory(json root) : root_(std::move(root)) {
-  parse_materials(root_.at("materials"));
+  if (root_.contains("materials"))
+    parse_materials(root_.at("materials"));
+  if (root_.contains("lights"))
+    parse_lights(root_.at("lights"));
 }
 
 SceneFactory SceneFactory::FromFile(const std::string& path) {
@@ -41,6 +49,7 @@ SceneFactory SceneFactory::FromFile(const std::string& path) {
 /* -- materials ---------------------------------------------------------- */
 
 void SceneFactory::parse_materials(const json& array) {
+  materials_.reserve(array.size());
   for (const auto& it : array) {
     const std::string type = it.at("type");
     json v = it.at("data");
@@ -62,22 +71,34 @@ void SceneFactory::parse_materials(const json& array) {
       spdlog::error("unknown material {}", type);
       continue;
     }
+
+    if (it.contains("name"))
+      material_map_[it.at("name")] = mat;
     materials_.emplace_back(std::move(mat));
+  }
+}
+
+/* -- lights --------------------------------------------------------- */
+void SceneFactory::parse_lights(const json& r) {
+  lights_.reserve(r.size());
+  for (const auto& it : r) {
+    const std::string type = it.at("type");
+    auto& v = it.at("data");
+    auto light = std::make_shared<Light>(Color(v.at(0), v.at(1), v.at(2)));
+
+    if (it.contains("name"))
+      light_map_[it.at("name")] = light;
+    lights_.emplace_back(std::move(light));
   }
 }
 
 /* -- primitives --------------------------------------------------------- */
 
-std::shared_ptr<Primitive> SceneFactory::make_sphere(std::size_t matId,
-                                                     Point3 pos,
-                                                     double d) const {
+void SceneFactory::add_sphere(Point3 pos,
+                              double d,
+                              std::shared_ptr<Material> mat,
+                              std::shared_ptr<ILight> light) {
   static const auto sphere = std::make_shared<Sphere>();
-
-  std::shared_ptr<Material> mat = nullptr;
-  if (matId < materials_.size())
-    mat = materials_[matId];
-  else
-    spdlog::error("material id ({}) out of bounds.", matId);
 
   auto trans = std::make_shared<CompositeTransformation>(
       std::make_shared<VectorScale>(d, d, d),
@@ -86,41 +107,64 @@ std::shared_ptr<Primitive> SceneFactory::make_sphere(std::size_t matId,
   // MatrixTransformation::Translate(Vector3(pos)) *
   //     MatrixTransformation::Scale(d, d, d)
 
-  return std::make_shared<Primitive>(sphere, std::move(mat), std::move(trans));
+  objs_.emplace_back(std::make_shared<Primitive>(
+      sphere, std::move(mat), std::move(light), std::move(trans)));
+}
+
+void SceneFactory::add_cube(Point3 o,
+                            Point3 a,
+                            Point3 b,
+                            Point3 c,
+                            std::shared_ptr<Material> mat,
+                            std::shared_ptr<ILight> light) {
+  add_2d<Parallelogram>(o, a, b, mat, light);
+  add_2d<Parallelogram>(o, a, c, mat, light);
+  add_2d<Parallelogram>(o, b, c, mat, light);
+  o += Vector3(a) + Vector3(b) + Vector3(c);
+  add_2d<Parallelogram>(o, a, b, mat, light);
+  add_2d<Parallelogram>(o, a, c, mat, light);
+  add_2d<Parallelogram>(o, b, c, mat, light);
 }
 
 /* -- scene -------------------------------------------------------------- */
 
-Scene SceneFactory::parse_scene(const json& array) const {
-  std::vector<std::shared_ptr<Primitive>> objs;
+Scene SceneFactory::parse_scene(const json& array) {
+  objs_.clear();
+  objs_.reserve(array.size());
 
   for (const auto& it : array) {
     const std::string type = it.at("type");
     const json& v = it.at("data");
 
+    std::shared_ptr<Material> mat = nullptr;
+    std::shared_ptr<ILight> light = nullptr;
+    if (it.contains("material"))
+      mat = materials_[it.at("material")];
+    if (it.contains("light"))
+      light = lights_[it.at("light")];
+
     if (type == "sphere") {
-      objs.emplace_back(
-          make_sphere(v.at(0), Point3(v.at(1), v.at(2), v.at(3)), v.at(4)));
+      add_sphere(parse_point3(it.cbegin()), it.at(4), mat, light);
     } else if (type == "plane") {
-      objs.emplace_back(make_2d<Plane>(v.at(0),
-                                       Point3(v.at(1), v.at(2), v.at(3)),
-                                       Point3(v.at(4), v.at(5), v.at(6)),
-                                       Point3(v.at(7), v.at(8), v.at(9))));
+      add_2d<Plane>(parse_point3(it.cbegin()), parse_point3(it.cbegin() + 3),
+                    parse_point3(it.cbegin() + 6), mat, light);
     } else if (type == "triangle") {
-      objs.emplace_back(make_2d<Triangle>(v.at(0),
-                                          Point3(v.at(1), v.at(2), v.at(3)),
-                                          Point3(v.at(4), v.at(5), v.at(6)),
-                                          Point3(v.at(7), v.at(8), v.at(9))));
+      add_2d<Triangle>(parse_point3(it.cbegin()), parse_point3(it.cbegin() + 3),
+                       parse_point3(it.cbegin() + 6), mat, light);
     } else if (type == "quad") {
-      objs.emplace_back(
-          make_2d<Parallelogram>(v.at(0), Point3(v.at(1), v.at(2), v.at(3)),
-                                 Point3(v.at(4), v.at(5), v.at(6)),
-                                 Point3(v.at(7), v.at(8), v.at(9))));
+      add_2d<Parallelogram>(parse_point3(it.cbegin()),
+                            parse_point3(it.cbegin() + 3),
+                            parse_point3(it.cbegin() + 6), mat, light);
+    } else if (type == "cube") {
+      add_cube(parse_point3(it.cbegin()), parse_point3(it.cbegin() + 3),
+               parse_point3(it.cbegin() + 6), parse_point3(it.cbegin() + 9),
+               mat, light);
     } else {
       spdlog::error("unsupported shape: {}", type);
     }
   }
-  return Scene(std::move(objs));
+
+  return Scene(std::move(objs_));
 }
 
 /* -- public builders ---------------------------------------------------- */
@@ -129,6 +173,4 @@ Camera SceneFactory::CreateCamera() const {
   return parse_camera(root_.at("camera"));
 }
 
-Scene SceneFactory::CreateScene() const {
-  return parse_scene(root_.at("objects"));
-}
+Scene SceneFactory::CreateScene() { return parse_scene(root_.at("objects")); }

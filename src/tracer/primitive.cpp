@@ -7,9 +7,11 @@
 
 Primitive::Primitive(std::shared_ptr<IShape> shape,
                      std::shared_ptr<Material> mat,
+                     std::shared_ptr<ILight> light,
                      std::shared_ptr<ITransformation> trans)
     : shape_(shape),
       material_(mat),
+      light_(light),
       transform_(trans ? trans : identity_transform),
       bbox_(shape->GetBbox().Transform(*transform_)) {}
 

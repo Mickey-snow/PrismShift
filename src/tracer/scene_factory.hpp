@@ -1,16 +1,18 @@
 #pragma once
+
+#include "camera.hpp"
+#include "primitive.hpp"
+#include "scene.hpp"
+
 #include <memory>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #include <spdlog/spdlog.h>
 #include <nlohmann/json.hpp>
 
-#pragma once
-
-#include "camera.hpp"
-#include "primitive.hpp"
-#include "scene.hpp"
+class ILight;
 
 /**
  * SceneFactory
@@ -30,41 +32,50 @@ class SceneFactory {
   [[nodiscard]] Camera CreateCamera() const;
 
   /** Build full scene (materials, primitives, etc.). */
-  [[nodiscard]] Scene CreateScene() const;
+  [[nodiscard]] Scene CreateScene();
 
  private:
   /* ---------- parsing helpers ---------- */
   static Camera parse_camera(const nlohmann::json& r);
-
   void parse_materials(const nlohmann::json& array);
+  void parse_lights(const nlohmann::json& r);
 
-  std::shared_ptr<Primitive> make_sphere(std::size_t matId,
-                                         Point3 pos,
-                                         double d) const;
-
+  void add_sphere(Point3 pos,
+                  double d,
+                  std::shared_ptr<Material> mat,
+                  std::shared_ptr<ILight> light);
+  void add_cube(Point3 o,
+                Point3 a,
+                Point3 b,
+                Point3 c,
+                std::shared_ptr<Material> mat,
+                std::shared_ptr<ILight> light);
   template <class T>
     requires std::is_base_of_v<IShape, T>
-  std::shared_ptr<Primitive> make_2d(std::size_t matId,
-                                     Point3 o,
-                                     Point3 a,
-                                     Point3 b) const {
+  void add_2d(Point3 o,
+              Point3 a,
+              Point3 b,
+              std::shared_ptr<Material> mat,
+              std::shared_ptr<ILight> light) {
     static const std::shared_ptr<IShape> shape = std::make_shared<T>();
-
-    std::shared_ptr<Material> mat = nullptr;
-    if (matId < materials_.size())
-      mat = materials_[matId];
-    else
-      spdlog::error("material id ({}) out of bounds.", matId);
 
     auto trans = std::make_shared<MatrixTransformation>(
         MatrixTransformation::TriangleToUnit(std::move(o), std::move(a),
                                              std::move(b)));
-    return std::make_shared<Primitive>(shape, std::move(mat), std::move(trans));
+    objs_.emplace_back(std::make_shared<Primitive>(
+        shape, std::move(mat), std::move(light), std::move(trans)));
   }
 
-  Scene parse_scene(const nlohmann::json& array) const;
+  Scene parse_scene(const nlohmann::json& array);
 
-private:
+ private:
   nlohmann::json root_;  // raw JSON tree
+
   std::vector<std::shared_ptr<Material>> materials_;
+  std::unordered_map<std::string, std::shared_ptr<Material>> material_map_;
+
+  std::vector<std::shared_ptr<ILight>> lights_;
+  std::unordered_map<std::string, std::shared_ptr<ILight>> light_map_;
+
+  std::vector<std::shared_ptr<Primitive>> objs_;
 };

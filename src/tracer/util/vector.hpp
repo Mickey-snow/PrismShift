@@ -128,6 +128,9 @@ class Point : public basic_vector<double, N> {
   inline constexpr Point operator+(const Vector<N>& rhs) const {
     return Point(super::operator+(rhs));
   }
+  inline constexpr Point& operator+=(const Vector<N>& rhs) {
+    return *this = *this + rhs;
+  }
   inline constexpr friend Point operator+(const Vector<N>& lhs,
                                           const Point& rhs) {
     return rhs + lhs;
@@ -137,6 +140,9 @@ class Point : public basic_vector<double, N> {
   }
   inline constexpr Point operator-(const Vector<N>& rhs) const {
     return Point(super::operator-(rhs));
+  }
+  inline constexpr Point& operator-=(const Vector<N>& rhs) {
+    return *this = *this - rhs;
   }
 };
 
