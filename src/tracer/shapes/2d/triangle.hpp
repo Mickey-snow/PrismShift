@@ -2,11 +2,6 @@
 
 #include <shape.hpp>
 
-class AABB;
-struct Ray;
-template <typename>
-class Interval;
-
 class Triangle : public IShape {
  public:
   Triangle() = default;
@@ -14,4 +9,5 @@ class Triangle : public IShape {
 
   AABB GetBbox() const override;
   HitRecord Hit(const Ray&, const Interval<double>&) const override;
+  ShapeSample Sample() const override;
 };

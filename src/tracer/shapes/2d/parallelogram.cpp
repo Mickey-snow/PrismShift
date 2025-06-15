@@ -28,3 +28,11 @@ HitRecord Parallelogram::Hit(const Ray& r,
   static const Normal normal{0, 1, 0};
   return HitRecord::RTN(r, time, normal);
 }
+
+ShapeSample Parallelogram::Sample() const {
+  ShapeSample sample;
+  sample.pdf = 1;
+  sample.pos = Point3(random_uniform_01(), 0, random_uniform_01());
+  sample.normal = Normal(0, 1, 0);
+  return sample;
+}

@@ -38,7 +38,7 @@ Color BSDF::f(Vector3 wi, Vector3 wo, BxDFBits flag) const {
   if (bxdf_ != nullptr && bxdf_->MatchesFlag(flag)) {
     wi = transform.Doit(wi).Normalized();
     wo = transform.Doit(wo).Normalized();
-    return bxdf_->f(wi.Transform(transform), wo.Transform(transform));
+    return bxdf_->f(wi, wo);
   }
   return Color{0, 0, 0};
 }

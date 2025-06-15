@@ -12,6 +12,7 @@
 #include <spdlog/spdlog.h>
 #include <nlohmann/json.hpp>
 
+class Parallelogram;
 class ILight;
 
 /**
@@ -51,8 +52,7 @@ class SceneFactory {
                 Point3 c,
                 std::shared_ptr<Material> mat,
                 std::shared_ptr<ILight> light);
-  template <class T>
-    requires std::is_base_of_v<IShape, T>
+  template <std::derived_from<IShape> T>
   void add_2d(Point3 o,
               Point3 a,
               Point3 b,
@@ -62,9 +62,16 @@ class SceneFactory {
 
     auto trans = std::make_shared<MatrixTransformation>(
         MatrixTransformation::ChangeCoordinate(std::move(o), std::move(a),
-                                             std::move(b)));
-    objs_.emplace_back(std::make_shared<Primitive>(
-        shape, std::move(mat), std::move(light), std::move(trans)));
+                                               std::move(b)));
+
+    auto prim = std::make_shared<Primitive>(shape, std::move(mat),
+                                            std::move(light), std::move(trans));
+
+    if constexpr (std::same_as<T, Parallelogram>) {
+      prim->area_ = Vector3::Cross(a - o, b - o).Length();
+    }
+
+    objs_.emplace_back(std::move(prim));
   }
 
  private:

@@ -15,30 +15,89 @@
 #include <random>
 #include <thread>
 #include <vector>
+#include "spdlog/spdlog.h"
 
 static inline double absCosTheta(Vector3 wi, Normal n) {
   return std::abs(wi.Dot(n));
 }
 
+inline static double PowerHeuristic(double pdf_a, double pdf_b) {
+  double a2 = pdf_a * pdf_a;
+  double b2 = pdf_b * pdf_b;
+  return (a2 == 0.0 && b2 == 0.0) ? 0.0 : a2 / (a2 + b2);
+}
+
+Integrator::Integrator(Scene& scene, int max_depth)
+    : scene_(scene), max_depth_(max_depth) {
+  for (auto& obj : scene_.objs_) {
+    if (obj->GetLight())
+      lights_.push_back(obj);
+  }
+}
+
 Color Integrator::Li(Ray r, int depth) {
   if (depth >= max_depth_)
-    return {};
+    return Color(0);
 
   HitRecord rec = scene_.Hit(r, Interval<double>::Positive());
   if (!rec.hits)
     return scene_.Background(r);
 
-  Color L;
-  if (auto light = rec.primitive->GetLight())
-    L = light->Le(r);  // TODO: ray should be transformed to local coordinates
+  Color L = rec.primitive->Le(r);
 
   BSDF bsdf = BSDF::Create(rec.normal, rec.primitive->GetMaterial());
-  auto bsdf_sample = bsdf.Sample_f(r.Direction());
-  if (bsdf_sample && bsdf_sample->pdf > 0.0) {
-    double cos0 = absCosTheta(bsdf_sample->wo, rec.normal);
-    Ray scattered(rec.position, bsdf_sample->wo);
-    Color Li_scatter = Li(scattered, depth + 1);
-    L += bsdf_sample->f * Li_scatter * cos0 / bsdf_sample->pdf;
+
+  // Direct lighting via light sampling
+  auto sample_light = [&]() -> Color {
+    static constexpr double EPS = 1e-6;
+    if (lights_.empty())
+      return Color(0);
+
+    // randomly pick one light
+    size_t idx = std::min<size_t>(random_uniform_01() * lights_.size(),
+                                  lights_.size() - 1);
+    auto light_prim = lights_[idx];
+
+    ShapeSample samp = light_prim->Sample();
+    if (samp.pdf <= EPS)
+      return Color(0);
+    Vector3 wo = samp.pos - rec.position;
+    double dist_sq = wo.Length_squared();
+    wo = wo.Normalized();
+    const double shading_cos = absCosTheta(wo, rec.normal);
+    const double light_cos = absCosTheta(-wo, samp.normal);
+    const double pdf_light =
+        (1.0 / lights_.size()) * (samp.pdf * dist_sq / light_cos);
+    if (shading_cos < EPS || light_cos < EPS)
+      return Color(0);
+
+    Ray shadow(rec.position, wo);
+    HitRecord sh = scene_.Hit(shadow, Interval<double>::Positive());
+    if (!sh.hits || sh.primitive != light_prim.get())
+      return Color(0);
+
+    Color Li_light = light_prim->Le(shadow);
+    const double pdf_bsdf = bsdf.pdf(r.Direction(), wo);
+    const double w = PowerHeuristic(pdf_light, pdf_bsdf);
+    Color L =
+        bsdf.f(r.Direction(), wo) * Li_light * shading_cos * w / pdf_light;
+    return L;
+  };
+
+  L += sample_light();
+
+  std::optional<bxdfSample> samp = bsdf.Sample_f(r.Direction());
+  const double cos0 = absCosTheta(samp->wo, rec.normal);
+  const double pdf_bsdf = samp->pdf;
+  if (samp && pdf_bsdf > 0.0 && cos0 > 0.0) {
+    Ray scattered(rec.position, samp->wo);
+    const Color Li_scatter = Li(scattered, depth + 1);
+    double pdf_light = 0;
+    for (const auto& it : lights_)
+      pdf_light += it->Pdf(rec.position, samp->wo);
+    const double w = PowerHeuristic(pdf_bsdf, pdf_light);
+
+    L += samp->f * Li_scatter * cos0 * w / pdf_bsdf;
   }
 
   return L;

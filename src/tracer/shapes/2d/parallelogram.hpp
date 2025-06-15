@@ -14,4 +14,5 @@ class Parallelogram : public IShape {
 
   AABB GetBbox() const override;
   HitRecord Hit(const Ray&, const Interval<double>&) const override;
+  ShapeSample Sample() const override;
 };

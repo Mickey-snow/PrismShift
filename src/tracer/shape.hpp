@@ -9,7 +9,12 @@
 template <typename T>
 class Interval;
 class Primitive;
-class Material;
+
+struct ShapeSample {
+  Point3 pos;
+  Normal normal;
+  double pdf;
+};
 
 class IShape {
  public:
@@ -17,4 +22,9 @@ class IShape {
 
   virtual HitRecord Hit(const Ray&, const Interval<double>&) const = 0;
   virtual AABB GetBbox(void) const = 0;
+  virtual ShapeSample Sample() const {
+    ShapeSample sample;
+    sample.pdf = 0;
+    return sample;
+  }
 };

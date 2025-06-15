@@ -1,9 +1,12 @@
 #include "primitive.hpp"
 
 #include "bsdf.hpp"
+#include "light.hpp"
 #include "material.hpp"
 #include "shape.hpp"
 #include "util/util.hpp"
+
+#include "spdlog/spdlog.h"
 
 Primitive::Primitive(std::shared_ptr<IShape> shape,
                      std::shared_ptr<Material> mat,
@@ -29,6 +32,37 @@ HitRecord Primitive::Hit(Ray ray, Interval<double> t) const {
 
 AABB Primitive::GetBbox(void) const { return bbox_; }
 
-std::shared_ptr<ITransformation> Primitive::GetTransform() const {
-  return transform_;
+Color Primitive::Le(Ray r) const {
+  if (!light_)
+    return Color(0);
+  Ray local = r.Transform(*transform_);
+  return light_->Le(local);
+}
+
+ShapeSample Primitive::Sample() const {
+  ShapeSample sample = shape_->Sample();
+  sample.pos = transform_->Doit(sample.pos);
+  sample.normal = transform_->Doit(sample.normal);
+
+  // pdf should be (1.0 / A)
+  if (sample.pdf > 0 && area_ > 0)
+    sample.pdf = 1.0 / area_;
+  else
+    sample.pdf = 0;
+
+  return sample;
+}
+
+double Primitive::Pdf(Point3 ref, Vector3 wo) const {
+  if (!light_ || area_ < 0)
+    return 0;
+
+  HitRecord rec = Hit(Ray(ref, wo), Interval<double>::Positive());
+  if (!rec.hits)
+    return 0;
+
+  const double d2 = (rec.position - ref).Length_squared();
+  const double cos_light = std::fabs(Vector3::Dot(rec.normal, -wo));
+
+  return (1.0 / area_) * d2 / cos_light;
 }

@@ -12,7 +12,7 @@ AABB Sphere::GetBbox(void) const {
 }
 
 HitRecord Sphere::Hit(const Ray& r,
-                       const Interval<double>& time_interval) const {
+                      const Interval<double>& time_interval) const {
   constexpr double radius = 1.0;
 
   Vector3 oc = (Vector3)r.Origin();
@@ -38,4 +38,12 @@ HitRecord Sphere::Hit(const Ray& r,
   Normal normal = (Normal)position;
 
   return HitRecord::RTN(r, time, normal);
+}
+
+ShapeSample Sphere::Sample() const {
+  ShapeSample sample;
+  sample.pdf = 1.0 / (4 * pi);
+  sample.pos = Point3(0, 0, 0) + rand_sphere_uniform();
+  sample.normal = Normal(sample.pos);
+  return sample;
 }
