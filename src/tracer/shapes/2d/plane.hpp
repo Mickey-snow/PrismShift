@@ -1,17 +1,15 @@
 #pragma once
 
-#include <shape.hpp>
-
-class AABB;
-struct Ray;
-template <typename>
-class Interval;
+#include "shape.hpp"
 
 class Plane : public IShape {
  public:
-  Plane() = default;
-  ~Plane() = default;
+  Plane(Point3 o, Point3 a, Point3 b);
 
   AABB GetBbox(void) const override;
-  HitRecord Hit(const Ray&, const Interval<double>&) const override;
+  HitRecord Hit(const Ray& ray,
+                const Interval<double>& interval) const override;
+
+ private:
+  MatrixTransformation trans_;
 };

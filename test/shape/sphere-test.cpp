@@ -15,7 +15,7 @@ class sphereTest : public ::testing::Test {
         spawn_orig_directed_ray  // , spawn_orig_ray, spawn_tan_ray,
                                  // spawn_para_ray
     };
-    ball = std::make_unique<Sphere>();
+    ball = std::make_unique<Sphere>(Point3(0, 0, 0), 1);
   }
 
   std::unique_ptr<IShape> ball;

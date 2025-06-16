@@ -2,15 +2,20 @@
 
 #include <util/util.hpp>
 
+Plane ::Plane(Point3 o, Point3 a, Point3 b)
+    : trans_(MatrixTransformation::ChangeCoordinate(o, a, b)) {}
+
 AABB Plane::GetBbox(void) const {
   static const AABB box = AABB(Interval<double>::Universe(), Interval<double>(),
                                Interval<double>::Universe())
                               .Pad();
-  return box;
+  return box.Transform(trans_);
 }
 
-HitRecord Plane::Hit(const Ray& r,
+HitRecord Plane::Hit(const Ray& ray,
                      const Interval<double>& time_interval) const {
+  Ray r = ray.UndoTransform(trans_);
+
   double time = -r.Origin().y() / r.Direction().y();
   if (std::isnan(time))
     return HitRecord();
@@ -18,5 +23,5 @@ HitRecord Plane::Hit(const Ray& r,
     return HitRecord();
 
   static const Normal normal{0, 1, 0};
-  return HitRecord::RTN(r, time, normal);
+  return HitRecord::RTN(ray, time, trans_.Doit(normal));
 }

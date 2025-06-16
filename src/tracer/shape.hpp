@@ -21,10 +21,10 @@ class IShape {
   virtual ~IShape() = default;
 
   virtual HitRecord Hit(const Ray&, const Interval<double>&) const = 0;
-  virtual AABB GetBbox(void) const = 0;
-  virtual ShapeSample Sample() const {
-    ShapeSample sample;
-    sample.pdf = 0;
-    return sample;
-  }
+  virtual AABB GetBbox() const = 0;
+
+  virtual double Area() const;
+  virtual ShapeSample Sample() const;
+
+  double Pdf(Point3 ref, Vector3 wo) const;
 };

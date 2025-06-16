@@ -55,8 +55,9 @@ Color Integrator::Li(Ray r, int depth, bool use_mis) {
     size_t idx = std::min<size_t>(random_uniform_01() * lights_.size(),
                                   lights_.size() - 1);
     auto light_prim = lights_[idx];
+    auto shape = light_prim->GetShape();
 
-    ShapeSample samp = light_prim->Sample();
+    ShapeSample samp = shape->Sample();
     if (samp.pdf <= EPS)
       return Color(0);
     Vector3 wo = samp.pos - rec.position;
@@ -101,7 +102,7 @@ Color Integrator::Li(Ray r, int depth, bool use_mis) {
       if (use_mis) {
         double pdf_light = 0;
         for (const auto& it : lights_)
-          pdf_light += it->Pdf(rec.position, samp->wo);
+          pdf_light += it->GetShape()->Pdf(rec.position, samp->wo);
         w = PowerHeuristic(pdf_bsdf, pdf_light);
       }
 

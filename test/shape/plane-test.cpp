@@ -18,7 +18,8 @@ using xyPlaneTypes = ::testing::Types<Plane, Parallelogram, Triangle>;
 template <typename T>
 class PlaneTest : public ::testing::Test {
  public:
-  std::unique_ptr<IShape> shape = std::make_unique<T>();
+  std::unique_ptr<IShape> shape =
+      std::make_unique<T>(Point3(0, 0, 0), Point3(1, 0, 0), Point3(0, 0, 1));
 
   const double MIN = -1e5;
   const double MAX = 1e5;

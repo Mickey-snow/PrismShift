@@ -19,16 +19,12 @@ class Primitive {
  public:
   explicit Primitive(std::shared_ptr<IShape> shape,
                      std::shared_ptr<Material> mat,
-                     std::shared_ptr<ILight> light,
-                     std::shared_ptr<ITransformation> trans = nullptr);
+                     std::shared_ptr<ILight> light);
 
   HitRecord Hit(Ray r, Interval<double> t) const;
   AABB GetBbox(void) const;
   Color Le(Ray r) const;
 
-  [[nodiscard]] std::shared_ptr<ITransformation> GetTransform() const {
-    return transform_;
-  }
   [[nodiscard]] inline std::shared_ptr<Material> GetMaterial() const {
     return material_;
   }
@@ -39,13 +35,16 @@ class Primitive {
     return shape_;
   }
 
-  ShapeSample Sample() const;
-  double Pdf(Point3 ref, Vector3 wo) const;
-
   std::shared_ptr<IShape> shape_;
   std::shared_ptr<Material> material_;
   std::shared_ptr<ILight> light_;
-  std::shared_ptr<ITransformation> transform_;
-  AABB bbox_;  // transformed bbox
-  double area_ = 0;
 };
+
+template <typename T, typename... Ts>
+inline std::shared_ptr<Primitive> MakePrimitive(std::shared_ptr<Material> mat,
+                                                std::shared_ptr<ILight> light,
+                                                Ts&&... params) {
+  auto shape = std::make_shared<T>(std::forward<Ts>(params)...);
+  return std::make_shared<Primitive>(std::move(shape), std::move(mat),
+                                     std::move(light));
+}

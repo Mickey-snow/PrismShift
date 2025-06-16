@@ -22,7 +22,7 @@ struct HitRecord {
     rec.primitive = nullptr;
     rec.time = time;
     rec.position = ray.At(time);
-    rec.normal = normal;
+    rec.normal = std::move(normal);
     return rec;
   }
 };

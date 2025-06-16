@@ -92,46 +92,6 @@ void SceneFactory::parse_lights(const json& r) {
   }
 }
 
-/* -- primitives --------------------------------------------------------- */
-
-void SceneFactory::add_sphere(Point3 pos,
-                              double d,
-                              std::shared_ptr<Material> mat,
-                              std::shared_ptr<ILight> light) {
-  static const auto sphere = std::make_shared<Sphere>();
-
-  auto trans = std::make_shared<CompositeTransformation>(
-      std::make_shared<VectorScale>(d, d, d),
-      std::make_shared<VectorTranslate>(Vector3(pos)));
-  // Note: transformation order is equivalent to
-  // MatrixTransformation::Translate(Vector3(pos)) *
-  //     MatrixTransformation::Scale(d, d, d)
-
-  auto prim = std::make_shared<Primitive>(sphere, std::move(mat),
-                                          std::move(light), std::move(trans));
-  const double r = 0.5 * d;
-  prim->area_ = 4 * pi * r * r;
-  objs_.emplace_back(std::move(prim));
-}
-
-void SceneFactory::add_cube(Point3 o,
-                            Point3 a,
-                            Point3 b,
-                            Point3 c,
-                            std::shared_ptr<Material> mat,
-                            std::shared_ptr<ILight> light) {
-  Vector3 e1 = a - o, e2 = b - o, e3 = c - o;
-
-  add_2d<Parallelogram>(o, a, b, mat, light);
-  add_2d<Parallelogram>(o, a, c, mat, light);
-  add_2d<Parallelogram>(o, b, c, mat, light);
-
-  auto o2 = o + e1 + e2 + e3;
-  add_2d<Parallelogram>(o2, o2 - e1, o2 - e2, mat, light);
-  add_2d<Parallelogram>(o2, o2 - e1, o2 - e3, mat, light);
-  add_2d<Parallelogram>(o2, o2 - e2, o2 - e3, mat, light);
-}
-
 /* -- scene -------------------------------------------------------------- */
 
 Scene SceneFactory::parse_objects(const json& array) {
@@ -150,21 +110,34 @@ Scene SceneFactory::parse_objects(const json& array) {
       light = lights_[it.at("light")];
 
     if (type == "sphere") {
-      add_sphere(parse_point3(v.cbegin()), v.at(3), mat, light);
+      objs_.emplace_back(
+          MakePrimitive<Sphere>(mat, light, parse_point3(v.cbegin()), v.at(3)));
     } else if (type == "plane") {
-      add_2d<Plane>(parse_point3(v.cbegin()), parse_point3(v.cbegin() + 3),
-                    parse_point3(v.cbegin() + 6), mat, light);
+      objs_.emplace_back(MakePrimitive<Plane>(
+          mat, light, parse_point3(v.cbegin()), parse_point3(v.cbegin() + 3),
+          parse_point3(v.cbegin() + 6)));
     } else if (type == "triangle") {
-      add_2d<Triangle>(parse_point3(v.cbegin()), parse_point3(v.cbegin() + 3),
-                       parse_point3(v.cbegin() + 6), mat, light);
+      objs_.emplace_back(MakePrimitive<Triangle>(
+          mat, light, parse_point3(v.cbegin()), parse_point3(v.cbegin() + 3),
+          parse_point3(v.cbegin() + 6)));
     } else if (type == "quad") {
-      add_2d<Parallelogram>(parse_point3(v.cbegin()),
-                            parse_point3(v.cbegin() + 3),
-                            parse_point3(v.cbegin() + 6), mat, light);
+      objs_.emplace_back(MakePrimitive<Parallelogram>(
+          mat, light, parse_point3(v.cbegin()), parse_point3(v.cbegin() + 3),
+          parse_point3(v.cbegin() + 6)));
     } else if (type == "cube") {
-      add_cube(parse_point3(v.cbegin()), parse_point3(v.cbegin() + 3),
-               parse_point3(v.cbegin() + 6), parse_point3(v.cbegin() + 9), mat,
-               light);
+      Point3 o = parse_point3(v.cbegin()), a = parse_point3(v.cbegin() + 3),
+             b = parse_point3(v.cbegin() + 6), c = parse_point3(v.cbegin() + 9);
+      Vector3 e1 = a - o, e2 = b - o, e3 = c - o;
+      objs_.emplace_back(MakePrimitive<Parallelogram>(mat, light, o, a, b));
+      objs_.emplace_back(MakePrimitive<Parallelogram>(mat, light, o, a, c));
+      objs_.emplace_back(MakePrimitive<Parallelogram>(mat, light, o, b, c));
+      o += e1 + e2 + e3;
+      a = o - e1;
+      b = o - e2;
+      c = o - e3;
+      objs_.emplace_back(MakePrimitive<Parallelogram>(mat, light, o, a, b));
+      objs_.emplace_back(MakePrimitive<Parallelogram>(mat, light, o, a, c));
+      objs_.emplace_back(MakePrimitive<Parallelogram>(mat, light, o, b, c));
     } else {
       spdlog::error("unsupported shape: {}", type);
     }

@@ -3,9 +3,15 @@
 
 #include <spdlog/spdlog.h>
 #include <argparse/argparse.hpp>
+#include <chrono>
 #include <cstdlib>  // std::exit
+#include <format>
+
+namespace chr = std::chrono;
 
 int main(int argc, char** argv) {
+  auto begin_time = chr::high_resolution_clock::now();
+
   argparse::ArgumentParser program(*argv);
   program.add_argument("scene_file").required();
   program.add_argument("-o", "--output")
@@ -21,7 +27,7 @@ int main(int argc, char** argv) {
     std::exit(EXIT_FAILURE);
   }
 
-  /* ------------ build camera & scene through factory ---------------- */
+  // build scene
   SceneFactory factory =
       SceneFactory::FromFile(program.get<std::string>("scene_file"));
 
@@ -30,8 +36,13 @@ int main(int argc, char** argv) {
 
   spdlog::info("scene setup complete.");
 
-  /* --------------------------- render ------------------------------ */
+  // render
   Integrator integrator(scene, program.get<int>("--max_depth"));
   integrator.Render(camera, program.get<std::string>("--output"),
                     program.get<int>("--spp"));
+
+  auto end_time = chr::high_resolution_clock::now();
+  auto duration = chr::duration_cast<chr::seconds>(end_time - begin_time);
+  spdlog::info("time wasted rendering: " +
+               std::format("{:%H hours %M minutes %S seconds}", duration));
 }

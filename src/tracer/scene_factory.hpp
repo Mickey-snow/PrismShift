@@ -44,42 +44,6 @@ class SceneFactory {
   void parse_materials(const nlohmann::json& array);
   void parse_lights(const nlohmann::json& r);
 
-  void add_sphere(Point3 pos,
-                  double d,
-                  std::shared_ptr<Material> mat,
-                  std::shared_ptr<ILight> light);
-  void add_cube(Point3 o,
-                Point3 a,
-                Point3 b,
-                Point3 c,
-                std::shared_ptr<Material> mat,
-                std::shared_ptr<ILight> light);
-  template <std::derived_from<IShape> T>
-  void add_2d(Point3 o,
-              Point3 a,
-              Point3 b,
-              std::shared_ptr<Material> mat,
-              std::shared_ptr<ILight> light) {
-    static const std::shared_ptr<IShape> shape = std::make_shared<T>();
-
-    if (Vector3::SameDirection(a - o, b - o))
-      return;
-
-    auto trans = std::make_shared<MatrixTransformation>(
-        MatrixTransformation::ChangeCoordinate(std::move(o), std::move(a),
-                                               std::move(b)));
-    auto prim = std::make_shared<Primitive>(shape, std::move(mat),
-                                            std::move(light), std::move(trans));
-
-    // compute surface area
-    if constexpr (std::same_as<T, Parallelogram>)
-      prim->area_ = Vector3::Cross(a - o, b - o).Length();
-    if constexpr (std::same_as<T, Triangle>)
-      prim->area_ = Vector3::Cross(a - o, b - o).Length() / 2.0;
-
-    objs_.emplace_back(std::move(prim));
-  }
-
  private:
   nlohmann::json root_;  // raw JSON tree
 

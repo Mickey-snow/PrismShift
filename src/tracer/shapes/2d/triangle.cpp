@@ -4,17 +4,27 @@
 
 #include <cmath>
 
+Triangle::Triangle(Point3 o, Point3 a, Point3 b)
+    : trans_(MatrixTransformation::ChangeCoordinate(o, a, b)) {
+  Vector3 e1 = a - o, e2 = b - o;
+  area_ = Vector3::SameDirection(e1, e2)
+              ? 0.0
+              : Vector3::Cross(e1, e2).Length() * 0.5;
+}
+
 AABB Triangle::GetBbox() const {
   static const AABB box = AABB(Point3(0, 0, 0), Point3(1, 0, 1)).Pad();
-  return box;
+  return box.Transform(trans_);
 }
 
 inline static auto OnObject(double a, double b) {
   return (a + b) <= 1 && 0 <= a && 0 <= b;
 }
 
-HitRecord Triangle::Hit(const Ray& r,
+HitRecord Triangle::Hit(const Ray& ray,
                         const Interval<double>& time_interval) const {
+  Ray r = ray.UndoTransform(trans_);
+
   double time = -r.Origin().y() / r.Direction().y();
   if (std::isnan(time))
     return HitRecord();
@@ -26,18 +36,20 @@ HitRecord Triangle::Hit(const Ray& r,
     return HitRecord();
 
   static const Normal normal{0, 1, 0};
-  return HitRecord::RTN(r, time, normal);
+  return HitRecord::RTN(ray, time, trans_.Doit(normal));
 }
 
 ShapeSample Triangle::Sample() const {
   ShapeSample sample;
-  sample.pdf = 2;
+  sample.pdf = 1.0 / area_;
   double a = random_uniform_01(), b = random_uniform_01();
   if (!OnObject(a, b)) {
     a = 1 - a;
     b = 1 - b;
   }
-  sample.pos = Point3(a, 0, b);
-  sample.normal = Normal(0, 1, 0);
+  sample.pos = trans_.Doit(Point3(a, 0, b));
+  sample.normal = trans_.Doit(Normal(0, 1, 0));
   return sample;
 }
+
+double Triangle::Area() const { return area_; }
