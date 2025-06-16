@@ -38,11 +38,7 @@ struct bxdfSample {
   Color f;
   Vector3 wo;
   double pdf;
-  BxDF const* bxdf;
-
-  bxdfSample() : f{0, 0, 0}, wo{0, 0, 0}, pdf(0.0), bxdf(nullptr) {}
-  bxdfSample(Color _col, Vector3 _rout, double _pdf, BxDF const* _bxdf)
-      : f(std::move(_col)), wo(std::move(_rout)), pdf(_pdf), bxdf(_bxdf) {}
+  BxDFBits flag;
 };
 
 class BxDF {
@@ -71,11 +67,6 @@ class BxDF {
   BxDFBits flag{BxDFBits::None};
 
  protected:
-  template <typename... Ts>
-  bxdfSample MakeSample(Ts&&... params) const {
-    return bxdfSample(std::forward<Ts>(params)...);
-  }
-
   template <typename T>
   BxDF& SetFlags(T&& _flag) {
     flag = static_cast<BxDFBits>(std::forward<T>(_flag));

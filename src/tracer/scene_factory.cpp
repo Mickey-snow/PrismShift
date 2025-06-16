@@ -107,8 +107,11 @@ void SceneFactory::add_sphere(Point3 pos,
   // MatrixTransformation::Translate(Vector3(pos)) *
   //     MatrixTransformation::Scale(d, d, d)
 
-  objs_.emplace_back(std::make_shared<Primitive>(
-      sphere, std::move(mat), std::move(light), std::move(trans)));
+  auto prim = std::make_shared<Primitive>(sphere, std::move(mat),
+                                          std::move(light), std::move(trans));
+  const double r = 0.5 * d;
+  prim->area_ = 4 * pi * r * r;
+  objs_.emplace_back(std::move(prim));
 }
 
 void SceneFactory::add_cube(Point3 o,

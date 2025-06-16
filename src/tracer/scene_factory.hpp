@@ -13,6 +13,8 @@
 #include <nlohmann/json.hpp>
 
 class Parallelogram;
+class Sphere;
+class Triangle;
 class ILight;
 
 /**
@@ -60,16 +62,20 @@ class SceneFactory {
               std::shared_ptr<ILight> light) {
     static const std::shared_ptr<IShape> shape = std::make_shared<T>();
 
+    if (Vector3::SameDirection(a - o, b - o))
+      return;
+
     auto trans = std::make_shared<MatrixTransformation>(
         MatrixTransformation::ChangeCoordinate(std::move(o), std::move(a),
                                                std::move(b)));
-
     auto prim = std::make_shared<Primitive>(shape, std::move(mat),
                                             std::move(light), std::move(trans));
 
-    if constexpr (std::same_as<T, Parallelogram>) {
+    // compute surface area
+    if constexpr (std::same_as<T, Parallelogram>)
       prim->area_ = Vector3::Cross(a - o, b - o).Length();
-    }
+    if constexpr (std::same_as<T, Triangle>)
+      prim->area_ = Vector3::Cross(a - o, b - o).Length() / 2.0;
 
     objs_.emplace_back(std::move(prim));
   }

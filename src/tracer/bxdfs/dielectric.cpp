@@ -47,9 +47,11 @@ std::optional<bxdfSample> Dielectric::Sample_f(const Vector3& wi) const {
   double reflectProb = wtOpt ? FresnelSchlick(cosThetaI, etaI, etaT) : 1.0;
 
   if (!wtOpt || random_uniform_01() < reflectProb)
-    return BxDF::MakeSample(Color{1, 1, 1}, wr, 1.0, this);
+    return bxdfSample(Color{1, 1, 1}, wr, 1.0,
+                      BxDFBits::Specular | BxDFBits::Reflection);
 
-  return BxDF::MakeSample(Color{1, 1, 1}, *wtOpt, 1.0, this);
+  return bxdfSample(Color{1, 1, 1}, *wtOpt, 1.0,
+                    BxDFBits::Specular | BxDFBits::Transmission);
 }
 
 }  // namespace bxdfs

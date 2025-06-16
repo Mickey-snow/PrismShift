@@ -21,7 +21,7 @@ static inline double absCosTheta(Vector3 wi, Normal n) {
   return std::abs(wi.Dot(n));
 }
 
-inline static double PowerHeuristic(double pdf_a, double pdf_b) {
+static constexpr double PowerHeuristic(double pdf_a, double pdf_b) {
   double a2 = pdf_a * pdf_a;
   double b2 = pdf_b * pdf_b;
   return (a2 == 0.0 && b2 == 0.0) ? 0.0 : a2 / (a2 + b2);
@@ -35,7 +35,7 @@ Integrator::Integrator(Scene& scene, int max_depth)
   }
 }
 
-Color Integrator::Li(Ray r, int depth) {
+Color Integrator::Li(Ray r, int depth, bool use_mis) {
   if (depth >= max_depth_)
     return Color(0);
 
@@ -50,8 +50,6 @@ Color Integrator::Li(Ray r, int depth) {
   // Direct lighting via light sampling
   auto sample_light = [&]() -> Color {
     static constexpr double EPS = 1e-6;
-    if (lights_.empty())
-      return Color(0);
 
     // randomly pick one light
     size_t idx = std::min<size_t>(random_uniform_01() * lights_.size(),
@@ -84,20 +82,31 @@ Color Integrator::Li(Ray r, int depth) {
     return L;
   };
 
-  L += sample_light();
+  if (lights_.empty())
+    use_mis = false;
+  if (use_mis)
+    L += sample_light();
 
-  std::optional<bxdfSample> samp = bsdf.Sample_f(r.Direction());
-  const double cos0 = absCosTheta(samp->wo, rec.normal);
-  const double pdf_bsdf = samp->pdf;
-  if (samp && pdf_bsdf > 0.0 && cos0 > 0.0) {
-    Ray scattered(rec.position, samp->wo);
-    const Color Li_scatter = Li(scattered, depth + 1);
-    double pdf_light = 0;
-    for (const auto& it : lights_)
-      pdf_light += it->Pdf(rec.position, samp->wo);
-    const double w = PowerHeuristic(pdf_bsdf, pdf_light);
+  if (auto samp = bsdf.Sample_f(r.Direction())) {
+    const double pdf_bsdf = samp->pdf;
+    const double cos0 = absCosTheta(samp->wo, rec.normal);
 
-    L += samp->f * Li_scatter * cos0 * w / pdf_bsdf;
+    if (pdf_bsdf > 0.0 && cos0 > 0.0) {
+      Ray scattered(rec.position, samp->wo);
+      const Color Li_scatter =
+          Li(scattered, depth + 1,
+             use_mis && !static_cast<bool>(samp->flag & BxDFBits::Specular));
+
+      double w = 1.0;
+      if (use_mis) {
+        double pdf_light = 0;
+        for (const auto& it : lights_)
+          pdf_light += it->Pdf(rec.position, samp->wo);
+        w = PowerHeuristic(pdf_bsdf, pdf_light);
+      }
+
+      L += samp->f * Li_scatter * cos0 * w / pdf_bsdf;
+    }
   }
 
   return L;
@@ -122,6 +131,7 @@ void Integrator::Render(const Camera& cam,
     num_threads = 4;
 
   // Render a range of rows [y_start, y_end)
+  std::atomic<int> finished_cnt = 0;
   auto render_rows = [&](int y_start, int y_end) {
     for (int y = y_start; y < y_end; ++y) {
       for (int x = 0; x < image_width; ++x) {
@@ -147,6 +157,8 @@ void Integrator::Render(const Camera& cam,
         p.b = static_cast<uint8_t>(col_range.Clamp(static_cast<int>(rgb.b())));
         framebuffer[y * image_width + x] = p;
       }
+
+      spdlog::info("finished {}/{}", ++finished_cnt, image_height);
     }
   };
 

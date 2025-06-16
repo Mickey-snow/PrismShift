@@ -45,7 +45,6 @@ TEST(LambertianTest, SampleF_ProvidesSelfConsistentSample) {
 
   const auto& s = *sampleOpt;
   EXPECT_EQ(s.f, c * invpi);
-  EXPECT_EQ(s.bxdf, &lambert);  // pointer identity
 
   // PDF in the sample must match calling pdf() directly
   EXPECT_NEAR(s.pdf, lambert.pdf(wi, s.wo), kEps);

@@ -31,7 +31,10 @@ class Vector : public basic_vector<double, N> {
   static Vector Normalized(const Vector<N>& v) { return v / v.Length(); }
   Vector Normalized() const { return Vector<N>::Normalized(*this); }
 
-  bool isUnit(void) const { return fabs(super::Length_squared() - 1.0) < EPS; }
+  inline bool isUnit() const {
+    return fabs(super::Length_squared() - 1.0) < EPS;
+  }
+  inline bool NearZero() const { return super::Length_squared() < EPS; }
 
   static constexpr auto Dot(vector_like auto const& lhs,
                             vector_like auto const& rhs) {
@@ -57,12 +60,11 @@ class Vector : public basic_vector<double, N> {
   }
   Vector Cross(const vector_like auto& rhs) const { return Cross(*this, rhs); }
 
-  static bool isPerpendicular(const Vector<N>& a, const Vector<N>& b) {
+  static bool Perpendicular(const Vector<N>& a, const Vector<N>& b) {
     return fabs(Vector<N>::Dot(a, b)) < EPS;
   }
-
-  static bool Same_Direction(const Vector<N>& a, const Vector<N>& b) {
-    if (a.Near_Zero() || b.Near_Zero())
+  static bool SameDirection(const Vector<N>& a, const Vector<N>& b) {
+    if (a.NearZero() || b.NearZero())
       return true;
     double t;
     for (std::size_t i = 0; i < dimension; ++i)

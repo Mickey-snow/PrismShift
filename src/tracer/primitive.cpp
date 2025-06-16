@@ -54,7 +54,7 @@ ShapeSample Primitive::Sample() const {
 }
 
 double Primitive::Pdf(Point3 ref, Vector3 wo) const {
-  if (!light_ || area_ < 0)
+  if (!light_ || area_ <= 0)
     return 0;
 
   HitRecord rec = Hit(Ray(ref, wo), Interval<double>::Positive());

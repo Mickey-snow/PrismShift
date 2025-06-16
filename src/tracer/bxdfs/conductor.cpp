@@ -48,13 +48,8 @@ double Conductor::pdf(const Vector3& wi, const Vector3& wo) const {
 
 std::optional<bxdfSample> Conductor::Sample_f(const Vector3& wi) const {
   Vector3 wo = Reflect(wi);
-  if (isSpecular) {
-    return BxDF::MakeSample(col, wo, 1.0, this);
-  }
-
-  auto delta_w = Spawn_cosine_distributed_hemisphere();
-  return BxDF::MakeSample(col, wo + delta_w * fuzz,
-                          pdf_cosine_distributed_hemisphere(delta_w), this);
+  // if (isSpecular)
+  return bxdfSample(col, wo, 1.0, BxDFBits::Reflection | BxDFBits::Specular);
 }
 
 }  // namespace bxdfs
