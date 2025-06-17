@@ -185,3 +185,22 @@ class Normal : public basic_vector<double, 3> {
       it /= length;
   }
 };
+
+inline double CosTheta(const Vector3& w) { return w.y(); }
+inline double AbsCosTheta(const Vector3& w) { return std::abs(w.y()); }
+inline double Cos2Theta(const Vector3& w) { return w.y() * w.y(); }
+inline double Sin2Theta(const Vector3& w) {
+  return std::max<double>(0, 1 - Cos2Theta(w));
+}
+inline double SinTheta(const Vector3& w) { return std::sqrt(Sin2Theta(w)); }
+inline double Tan2Theta(const Vector3& w) {
+  return Sin2Theta(w) / Cos2Theta(w);
+}
+inline double CosPhi(const Vector3& w) {
+  double sintheta = SinTheta(w);
+  return sintheta == 0 ? 1.0 : std::clamp<double>(w.z() / sintheta, -1, 1);
+}
+inline double SinPhi(const Vector3& w) {
+  double sintheta = SinTheta(w);
+  return sintheta == 0 ? 0.0 : std::clamp<double>(w.x() / sintheta, -1, 1);
+}

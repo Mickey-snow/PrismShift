@@ -32,6 +32,8 @@ struct overload : Ts... {
 template <typename... Ts>
 overload(Ts...) -> overload<Ts...>;
 
+inline auto Sqr(auto x) { return x * x; }
+
 /**
  * Perfect-mirror reflection.
  *
