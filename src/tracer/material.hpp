@@ -34,7 +34,7 @@ class ConductorMaterial : public IMaterial {
 
 class DielectricMaterial : public IMaterial {
   double eta_;
-  double uRoughness_ = 0.5, vRoughness_ = 0.5;
+  double uRoughness_, vRoughness_;
 
  public:
   DielectricMaterial(double eta, double uRough, double vRough);

@@ -33,6 +33,7 @@ DielectricMaterial::DielectricMaterial(double eta, double uRough, double vRough)
 
 BSDF DielectricMaterial::GetBSDF(const HitRecord& rec) const {
   return BSDF(
-      std::make_shared<Dielectric>(eta_),  // TODO: Rough Dielectric
+      std::make_shared<Dielectric>(
+          eta_, TrowbridgeReitzDistribution(uRoughness_, vRoughness_)),
       QuaternionTransform::RotateFrTo(Vector3(rec.normal), Vector3(0, 1, 0)));
 }
