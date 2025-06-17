@@ -25,11 +25,10 @@ class DiffuseMaterial : public IMaterial {
 
 class ConductorMaterial : public IMaterial {
   Color color_;
-  double fuzz_;
-  double uRoughness_ = 0.99, vRoughness_ = 0.98;
+  double uRoughness_, vRoughness_;
 
  public:
-  ConductorMaterial(Color color, double fuzz);
+  ConductorMaterial(Color color, double uRough, double vRough);
   BSDF GetBSDF(const HitRecord& rec) const override;
 };
 
@@ -38,6 +37,6 @@ class DielectricMaterial : public IMaterial {
   double uRoughness_ = 0.5, vRoughness_ = 0.5;
 
  public:
-  DielectricMaterial(double eta);
+  DielectricMaterial(double eta, double uRough, double vRough);
   BSDF GetBSDF(const HitRecord& rec) const override;
 };

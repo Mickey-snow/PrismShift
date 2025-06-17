@@ -56,14 +56,22 @@ void SceneFactory::parse_materials(const json& array) {
 
     std::shared_ptr<IMaterial> mat;
     if (type == "conductor") {
-      mat = std::make_shared<ConductorMaterial>(
-          Color(v.at(0), v.at(1), v.at(2)), v.at(3));
+      Color col = Color(v.at(0), v.at(1), v.at(2));
+      double uRough = v.at(3);
+      double vRough = uRough;
+      if (v.size() >= 5)
+        vRough = v.at(4);
+      mat = std::make_shared<ConductorMaterial>(col, uRough, vRough);
     } else if (type == "diffuse") {
-      mat = std::make_shared<DiffuseMaterial>(Color(v.at(0), v.at(1), v.at(2)));
+      Color col = Color(v.at(0), v.at(1), v.at(2));
+      mat = std::make_shared<DiffuseMaterial>(col);
     } else if (type == "dielectric") {
-      if (v.is_array())
-        v = v.at(0);
-      mat = std::make_shared<DielectricMaterial>(v);
+      double eta = v.at(0);
+      double uRough = v.at(1);
+      double vRough = uRough;
+      if (v.size() >= 3)
+        vRough = v.at(2);
+      mat = std::make_shared<DielectricMaterial>(eta, uRough, vRough);
     } else {
       spdlog::error("unknown material {}", type);
       continue;

@@ -119,14 +119,14 @@ TEST(LambertianTest, SampleConvergence) {
 
 TEST(ConductorTest, Flags) {
   const Color white{1, 1, 1};
-  Conductor mirror(TrowbridgeReitzDistribution(0, 0), white, /*fuzz=*/0.0);
+  Conductor mirror(TrowbridgeReitzDistribution(0, 0), white);
   EXPECT_TRUE(mirror.MatchesFlag(BxDFBits::Specular));
   EXPECT_TRUE(mirror.MatchesFlag(BxDFBits::Reflection));
 }
 
 TEST(ConductorTest, pdfPerfectSpecular) {
   const Color white{1, 1, 1};
-  Conductor mirror(TrowbridgeReitzDistribution(0, 0),white, /*fuzz=*/0.0);
+  Conductor mirror(TrowbridgeReitzDistribution(0, 0), white);
 
   static constexpr auto N = 16;
   for (size_t i = 0; i < N; ++i) {
@@ -138,7 +138,7 @@ TEST(ConductorTest, pdfPerfectSpecular) {
 
 TEST(ConductorTest, SamplePerfectSpecular) {
   const Color c{0.9, 0.8, 0.7};
-  Conductor mirror(TrowbridgeReitzDistribution(0, 0),c, /*fuzz=*/0.0);
+  Conductor mirror(TrowbridgeReitzDistribution(0, 0), c);
 
   static constexpr auto N = 16;
   for (size_t i = 0; i < N; ++i) {

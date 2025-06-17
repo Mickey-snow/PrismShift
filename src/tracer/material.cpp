@@ -17,18 +17,19 @@ BSDF DiffuseMaterial::GetBSDF(const HitRecord& rec) const {
 }
 
 // ------------------------------------------------------------------------------
-ConductorMaterial::ConductorMaterial(Color color, double fuzz)
-    : color_(color), fuzz_(fuzz) {}
+ConductorMaterial::ConductorMaterial(Color color, double uRough, double vRough)
+    : color_(color), uRoughness_(uRough), vRoughness_(vRough) {}
 
 BSDF ConductorMaterial::GetBSDF(const HitRecord& rec) const {
   return BSDF(
       std::make_shared<Conductor>(
-          TrowbridgeReitzDistribution(uRoughness_, vRoughness_), color_, fuzz_),
+          TrowbridgeReitzDistribution(uRoughness_, vRoughness_), color_),
       QuaternionTransform::RotateFrTo(Vector3(rec.normal), Vector3(0, 1, 0)));
 }
 
 // ------------------------------------------------------------------------------
-DielectricMaterial::DielectricMaterial(double eta) : eta_(eta) {}
+DielectricMaterial::DielectricMaterial(double eta, double uRough, double vRough)
+    : eta_(eta), uRoughness_(uRough), vRoughness_(vRough) {}
 
 BSDF DielectricMaterial::GetBSDF(const HitRecord& rec) const {
   return BSDF(

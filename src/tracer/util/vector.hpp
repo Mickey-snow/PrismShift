@@ -66,13 +66,13 @@ class Vector : public basic_vector<double, N> {
   static bool SameDirection(const Vector<N>& a, const Vector<N>& b) {
     if (a.NearZero() || b.NearZero())
       return true;
-    double t;
+
     for (std::size_t i = 0; i < dimension; ++i)
       if (b[i] != 0) {
-        t = a[i] / b[i];
-        break;
+        double t = a[i] / b[i];
+        return b * t == a;
       }
-    return b * t == a;
+    return true;
   }
 
   inline constexpr Vector operator+(const Vector& rhs) const {

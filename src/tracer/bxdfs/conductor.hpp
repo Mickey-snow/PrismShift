@@ -8,13 +8,11 @@ namespace bxdfs {
 
 class Conductor : public BxDF {
  public:
-  explicit Conductor(TrowbridgeReitzDistribution mfdist,
-                     Color color,
-                     double f );
+  explicit Conductor(TrowbridgeReitzDistribution mfdist, Color col);
 
-  Color f(const Vector3&, const Vector3&) const override;
-  std::optional<bxdfSample> Sample_f(const Vector3&) const override;
-  double pdf(const Vector3&, const Vector3&) const override;
+  Color f(const Vector3& wi, const Vector3& wo) const override;
+  std::optional<bxdfSample> Sample_f(const Vector3& wi) const override;
+  double pdf(const Vector3& wi, const Vector3& wo) const override;
 
  private:
   TrowbridgeReitzDistribution mfdist_;
