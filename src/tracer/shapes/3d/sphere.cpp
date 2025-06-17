@@ -6,17 +6,13 @@
 #include <shape.hpp>
 #include <util/util.hpp>
 
-Sphere::Sphere(Point3 o, double d)
-    : trans_(std::make_shared<VectorScale>(d, d, d),
-             std::make_shared<VectorTranslate>(Vector3(o))) {
-  d /= 2.0;
-  area_ = 4 * pi * d;
-}
+Sphere::Sphere(Point3 o, double r)
+    : trans_(std::make_shared<VectorScale>(r, r, r),
+             std::make_shared<VectorTranslate>(Vector3(o))),
+      area_(4 * pi * r * r),
+      bbox_(o + Vector3(r, r, r), o - Vector3(r, r, r)) {}
 
-AABB Sphere::GetBbox(void) const {
-  static AABB bbox = AABB(Point3(1, 1, 1), Point3(-1, -1, -1));
-  return bbox.Transform(trans_);
-}
+AABB Sphere::GetBbox() const { return bbox_; }
 
 HitRecord Sphere::Hit(const Ray& ray,
                       const Interval<double>& time_interval) const {
@@ -43,7 +39,7 @@ HitRecord Sphere::Hit(const Ray& ray,
 
   double time = root;
   Point3 position = r.At(time);
-  Normal normal = (Normal)position;
+  Normal normal = Normal(position);
 
   return HitRecord::RTN(ray, time, trans_.Doit(normal));
 }

@@ -1,91 +1,126 @@
 #include <gtest/gtest.h>
 
-#include <shape.hpp>
 #include <shapes/3d/sphere.hpp>
 #include <util/util.hpp>
 
-#include <functional>
 #include <memory>
 #include <vector>
+#include "spdlog/fmt/ostr.h"
+#include "spdlog/spdlog.h"
 
-class sphereTest : public ::testing::Test {
+class SphereTest : public ::testing::Test {
  protected:
-  void SetUp() override {
-    spawn_ray_fn = std::vector<std::function<Ray()>>{
-        spawn_orig_directed_ray  // , spawn_orig_ray, spawn_tan_ray,
-                                 // spawn_para_ray
-    };
-    ball = std::make_unique<Sphere>(Point3(0, 0, 0), 1);
+  inline static constexpr int N = 64;
+  inline static constexpr auto EPS = 1e-6;
+
+  static Point3 rand_point(double min = -10, double max = 10) {
+    return Point3(random_double(min, max), random_double(min, max),
+                  random_double(min, max));
   }
 
-  std::unique_ptr<IShape> ball;
+  SphereTest()
+      : unit_sphere(Point3(0, 0, 0), 1),
+        o(rand_point(7, 10)),
+        r(random_double(1, 3)),
+        rand_sphere(o, r) {}
 
-  std::vector<std::function<Ray()>> spawn_ray_fn;
-  std::function<Ray()> spawn_orig_directed_ray = []() {
-    Point3 p_onball = (Point3)Vector3::Random_Unit();
-    Point3 ray_orig = Point3(random_double(1.5, 10) * p_onball);
-    Vector3 ray_d = p_onball - ray_orig;
-    return Ray(ray_orig, ray_d);
-  };
-  std::function<Ray()> spawn_orig_ray = []() {
-    return Ray(Point3{0, 0, 0}, Vector3::Random_Unit());
-  };
-  std::function<Ray()> spawn_para_ray = []() {
-    const int axis = random_int(0, 3);
-    Point3 p_onball = (Point3)Vector3::Random_Unit();
-    Point3 ray_orig = p_onball;
-    ray_orig[axis] = 1;
-    Vector3 ray_d = p_onball - ray_orig;
-    return Ray(ray_orig, ray_d);
-  };
-  std::function<Ray()> spawn_tan_ray = []() {
-    Point3 ptan = (Point3)(0.999 * Vector3::Random_Unit());
-    Vector3 vtan = Vector3::Cross((Vector3)ptan, Vector3::Random_Unit());
-    return Ray(ptan - vtan, vtan);
-  };
+  Sphere unit_sphere;
+  Point3 o;
+  double r;
+  Sphere rand_sphere;
 };
 
-TEST_F(sphereTest, bbox) {
-  auto bbox = ball->GetBbox();
+TEST_F(SphereTest, Bbox) {
+  auto bbox = unit_sphere.GetBbox();
   EXPECT_EQ(bbox, AABB(Point3(-1, -1, -1), Point3(1, 1, 1)));
+
+  bbox = rand_sphere.GetBbox();
+  EXPECT_TRUE(bbox.Contains(o + Vector3(r, r, r)));
+  EXPECT_TRUE(bbox.Contains(o - Vector3(r, r, r)));
 }
 
-TEST_F(sphereTest, rayHits) {
-  static constexpr int testcases = 100;
+TEST_F(SphereTest, Area) {
+  EXPECT_EQ(unit_sphere.Area(), 4 * pi);
+  EXPECT_EQ(rand_sphere.Area(), 4 * pi * r * r);
+}
 
-  auto isInside = [](const Point3& p) { return p.Length_squared() <= 1.0; };
+TEST_F(SphereTest, RayHits) {
+  Point3 on_sphere, ray_point;
+  HitRecord rec;
+  Ray r;
+  double time;
 
-  for (const auto& spawn_fn : spawn_ray_fn) {
-    for (int i = 0; i < testcases; ++i) {
-      Ray r = spawn_fn();
-      auto rec = ball->Hit(r, Interval<double>(0, 10.5));
+  for (auto* sphere : std::vector<Sphere*>{&unit_sphere, &rand_sphere}) {
+    for (int i = 0; i < N; ++i) {
+      ray_point = rand_point(0, .1);  // inside
+      on_sphere = Point3(rand_sphere_uniform());
+      r = Ray(sphere->GetTransformation().Doit(ray_point),
+              sphere->GetTransformation().Doit(on_sphere - ray_point));
+      time = r.direction.Length();
+      r.direction /= time;
 
-      ASSERT_TRUE(rec.hits);
+      rec = sphere->Hit(r, Interval<double>::Positive());
+      EXPECT_TRUE(rec.hits) << ray_point << ' ' << on_sphere;
+      EXPECT_NEAR(rec.time, time, EPS);
+
+      // outside
+      on_sphere = Point3(rand_sphere_uniform());
+      ray_point = Point3(random_double(10, 20) * Vector3(on_sphere));
+      r = Ray(sphere->GetTransformation().Doit(ray_point),
+              sphere->GetTransformation().Doit(on_sphere - ray_point));
+      time = r.direction.Length();
+      r.direction /= time;
+
+      rec = sphere->Hit(r, Interval<double>::Positive());
+      EXPECT_TRUE(rec.hits) << ray_point << ' ' << on_sphere;
+      EXPECT_NEAR(rec.time, time, EPS);
     }
   }
 }
 
-TEST_F(sphereTest, hitOutTimeInterval) {
-  static constexpr int testcases = 100;
+TEST_F(SphereTest, HitOutsideTimeInterval) {
+  Point3 on_sphere, ray_point;
+  HitRecord rec;
+  Ray r;
+  double time;
 
-  for (const auto& spawn_fn : spawn_ray_fn) {
-    for (int i = 0; i < testcases; ++i) {
-      Ray r = spawn_fn();
-      auto rec = ball->Hit(r, Interval<double>(0.0001, 0.9999));
+  for (auto* sphere : std::vector<Sphere*>{&unit_sphere, &rand_sphere}) {
+    for (int i = 0; i < N; ++i) {
+      ray_point = rand_point(0, .1);  // inside
+      on_sphere = Point3(rand_sphere_uniform());
+      r = Ray(sphere->GetTransformation().Doit(ray_point),
+              sphere->GetTransformation().Doit(on_sphere - ray_point));
+      time = r.direction.Length();
+      r.direction /= time;
+
+      rec = sphere->Hit(r, Interval<double>(0, time - EPS));
+      EXPECT_FALSE(rec.hits) << ray_point << ' ' << on_sphere;
+
+      // outside
+      on_sphere = Point3(rand_sphere_uniform());
+      ray_point = Point3(random_double(10, 20) * Vector3(on_sphere));
+      r = Ray(sphere->GetTransformation().Doit(ray_point),
+              sphere->GetTransformation().Doit(on_sphere - ray_point));
+      time = r.direction.Length();
+      r.direction /= time;
+
+      rec = sphere->Hit(r, Interval<double>(0, time - EPS));
+      EXPECT_FALSE(rec.hits) << ray_point << ' ' << on_sphere;
+    }
+  }
+}
+
+TEST_F(SphereTest, Nohit) {
+  for (auto* sphere : std::vector<Sphere*>{&unit_sphere, &rand_sphere}) {
+    for (int i = 0; i < N; ++i) {
+      Point3 p = Point3(1.001 * Vector3::Random_Unit());
+      Vector3 vp = Vector3::Cross((Vector3)p, Vector3::Random_Unit());
+      p = sphere->GetTransformation().Doit(p);
+      vp = sphere->GetTransformation().Doit(vp);
+
+      Ray r = Ray(p - vp, vp);
+      auto rec = sphere->Hit(r, Interval<double>::Universe());
       EXPECT_FALSE(rec.hits) << r;
     }
-  }
-}
-
-TEST_F(sphereTest, nohit) {
-  static constexpr int testcases = 100;
-
-  for (int i = 0; i < testcases; ++i) {
-    Point3 p = (Point3)(1.001 * Vector3::Random_Unit());
-    Vector3 vp = Vector3::Cross((Vector3)p, Vector3::Random_Unit());
-
-    Ray r = Ray(p - vp, vp);
-    auto rec = ball->Hit(r, Interval<double>::Universe());
-    EXPECT_FALSE(rec.hits) << r;
   }
 }

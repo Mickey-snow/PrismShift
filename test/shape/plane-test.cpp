@@ -6,99 +6,113 @@
 #include <shapes/2d/triangle.hpp>
 #include <util/util.hpp>
 
-#include <functional>
 #include <string>
-#include <type_traits>
-#include <typeinfo>
-
-using namespace std::string_literals;
-
-using xyPlaneTypes = ::testing::Types<Plane, Parallelogram, Triangle>;
 
 template <typename T>
 class PlaneTest : public ::testing::Test {
  public:
-  std::unique_ptr<IShape> shape =
-      std::make_unique<T>(Point3(0, 0, 0), Point3(1, 0, 0), Point3(0, 0, 1));
+  inline static constexpr int N = 8;
+  inline static constexpr auto EPS = 1e-6;
 
-  const double MIN = -1e5;
-  const double MAX = 1e5;
+  static inline Point3 rand_point(double min = -10, double max = 10) {
+    return Point3(random_double(min, max), random_double(min, max),
+                  random_double(min, max));
+  }
 
-  inline static constexpr int testcases = 32;
+  Point3 o = rand_point(), a = rand_point(), b = rand_point();
+  Vector3 e1 = a - o, e2 = b - o;
+  std::unique_ptr<T> shape = std::make_unique<T>(o, a, b);
 
-  std::function<Ray(double)> spawn_hit_ray = [this](const double t) {
-    Point3 r_orig = (Point3)Vector3::Random(this->MIN, this->MAX);
-    Point3 p_onplane;
+  Point3 rand_on_plane() {
+    if constexpr (std::same_as<T, Triangle>) {
+      double s = random_double(0, 0.5), t = random_double(0, 0.5);
+      return o + e1 * s + e2 * t;
+    }
+    if constexpr (std::same_as<T, Parallelogram>) {
+      double s = random_uniform_01(), t = random_uniform_01();
+      return o + e1 * s + e2 * t;
+    }
+    if constexpr (std::same_as<T, Plane>) {
+      double s = random_double(-10, 10), t = random_double(-10, 10);
+      return o + e1 * s + e2 * t;
+    }
+  }
 
-    if constexpr (std::is_same_v<T, Plane>)
-      p_onplane = Point3(random_double(this->MIN, this->MAX), 0,
-                         random_double(this->MIN, this->MAX));
-    else if constexpr (std::is_same_v<T, Parallelogram>)
-      p_onplane = Point3(random_double(0, 1), 0, random_double(0, 1));
-    else if constexpr (std::is_same_v<T, Triangle>) {
-      p_onplane = Point3(random_double(0, 1), 0, 0);
-      p_onplane.z() = random_double(0, 1 - p_onplane.x());
-    } else
-      throw;
-
-    Vector3 r_dir = p_onplane - r_orig;
-    return Ray(r_orig, r_dir / t);
-  };
-  std::function<Ray()> spawn_nohit_ray = [this]() {
-    auto hit_ray = std::invoke(this->spawn_hit_ray, 1.0);
-    return Ray(hit_ray.Origin(), -hit_ray.Direction());
-  };
-  std::function<Ray()> spawn_parallel_ray = [this]() {
-    Point3 r_orig = (Point3)Vector3::Random(this->MIN, this->MAX);
-    Vector3 r_dir = Vector3::Random_Unit();
-    r_dir.y() = 0;
-    return Ray(r_orig, r_dir);
-  };
+  std::optional<Point3> rand_off_plane() {
+    if constexpr (std::same_as<T, Triangle>) {
+      while (true) {
+        double s = random_double(-10, 10), t = random_double(-10, 10);
+        if (!(0 <= s && 0 <= t && s + t <= 1))
+          return o + e1 * s + e2 * t;
+      }
+    }
+    if constexpr (std::same_as<T, Parallelogram>) {
+      while (true) {
+        double s = random_double(-10, 10), t = random_double(-10, 10);
+        if (!(0 <= s && s <= 1 && 0 <= t && t <= 1))
+          return o + e1 * s + e2 * t;
+      }
+    }
+    if constexpr (std::same_as<T, Plane>) {
+      return std::nullopt;
+    }
+  }
 };
+
+using xyPlaneTypes = ::testing::Types<Plane, Parallelogram, Triangle>;
 TYPED_TEST_SUITE(PlaneTest, xyPlaneTypes);
 
-TYPED_TEST(PlaneTest, bbox) {
+TYPED_TEST(PlaneTest, Bbox) {
   auto box = this->shape->GetBbox();
-
-  if (dynamic_cast<Plane*>(this->shape.get()))
-    EXPECT_TRUE(box.Contains(AABB(Point3(this->MIN, 0, this->MIN),
-                                  Point3(this->MAX, 0, this->MAX))));
-  else if (dynamic_cast<Parallelogram*>(this->shape.get()))
-    EXPECT_TRUE(box.Contains(AABB(Point3(0, 0, 0), Point3(1, 0, 1))));
-  else if (dynamic_cast<Triangle*>(this->shape.get()))
-    EXPECT_TRUE(box.Contains(AABB(Point3(0, 0, 1), Point3(1, 0, 0))));
-
-  else
-    FAIL() << "assertion logic not specified for type "s +
-                  typeid(decltype(this->shape)).name();
+  EXPECT_TRUE(box.Contains(this->o));
+  EXPECT_TRUE(box.Contains(this->a));
+  EXPECT_TRUE(box.Contains(this->b));
 }
 
-TYPED_TEST(PlaneTest, rayHit) {
-  for (int i = 0; i < this->testcases; ++i) {
-    const double time = random_double(1, 10);
-    Ray r = std::invoke(this->spawn_hit_ray, time);
+TYPED_TEST(PlaneTest, RayHit) {
+  Point3 on_plane, ray_point;
+  double time;
+  Ray r;
+
+  for (int i = 0; i < this->N; ++i) {
+    on_plane = this->rand_on_plane();
+    ray_point = this->rand_point();
+    r = Ray(ray_point, on_plane - ray_point);
+    time = r.direction.Length();
+    r.direction /= time;
 
     auto rec = this->shape->Hit(r, Interval<double>::Positive());
-    ASSERT_TRUE(rec.hits);
-    EXPECT_DOUBLE_EQ(rec.time, time);
+    EXPECT_TRUE(rec.hits) << this->o << ' ' << this->a << ' ' << this->b << '\n'
+                          << r;
+    EXPECT_NEAR(rec.time, time, this->EPS);
   }
 }
 
-TYPED_TEST(PlaneTest, rayHitOutInterval) {
-  static constexpr double EPS = 1e-5;
+TYPED_TEST(PlaneTest, HitOutsideInterval) {
+  Point3 on_plane, ray_point;
+  double time;
+  Ray r;
 
-  for (int i = 0; i < this->testcases; ++i) {
-    const double time = random_double(1, 10);
-    Ray r = std::invoke(this->spawn_hit_ray, time);
+  for (int i = 0; i < this->N; ++i) {
+    on_plane = this->rand_on_plane();
+    ray_point = this->rand_point();
+    r = Ray(ray_point, on_plane - ray_point);
+    time = r.direction.Length();
+    r.direction /= time;
 
-    auto rec = this->shape->Hit(r, Interval<double>(EPS, time - EPS));
-    EXPECT_FALSE(rec.hits);
+    auto rec = this->shape->Hit(r, Interval<double>(0, time - this->EPS));
+    ASSERT_FALSE(rec.hits);
   }
 }
 
-TYPED_TEST(PlaneTest, rayNoHit) {
-  for (int i = 0; i < this->testcases; ++i) {
-    Ray r = std::invoke(this->spawn_nohit_ray);
+TYPED_TEST(PlaneTest, NoHit) {
+  for (int i = 0; i < this->N; ++i) {
+    auto off_plane = this->rand_off_plane();
+    if (!off_plane.has_value())
+      continue;
+
+    Point3 ray_point = this->rand_point();
+    Ray r(ray_point, (*off_plane - ray_point).Normalized());
 
     auto rec = this->shape->Hit(r, Interval<double>::Positive());
     EXPECT_FALSE(rec.hits);
@@ -106,8 +120,10 @@ TYPED_TEST(PlaneTest, rayNoHit) {
 }
 
 TYPED_TEST(PlaneTest, parallelRayNoHit) {
-  for (int i = 0; i < this->testcases; ++i) {
-    Ray r = std::invoke(this->spawn_parallel_ray);
+  for (int i = 0; i < this->N; ++i) {
+    Vector3 parallel =
+        random_uniform_01() * this->e1 + random_uniform_01() * this->e2;
+    Ray r(this->rand_point(), parallel.Normalized());
 
     auto rec = this->shape->Hit(r, Interval<double>::Universe());
     EXPECT_FALSE(rec.hits);
