@@ -75,10 +75,9 @@ class BxDF {
 };
 
 struct HitRecord;
-class Material;
+class IMaterial;
 class BSDF {
  public:
-  static BSDF Create(Normal normal, std::shared_ptr<Material> mat);
   explicit BSDF(std::shared_ptr<BxDF> bxdf, QuaternionTransform trans);
 
   Color f(Vector3 wi, Vector3 wo, BxDFBits flag = BxDFBits::All) const;

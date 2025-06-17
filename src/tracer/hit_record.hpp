@@ -4,7 +4,7 @@
 #include "util/vector.hpp"
 
 class Primitive;
-struct Material;
+struct IMaterial;
 
 struct HitRecord {
   HitRecord() = default;

@@ -204,3 +204,7 @@ inline double SinPhi(const Vector3& w) {
   double sintheta = SinTheta(w);
   return sintheta == 0 ? 0.0 : std::clamp<double>(w.x() / sintheta, -1, 1);
 }
+
+inline static bool SameHemisphere(const Vector3& w, const Vector3& wp) {
+  return w.y() * wp.y() <= 0.0;
+}

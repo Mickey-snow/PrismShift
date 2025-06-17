@@ -45,7 +45,7 @@ Color Integrator::Li(Ray r, int depth, bool use_mis) {
 
   Color L = rec.primitive->Le(r);
 
-  BSDF bsdf = BSDF::Create(rec.normal, rec.primitive->GetMaterial());
+  BSDF bsdf = rec.primitive->GetMaterial()->GetBSDF(rec);
 
   // Direct lighting via light sampling
   auto sample_light = [&]() -> Color {
@@ -115,7 +115,8 @@ Color Integrator::Li(Ray r, int depth, bool use_mis) {
 
 void Integrator::Render(const Camera& cam,
                         std::string output_filename,
-                        const int spp) {
+                        const int spp,
+                        bool use_mis) {
   int image_width = cam.imageWidth();
   int image_height = cam.imageHeight();
   auto view = cam.initializeView();
@@ -146,7 +147,7 @@ void Integrator::Render(const Camera& cam,
                             random_uniform_01() * view.pixel_delta_u +
                             random_uniform_01() * view.pixel_delta_v;
           Ray r(origin, jittered - origin);
-          raw += Li(r);
+          raw += Li(r, 0, use_mis);
         }
         raw /= spp;
 

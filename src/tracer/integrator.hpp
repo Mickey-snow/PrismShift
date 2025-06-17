@@ -18,7 +18,8 @@ class Integrator {
 
   void Render(const Camera& cam,
               std::string output_filename,
-              const int spp = 32);
+              const int spp = 32,
+              bool use_mis = true);
 
  private:
   Scene& scene_;

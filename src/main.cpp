@@ -19,6 +19,7 @@ int main(int argc, char** argv) {
       .default_value("output.ppm");
   program.add_argument("--spp").scan<'d', int>().default_value(32);
   program.add_argument("--max_depth").scan<'d', int>().default_value(64);
+  program.add_argument("--no_mis").default_value(false).implicit_value(true);
 
   try {
     program.parse_args(argc, argv);
@@ -39,7 +40,8 @@ int main(int argc, char** argv) {
   // render
   Integrator integrator(scene, program.get<int>("--max_depth"));
   integrator.Render(camera, program.get<std::string>("--output"),
-                    program.get<int>("--spp"));
+                    program.get<int>("--spp"),
+                    !program.get<bool>("--no_mis"));
 
   auto end_time = chr::high_resolution_clock::now();
   auto duration = chr::duration_cast<chr::seconds>(end_time - begin_time);

@@ -52,21 +52,18 @@ void SceneFactory::parse_materials(const json& array) {
   materials_.reserve(array.size());
   for (const auto& it : array) {
     const std::string type = it.at("type");
-    json v = it.at("data");
+    auto v = it.at("data");
 
-    std::shared_ptr<Material> mat;
+    std::shared_ptr<IMaterial> mat;
     if (type == "conductor") {
-      mat = std::make_shared<Material>(
-          std::make_shared<SolidColor>(v.at(0), v.at(1), v.at(2)),
-          std::make_shared<FloatConst>(v.at(3)));
+      mat = std::make_shared<ConductorMaterial>(
+          Color(v.at(0), v.at(1), v.at(2)), v.at(3));
     } else if (type == "diffuse") {
-      mat = std::make_shared<Material>(
-          std::make_shared<SolidColor>(v.at(0), v.at(1), v.at(2)), nullptr);
+      mat = std::make_shared<DiffuseMaterial>(Color(v.at(0), v.at(1), v.at(2)));
     } else if (type == "dielectric") {
       if (v.is_array())
         v = v.at(0);
-      mat =
-          std::make_shared<Material>(nullptr, std::make_shared<FloatConst>(v));
+      mat = std::make_shared<DielectricMaterial>(v);
     } else {
       spdlog::error("unknown material {}", type);
       continue;
@@ -102,7 +99,7 @@ Scene SceneFactory::parse_objects(const json& array) {
     const std::string type = it.at("type");
     const json& v = it.at("data");
 
-    std::shared_ptr<Material> mat = nullptr;
+    std::shared_ptr<IMaterial> mat = nullptr;
     std::shared_ptr<ILight> light = nullptr;
     if (it.contains("material"))
       mat = materials_[it.at("material")];

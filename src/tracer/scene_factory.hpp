@@ -47,8 +47,8 @@ class SceneFactory {
  private:
   nlohmann::json root_;  // raw JSON tree
 
-  std::vector<std::shared_ptr<Material>> materials_;
-  std::unordered_map<std::string, std::shared_ptr<Material>> material_map_;
+  std::vector<std::shared_ptr<IMaterial>> materials_;
+  std::unordered_map<std::string, std::shared_ptr<IMaterial>> material_map_;
 
   std::vector<std::shared_ptr<ILight>> lights_;
   std::unordered_map<std::string, std::shared_ptr<ILight>> light_map_;

@@ -41,8 +41,8 @@ inline auto Sqr(auto x) { return x * x; }
  *
  * Both `v` and `n` are assumed to be *unit* vectors.
  */
-inline Vector3 Reflect(const Vector3& v, const Vector3& n) {
-  return v - 2.0 * v.Dot(n) * n;
+inline Vector3 Reflect(const Vector3& wi, const Vector3& n) {
+  return wi - 2.0 * wi.Dot(n) * n;
 }
 
 /**

@@ -9,7 +9,7 @@
 #include "spdlog/spdlog.h"
 
 Primitive::Primitive(std::shared_ptr<IShape> shape,
-                     std::shared_ptr<Material> mat,
+                     std::shared_ptr<IMaterial> mat,
                      std::shared_ptr<ILight> light)
     : shape_(shape), material_(mat), light_(light) {}
 

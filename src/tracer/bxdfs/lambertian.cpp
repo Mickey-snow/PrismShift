@@ -4,12 +4,6 @@
 
 namespace bxdfs {
 
-namespace {  // helper
-inline static bool SameHemisphere(const Vector3& w, const Vector3& wp) {
-  return w.y() * wp.y() <= 0.0;
-}
-}  // namespace
-
 Lambertian::Lambertian(Color _col)
     : BxDF(BxDFBits::Diffuse | BxDFBits::Reflection), col(std::move(_col)) {}
 
