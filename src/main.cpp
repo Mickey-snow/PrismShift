@@ -38,10 +38,10 @@ int main(int argc, char** argv) {
   spdlog::info("scene setup complete.");
 
   // render
-  Integrator integrator(scene, program.get<int>("--max_depth"));
+  Integrator integrator(scene, program.get<int>("--max_depth"),
+                        !program.get<bool>("--no_mis"));
   integrator.Render(camera, program.get<std::string>("--output"),
-                    program.get<int>("--spp"),
-                    !program.get<bool>("--no_mis"));
+                    program.get<int>("--spp"));
 
   auto end_time = chr::high_resolution_clock::now();
   auto duration = chr::duration_cast<chr::seconds>(end_time - begin_time);

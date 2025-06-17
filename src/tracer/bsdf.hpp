@@ -83,6 +83,7 @@ class BSDF {
   Color f(Vector3 wi, Vector3 wo, BxDFBits flag = BxDFBits::All) const;
   std::optional<bxdfSample> Sample_f(Vector3 wi) const;
   double pdf(Vector3 wi, Vector3 wo, BxDFBits flag = BxDFBits::All) const;
+  bool MatchesFlag(BxDFBits flag) const;
 
  private:
   std::shared_ptr<BxDF> bxdf_;

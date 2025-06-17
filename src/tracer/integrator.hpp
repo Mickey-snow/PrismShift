@@ -12,17 +12,15 @@ class Primitive;
 
 class Integrator {
  public:
-  Integrator(Scene& scene, int max_depth);
+  Integrator(Scene& scene, int max_depth, bool mis_enabled = true);
 
-  Color Li(Ray ray, int depth = 0, bool use_mis = true);
+  Color Li(Ray ray, int depth = 0);
 
-  void Render(const Camera& cam,
-              std::string output_filename,
-              const int spp = 32,
-              bool use_mis = true);
+  void Render(const Camera& cam, std::string output_filename, const int spp);
 
  private:
   Scene& scene_;
   int max_depth_;
+  bool mis_enabled_;
   std::vector<std::shared_ptr<Primitive>> lights_;
 };

@@ -8,10 +8,9 @@
 #include "scene.hpp"
 #include "texture.hpp"
 
+#include <algorithm>
 #include <cmath>
-#include <cstdint>
 #include <fstream>
-#include <functional>
 #include <random>
 #include <thread>
 #include <vector>
@@ -27,15 +26,15 @@ static constexpr double PowerHeuristic(double pdf_a, double pdf_b) {
   return (a2 == 0.0 && b2 == 0.0) ? 0.0 : a2 / (a2 + b2);
 }
 
-Integrator::Integrator(Scene& scene, int max_depth)
-    : scene_(scene), max_depth_(max_depth) {
+Integrator::Integrator(Scene& scene, int max_depth, bool mis_enabled)
+    : scene_(scene), max_depth_(max_depth), mis_enabled_(mis_enabled) {
   for (auto& obj : scene_.objs_) {
     if (obj->GetLight())
       lights_.push_back(obj);
   }
 }
 
-Color Integrator::Li(Ray r, int depth, bool use_mis) {
+Color Integrator::Li(Ray r, int depth) {
   if (depth >= max_depth_)
     return Color(0);
 
@@ -45,7 +44,11 @@ Color Integrator::Li(Ray r, int depth, bool use_mis) {
 
   Color L = rec.primitive->Le(r);
 
-  BSDF bsdf = rec.primitive->GetMaterial()->GetBSDF(rec);
+  std::shared_ptr<IMaterial> mat = rec.primitive->GetMaterial();
+  if (!mat)
+    return L;
+  BSDF bsdf = mat->GetBSDF(rec);
+  bool use_mis = !bsdf.MatchesFlag(BxDFBits::Specular) && mis_enabled_;
 
   // Direct lighting via light sampling
   auto sample_light = [&]() -> Color {
@@ -93,11 +96,6 @@ Color Integrator::Li(Ray r, int depth, bool use_mis) {
     const double cos0 = absCosTheta(samp->wo, rec.normal);
 
     if (pdf_bsdf > 0.0 && cos0 > 0.0) {
-      Ray scattered(rec.position, samp->wo);
-      const Color Li_scatter =
-          Li(scattered, depth + 1,
-             use_mis && !static_cast<bool>(samp->flag & BxDFBits::Specular));
-
       double w = 1.0;
       if (use_mis) {
         double pdf_light = 0;
@@ -106,7 +104,21 @@ Color Integrator::Li(Ray r, int depth, bool use_mis) {
         w = PowerHeuristic(pdf_bsdf, pdf_light);
       }
 
-      L += samp->f * Li_scatter * cos0 * w / pdf_bsdf;
+      Color throughput = samp->f * cos0 * w / pdf_bsdf;
+      if (depth > 5) {
+        double survive =
+            std::max({throughput.r(), throughput.g(), throughput.b()});
+        survive = std::min(survive, 0.95);
+        if (random_uniform_01() > survive)
+          return L;
+        else
+          throughput /= survive;
+      }
+
+      Ray scattered(rec.position, samp->wo);
+      const Color Li_scatter = Li(scattered, depth + 1);
+
+      L += throughput * Li_scatter;
     }
   }
 
@@ -115,8 +127,7 @@ Color Integrator::Li(Ray r, int depth, bool use_mis) {
 
 void Integrator::Render(const Camera& cam,
                         std::string output_filename,
-                        const int spp,
-                        bool use_mis) {
+                        const int spp) {
   int image_width = cam.imageWidth();
   int image_height = cam.imageHeight();
   auto view = cam.initializeView();
@@ -147,7 +158,7 @@ void Integrator::Render(const Camera& cam,
                             random_uniform_01() * view.pixel_delta_u +
                             random_uniform_01() * view.pixel_delta_v;
           Ray r(origin, jittered - origin);
-          raw += Li(r, 0, use_mis);
+          raw += Li(r, 0);
         }
         raw /= spp;
 

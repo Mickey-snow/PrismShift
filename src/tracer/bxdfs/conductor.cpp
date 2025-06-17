@@ -26,19 +26,15 @@ Conductor::Conductor(TrowbridgeReitzDistribution mfdist, Color color, double f)
 Color Conductor::f(const Vector3& wi, const Vector3& wo) const {
   if (pdf(wi, wo) > 0)
     return col_;
-  else
-    return Color{0, 0, 0};
+
+  return Color{0, 0, 0};
 }
 
 double Conductor::pdf(const Vector3& wi, const Vector3& wo) const {
   if (mfdist_.EffectivelySmooth())
     return 0;
 
-  auto delta_w = wo - Reflect(wi);
-  if (delta_w.Length_squared() <= fuzz_ * fuzz_ + 1e-7)
-    return pdf_cosine_distributed_hemisphere(delta_w);
-  else
-    return 0;
+  return 0;
 }
 
 std::optional<bxdfSample> Conductor::Sample_f(const Vector3& wi) const {

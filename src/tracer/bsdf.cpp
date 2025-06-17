@@ -41,3 +41,7 @@ double BSDF::pdf(Vector3 wi, Vector3 wo, BxDFBits flag) const {
     return bxdf_->pdf(wi, wo);
   return 0.0;
 }
+
+bool BSDF::MatchesFlag(BxDFBits flag) const {
+  return bxdf_ && bxdf_->MatchesFlag(flag);
+}
