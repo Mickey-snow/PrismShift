@@ -141,6 +141,12 @@ void SceneFactory::parse_materials(const json& array) {
                       : uR;
       mat = std::make_shared<DielectricMaterial>(eta, uR, vR);
 
+    } else if (type_s == "mix") {
+      expect_array_size(v, 2, "mixed material data");
+      std::shared_ptr<IMaterial> mat1 = resolve_mat(v[0]),
+                                 mat2 = resolve_mat(v[1]);
+      double fac = expect_number<double>(v[2], "mix.fac");
+      mat = std::make_shared<MixedMaterial>(mat1, mat2, fac);
     } else {
       throw SCENE_ERROR(ctx, "unknown material type '" + type_s +
                                  "' at index " + std::to_string(idx));
@@ -209,42 +215,6 @@ Scene SceneFactory::parse_objects(const json& array) {
     std::shared_ptr<IMaterial> mat = nullptr;
     std::shared_ptr<ILight> light = nullptr;
 
-    auto resolve_mat = [&](const json& m) {
-      if (m.is_number_unsigned()) {
-        if (m.get<std::size_t>() >= materials_.size())
-          throw SCENE_ERROR(ctx, "material index out of range at object #" +
-                                     std::to_string(idx));
-        return materials_[m];
-      }
-      if (m.is_string()) {
-        const auto& key = m.get<std::string>();
-        if (!material_map_.contains(key))
-          throw SCENE_ERROR(ctx, "material '" + key + "' not found (object #" +
-                                     std::to_string(idx) + ')');
-        return material_map_.at(key);
-      }
-      throw SCENE_ERROR(
-          ctx, "invalid material reference at object #" + std::to_string(idx));
-    };
-
-    auto resolve_light = [&](const json& l) {
-      if (l.is_number_unsigned()) {
-        if (l.get<std::size_t>() >= lights_.size())
-          throw SCENE_ERROR(ctx, "light index out of range at object #" +
-                                     std::to_string(idx));
-        return lights_[l];
-      }
-      if (l.is_string()) {
-        const auto& key = l.get<std::string>();
-        if (!light_map_.contains(key))
-          throw SCENE_ERROR(ctx, "light '" + key + "' not found (object #" +
-                                     std::to_string(idx) + ')');
-        return light_map_.at(key);
-      }
-      throw SCENE_ERROR(
-          ctx, "invalid light reference at object #" + std::to_string(idx));
-    };
-
     if (it.contains("material"))
       mat = resolve_mat(it["material"]);
     if (it.contains("light"))
@@ -303,6 +273,35 @@ Scene SceneFactory::parse_objects(const json& array) {
   }
 
   return Scene(std::move(objs_));
+}
+
+std::shared_ptr<IMaterial> SceneFactory::resolve_mat(const json& m) {
+  if (m.is_number_unsigned()) {
+    if (m.get<std::size_t>() >= materials_.size())
+      throw std::runtime_error("material index out of range.");
+    return materials_[m];
+  }
+  if (m.is_string()) {
+    const auto& key = m.get<std::string>();
+    if (!material_map_.contains(key))
+      throw std::runtime_error("material '" + key + "' not found.");
+    return material_map_.at(key);
+  }
+  throw std::runtime_error("invalid material reference.");
+}
+std::shared_ptr<ILight> SceneFactory::resolve_light(const json& l) {
+  if (l.is_number_unsigned()) {
+    if (l.get<std::size_t>() >= lights_.size())
+      throw std::runtime_error("light index out of range.");
+    return lights_[l];
+  }
+  if (l.is_string()) {
+    const auto& key = l.get<std::string>();
+    if (!light_map_.contains(key))
+      throw std::runtime_error("light '" + key + "' not found");
+    return light_map_.at(key);
+  }
+  throw std::runtime_error("invalid light reference.");
 }
 
 // ------------------------------------------------------------------------------

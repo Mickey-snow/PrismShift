@@ -5,6 +5,8 @@
 #include "bxdfs/lambertian.hpp"
 #include "hit_record.hpp"
 
+#include "spdlog/spdlog.h"
+
 using namespace bxdfs;
 
 // ------------------------------------------------------------------------------
@@ -36,4 +38,22 @@ BSDF DielectricMaterial::GetBSDF(const HitRecord& rec) const {
       std::make_shared<Dielectric>(
           eta_, TrowbridgeReitzDistribution(uRoughness_, vRoughness_)),
       QuaternionTransform::RotateFrTo(Vector3(rec.normal), Vector3(0, 1, 0)));
+}
+
+// ------------------------------------------------------------------------------
+MixedMaterial::MixedMaterial(std::shared_ptr<IMaterial> first,
+                             std::shared_ptr<IMaterial> second,
+                             double fac)
+    : first_(std::move(first)), second_(std::move(second)), fac_(fac) {}
+
+std::shared_ptr<IMaterial> MixedMaterial::Select() const {
+  if (random_uniform_01() < fac_)
+    return first_;
+  else
+    return second_;
+}
+
+BSDF MixedMaterial::GetBSDF(const HitRecord&) const {
+  spdlog::error("MixedMaterial::GetBSDF should not be called.");
+  return BSDF(nullptr, QuaternionTransform(Quaternion(1, 0, 0, 0)));
 }

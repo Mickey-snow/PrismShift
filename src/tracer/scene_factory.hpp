@@ -44,6 +44,8 @@ class SceneFactory {
   Scene parse_objects(const json& array);
   void parse_materials(const json& array);
   void parse_lights(const json& array);
+  std::shared_ptr<IMaterial> resolve_mat(const json& m);
+  std::shared_ptr<ILight> resolve_light(const json& l);
 
  private:
   json root_;  // raw JSON tree

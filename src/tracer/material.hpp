@@ -40,3 +40,18 @@ class DielectricMaterial : public IMaterial {
   DielectricMaterial(double eta, double uRough, double vRough);
   BSDF GetBSDF(const HitRecord& rec) const override;
 };
+
+class MixedMaterial : public IMaterial {
+  std::shared_ptr<IMaterial> first_, second_;
+  double fac_;  // at 0, use first_ entirely
+
+ public:
+  MixedMaterial(std::shared_ptr<IMaterial> first,
+                std::shared_ptr<IMaterial> second,
+                double fac);
+
+  std::shared_ptr<IMaterial> Select() const;
+
+  // should not be called.
+  BSDF GetBSDF(const HitRecord& rec) const override;
+};

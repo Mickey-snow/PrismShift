@@ -45,8 +45,15 @@ Color Integrator::Li(Ray r, int depth) {
   Color L = rec.primitive->Le(r);
 
   std::shared_ptr<IMaterial> mat = rec.primitive->GetMaterial();
+  while (mat) {
+    if (auto mix = std::dynamic_pointer_cast<MixedMaterial>(mat))
+      mat = mix->Select();
+    else
+      break;
+  }
   if (!mat)
     return L;
+
   BSDF bsdf = mat->GetBSDF(rec);
   bool use_mis = !bsdf.MatchesFlag(BxDFBits::Specular) && mis_enabled_;
 
