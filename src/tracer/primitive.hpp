@@ -5,6 +5,8 @@
 #include "util/transform.hpp"
 
 #include <memory>
+#include <sstream>
+#include "spdlog/spdlog.h"
 
 struct IMaterial;
 struct HitRecord;
@@ -44,7 +46,16 @@ template <typename T, typename... Ts>
 inline std::shared_ptr<Primitive> MakePrimitive(std::shared_ptr<IMaterial> mat,
                                                 std::shared_ptr<ILight> light,
                                                 Ts&&... params) {
-  auto shape = std::make_shared<T>(std::forward<Ts>(params)...);
-  return std::make_shared<Primitive>(std::move(shape), std::move(mat),
-                                     std::move(light));
+  try {
+    auto shape = std::make_shared<T>(std::forward<Ts>(params)...);
+    return std::make_shared<Primitive>(std::move(shape), std::move(mat),
+                                       std::move(light));
+  } catch (std::runtime_error& e) {
+    std::ostringstream oss;
+    ((oss << params << ' '), ...);
+    spdlog::error("MakePrimitive: failed to create primitive. params={}\n{}",
+                  oss.str(), e.what());
+  }
+
+  return nullptr;
 }
