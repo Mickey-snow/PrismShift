@@ -6,7 +6,7 @@ namespace bxdfs {
 
 namespace {
 // helpers
-double FrDielectric(double cos0, double eta) {
+static double FrDielectric(double cos0, double eta) {
   cos0 = std::clamp<double>(cos0, -1, 1);
   // Potentially flip interface orientation for Fresnel equations
   if (cos0 < 0) {
@@ -65,6 +65,8 @@ Color Dielectric::f(const Vector3& wi, const Vector3& wo) const {
     double denom = Sqr(wm.Dot(wo) + wm.Dot(-wi) / etap) * cos0_i * cos0_o;
     double ft = mfdist_.D(wm) * (1 - F) * mfdist_.G(wi, wo) *
                 std::abs(wm.Dot(wo) * wm.Dot(-wi) / denom);
+
+    ft *= Sqr(etap);
     return Color(ft);
   }
 }
@@ -139,9 +141,10 @@ std::optional<bxdfSample> Dielectric::Sample_f(const Vector3& wi) const {
         return std::nullopt;
 
       double pdf = mfdist_.PDF(-wi, wm) / (4 * std::abs(wm.Dot(wi))) * pr;
-      Color f = Color(mfdist_.D(wm) * mfdist_.G(wi, wo) * pr /
-                      (4 * CosTheta(wo) * CosTheta(-wi)));
-      return bxdfSample(f, wo, pdf, BxDFBits::Glossy | BxDFBits::Reflection);
+      double f = mfdist_.D(wm) * mfdist_.G(wi, wo) * pr /
+                 (4 * CosTheta(wo) * CosTheta(-wi));
+      return bxdfSample(Color(f), wo, pdf,
+                        BxDFBits::Glossy | BxDFBits::Reflection);
     } else {
       Vector3 wo;
       double etap = etaRel;
@@ -153,11 +156,15 @@ std::optional<bxdfSample> Dielectric::Sample_f(const Vector3& wi) const {
       double denom = Sqr(wm.Dot(wo) + wm.Dot(-wi) / etap);
       double dwm_dwo = std::abs(wm.Dot(wo)) / denom;
       double pdf = mfdist_.PDF(-wi, wm) * dwm_dwo * pt;
-      Color ft(pt * mfdist_.D(wm) * mfdist_.G(wi, wo) *
-               std::abs(wm.Dot(wo) * wm.Dot(-wi) /
-                        (CosTheta(wo) * CosTheta(-wi) * denom)));
+      double ft = pt * mfdist_.D(wm) * mfdist_.G(wi, wo) / denom *
+                  std::abs(wm.Dot(wo) * wm.Dot(-wi) /
+                           (AbsCosTheta(wo) * AbsCosTheta(wi)));
 
-      return bxdfSample(ft, wo, pdf, BxDFBits::Glossy | BxDFBits::Transmission);
+      if (ft == 0 || pdf == 0)
+        return std::nullopt;
+
+      return bxdfSample(Color(ft), wo, pdf,
+                        BxDFBits::Glossy | BxDFBits::Transmission);
     }
   }
 }

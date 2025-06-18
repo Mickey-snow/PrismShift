@@ -129,3 +129,11 @@ TYPED_TEST(PlaneTest, parallelRayNoHit) {
     EXPECT_FALSE(rec.hits);
   }
 }
+
+TEST(TriangleTest, regression) {
+  Point3 o(-0.744272, 0.62816, 0.773783), a(-0.757855, 0.62816, 0.765884),
+      b(-0.771438, 0.62816, 0.757986);
+  std::shared_ptr<IShape> tri;
+  EXPECT_NO_THROW(tri = std::make_shared<Triangle>(o, a, b));
+  EXPECT_NE(tri, nullptr);
+}

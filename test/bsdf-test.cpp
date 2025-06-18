@@ -154,17 +154,25 @@ TEST(ConductorTest, SamplePerfectSpecular) {
 }
 
 // ---------------------------------------------------------------------------
+class DielectricTest : public ::testing::Test {
+ protected:
+  DielectricTest()
+      : glass(1.5), rough(1.6, TrowbridgeReitzDistribution(0.5, 0.5)) {}
 
-TEST(DielectricTest, Flags) {
-  Dielectric glass(1.5);
+  Dielectric glass;
+  Dielectric rough;
+
+  inline static constexpr auto N = 128;
+  inline static const Normal n{0, 1, 0};
+};
+
+TEST_F(DielectricTest, Flags) {
   EXPECT_TRUE(glass.MatchesFlag(BxDFBits::Specular));
   EXPECT_TRUE(glass.MatchesFlag(BxDFBits::Reflection));
   EXPECT_TRUE(glass.MatchesFlag(BxDFBits::Transmission));
 }
 
-TEST(DielectricTest, fAndpdf) {
-  Dielectric glass(1.6);
-
+TEST_F(DielectricTest, fAndpdf) {
   for (int i = 0; i < 10; ++i) {
     Vector3 wi = rand_hemisphere_uniform(), wo = rand_hemisphere_uniform();
     EXPECT_EQ(glass.f(wi, wo), Color(0));
@@ -172,10 +180,7 @@ TEST(DielectricTest, fAndpdf) {
   }
 }
 
-TEST(DielectricTest, ReflectAndRefract) {
-  static constexpr auto N = 128;
-  static const Normal n{0, 1, 0};
-
+TEST_F(DielectricTest, ReflectAndRefract) {
   const double eta = 1.6;
   Dielectric glass(eta);
 
@@ -203,4 +208,39 @@ TEST(DielectricTest, ReflectAndRefract) {
 
   EXPECT_GT(reflects, 0);
   EXPECT_GT(refracts, 0);
+}
+
+TEST_F(DielectricTest, PdfBsdfConsistency) {
+  // check that
+  // \int f(wi,wo)|cos(wo)| / pdf = 1
+  double worst = 0, mean = 0;
+  int N = 1000000;
+  for (int i = 0; i < N; ++i) {
+    Vector3 wi = rand_sphere_uniform();
+    if (auto s = rough.Sample_f(wi); s && s->pdf > 0) {
+      double ratio = s->f[0] * AbsCosTheta(s->wo) / s->pdf;  // use red channel
+      if (std::fabs(ratio - 1) > std::fabs(worst - 1))
+        worst = ratio;
+      mean += std::fabs(ratio - 1);
+    }
+  }
+  mean /= N;
+
+  EXPECT_NEAR(worst, 1, 1e-2);
+  EXPECT_LT(mean, 1e-3);
+}
+
+TEST_F(DielectricTest, PdfNormalisation) {
+  // check that
+  // \int pdf(wi,wo) dwi = 1
+
+  double s = 0;
+  Vector3 wi = rand_sphere_uniform();
+  int N = 100000;
+  for (int j = 0; j < N; ++j) {
+    Vector3 wo = rand_sphere_uniform();
+    s += rough.pdf(wi, wo);
+  }
+  double estimate = (4 * pi) * s / N;
+  EXPECT_NEAR(estimate, 1, 1e-5);
 }

@@ -45,33 +45,24 @@ inline Vector3 Reflect(const Vector3& wi, const Vector3& n) {
   return wi - 2.0 * wi.Dot(n) * n;
 }
 
-/**
- * Snell refraction.
- *
- *  v          – incident unit vector *toward* the surface
- *  n          – unit surface normal pointing *outward*
- *  eta_ratio  – ηᵢ ⁄ ηₜ  (e.g. 1/η when entering, η/1 when exiting)
- *  out        – stores the refracted unit vector on success
- *
- * Returns *false* when total internal reflection occurs.
- */
-inline bool Refract(const Vector3& v,
+inline bool Refract(Vector3 v,
                     const Vector3& n,
                     double eta_ratio,
                     Vector3* out) {
-  const double cosThetaI = v.Dot(n);  // ±cosθᵢ
+  if (!out)
+    return false;
+
+  v = -v;
+  const double cosThetaI = v.Dot(n);
   const double sin2ThetaI = std::max(0.0, 1.0 - cosThetaI * cosThetaI);
   const double sin2ThetaT = eta_ratio * eta_ratio * sin2ThetaI;
 
-  /* Total-internal-reflection check */
   if (sin2ThetaT >= 1.0)
     return false;
 
   const double cosThetaT = std::sqrt(std::max(0.0, 1.0 - sin2ThetaT));
 
-  /* Transmitted direction (unit length).  Sign conventions:
-   *  -v  flips the incident vector to point *away* from the surface.
-   */
   *out = eta_ratio * (-v) + (eta_ratio * cosThetaI - cosThetaT) * n;
+  out->y() *= out->y() * v.y() < 0 ? 1 : -1;
   return true;
 }
