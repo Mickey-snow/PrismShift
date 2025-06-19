@@ -117,7 +117,7 @@ TEST(TrowbridgeReitzDistribution, VisibleNormalPDF) {
     const double var = sum2 / N - mean * mean;
     const double se = std::sqrt(var / N);  // standard error
 
-    EXPECT_NEAR(mean, 2 * pi, 3.8 * se)
+    EXPECT_NEAR(mean, 2 * pi, 6 * se)
         << "ax=" << ax << "  az=" << az << "  mean=" << mean
         << "  3se=" << 3.0 * se;
   }

@@ -67,7 +67,7 @@ Color Dielectric::f(const Vector3& wi, const Vector3& wo) const {
     double ft = mfdist_.D(wm) * (1 - F) * mfdist_.G(wi, wo) *
                 std::abs(wm.Dot(wo) * wm.Dot(-wi) / denom);
 
-    ft *= Sqr(etap);
+    ft /= Sqr(etap);
     return Color(ft);
   }
 }
@@ -161,7 +161,7 @@ std::optional<bxdfSample> Dielectric::Sample_f(const Vector3& wi) const {
                   std::abs(wm.Dot(wo) * wm.Dot(-wi) /
                            (AbsCosTheta(wo) * AbsCosTheta(wi)));
 
-      if (ft == 0 || pdf == 0)
+      if (pdf == 0)
         return std::nullopt;
 
       return bxdfSample(Color(ft), wo, pdf,
