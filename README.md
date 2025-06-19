@@ -24,6 +24,18 @@ git clone --recursive https://github.com/mickey-snow/PrismShift
 cd PrismShift
 # 2. ワンライナー・ビルド
 cmake -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build -j
+# 3. 実行
+build/src/prsh [input_file]
+```
+
+サニタイザを利用する場合は、以下のようにオプションを付けてビルドします。
+
+```bash
+# 2. ビルド
+cmake -B build -DCMAKE_BUILD_TYPE=Debug -DENABLE_SANITIZER=ON && cmake --build build -j
+# 3. 実行
+ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 build/src/prsh [input_file]
+UBSAN_OPTIONS=print_stacktrace=1:halt_on_error=1 build/src/prsh [input_file]
 ```
 
 ---
