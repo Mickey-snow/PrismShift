@@ -10,8 +10,6 @@
 namespace chr = std::chrono;
 
 int main(int argc, char** argv) {
-  auto begin_time = chr::high_resolution_clock::now();
-
   argparse::ArgumentParser program(*argv);
   program.add_argument("scene_file").required();
   program.add_argument("-o", "--output")
@@ -37,14 +35,23 @@ int main(int argc, char** argv) {
 
   spdlog::info("scene setup complete.");
 
+  const size_t primitive_count = scene.objs_.size();
+  spdlog::info("Primitive count: {}", primitive_count);
+
   // render
+  auto begin_time = chr::high_resolution_clock::now();
   Integrator integrator(scene, program.get<int>("--max_depth"),
                         !program.get<bool>("--no_mis"));
   integrator.Render(camera, program.get<std::string>("--output"),
                     program.get<int>("--spp"));
-
   auto end_time = chr::high_resolution_clock::now();
   auto duration = chr::duration_cast<chr::seconds>(end_time - begin_time);
   spdlog::info("time wasted rendering: " +
                std::format("{:%H hours %M minutes %S seconds}", duration));
+
+  const size_t rays = integrator.GetRaycount();
+  spdlog::info("Primitive count: {}", primitive_count);
+  spdlog::info("Ray count: {}", rays);
+  spdlog::info("kRays/s: {}",
+               static_cast<double>(rays) / 1'000 / duration.count());
 }

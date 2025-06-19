@@ -30,8 +30,8 @@ jobs:
       - name: Run unit tests
         run: build/test/unit_test
 
-      - name: Run ASan example
-        run: ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 build/src/prsh examples/hello_world.json
-
-      - name: Run UBSan example
-        run: UBSAN_OPTIONS=print_stacktrace=1:halt_on_error=1 build/src/prsh examples/hello_world.json
+      - name: Run ASan/UBSan example
+        run: |
+          ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 \
+          UBSAN_OPTIONS=print_stacktrace=1:halt_on_error=1 \
+          build/src/prsh examples/hello_world.json --spp 2

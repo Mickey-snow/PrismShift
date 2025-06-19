@@ -27,7 +27,10 @@ static constexpr double PowerHeuristic(double pdf_a, double pdf_b) {
 }
 
 Integrator::Integrator(Scene& scene, int max_depth, bool mis_enabled)
-    : scene_(scene), max_depth_(max_depth), mis_enabled_(mis_enabled) {
+    : scene_(scene),
+      max_depth_(max_depth),
+      mis_enabled_(mis_enabled),
+      ray_cnt_(0) {
   for (auto& obj : scene_.objs_) {
     if (obj->GetLight())
       lights_.push_back(obj);
@@ -166,6 +169,7 @@ void Integrator::Render(const Camera& cam,
                             random_uniform_01() * view.pixel_delta_v;
           Ray r(origin, jittered - origin);
           raw += Li(r, 0);
+          ++ray_cnt_;
         }
         raw /= spp;
 
