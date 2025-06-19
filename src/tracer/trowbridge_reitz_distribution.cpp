@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <cmath>
 
+using namespace vec_helpers;
+
 TrowbridgeReitzDistribution::TrowbridgeReitzDistribution(double ax, double az)
     : alpha_x(ax), alpha_z(az) {
   if (!EffectivelySmooth()) {
@@ -54,7 +56,7 @@ double TrowbridgeReitzDistribution::PDF(Vector3 w, Vector3 wm) const {
 
 Vector3 TrowbridgeReitzDistribution::Sample_wm(Vector3 w) const {
   // Hemispherical to ellipsoid transform
-  Vector3 wh(alpha_z * w.x(), alpha_x * w.y(), w.z());
+  Vector3 wh(alpha_x * w.x(), w.y(), alpha_z * w.z());
   wh = wh.Normalized();
   if (wh.y() < 0)
     wh = -wh;
@@ -71,8 +73,8 @@ Vector3 TrowbridgeReitzDistribution::Sample_wm(Vector3 w) const {
   p.y() = std::lerp(h, p.y(), (1 + wh.y()) / 2);
 
   // Project back to hemisphere
-  double pz = std::sqrt(std::max(0.0, 1 - Vector2(p).Length_squared()));
-  Vector3 nh = p.x() * T1 + p.y() * T2 + pz * wh;
+  double py = std::sqrt(std::max(0.0, 1 - Vector2(p).Length_squared()));
+  Vector3 nh = p.x() * T1 + p.y() * T2 + py * wh;
 
   // Ellipsoid to hemisphere
   Vector3 ans(alpha_x * nh.x(), std::max(1e-6, nh.y()), alpha_z * nh.z());

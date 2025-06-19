@@ -10,6 +10,7 @@
 #include "bxdfs/lambertian.hpp"
 #include "util/util.hpp"
 
+using namespace vec_helpers;
 using namespace bxdfs;
 
 static constexpr auto kEps = 1e-6;

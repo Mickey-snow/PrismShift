@@ -186,6 +186,7 @@ class Normal : public basic_vector<double, 3> {
   }
 };
 
+namespace vec_helpers {
 inline double CosTheta(const Vector3& w) { return w.y(); }
 inline double AbsCosTheta(const Vector3& w) { return std::abs(w.y()); }
 inline double Cos2Theta(const Vector3& w) { return w.y() * w.y(); }
@@ -208,3 +209,4 @@ inline double SinPhi(const Vector3& w) {
 inline static bool SameHemisphere(const Vector3& w, const Vector3& wp) {
   return w.y() * wp.y() <= 0.0;
 }
+}  // namespace vec_helpers

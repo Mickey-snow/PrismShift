@@ -5,6 +5,7 @@
 #include <spdlog/spdlog.h>
 
 namespace bxdfs {
+using namespace vec_helpers;
 
 Conductor::Conductor(TrowbridgeReitzDistribution mfdist, Color col)
     : BxDF(BxDFBits::Reflection),

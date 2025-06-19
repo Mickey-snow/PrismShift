@@ -3,6 +3,7 @@
 #include <util/util.hpp>
 
 namespace bxdfs {
+using namespace vec_helpers;
 
 Lambertian::Lambertian(Color _col)
     : BxDF(BxDFBits::Diffuse | BxDFBits::Reflection), col(std::move(_col)) {}

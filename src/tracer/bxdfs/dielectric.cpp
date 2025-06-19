@@ -3,6 +3,7 @@
 #include <cmath>
 
 namespace bxdfs {
+using namespace vec_helpers;
 
 namespace {
 // helpers
