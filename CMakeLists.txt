@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.7)
 project(PrismShift CXX)
 
 
-set(CMAKE_CXX_STANDARD 26)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")

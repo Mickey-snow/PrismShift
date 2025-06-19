@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <array>
 #include <cassert>
 #include <cmath>
@@ -138,10 +139,26 @@ class basic_vector {
 
   constexpr value_type x() const { return v[0]; }
   constexpr value_type& x() { return v[0]; }
-  constexpr value_type y() const { return v[1]; }
-  constexpr value_type& y() { return v[1]; }
-  constexpr value_type z() const { return v[2]; }
-  constexpr value_type& z() { return v[2]; }
+  constexpr value_type y() const
+    requires(dimension >= 2)
+  {
+    return v[1];
+  }
+  constexpr value_type& y()
+    requires(dimension >= 2)
+  {
+    return v[1];
+  }
+  constexpr value_type z() const
+    requires(dimension >= 3)
+  {
+    return v[2];
+  }
+  constexpr value_type& z()
+    requires(dimension >= 3)
+  {
+    return v[2];
+  }
 
   constexpr bool has_nan() const {
     return std::any_of(v.cbegin(), v.cend(),
