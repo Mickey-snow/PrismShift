@@ -1,12 +1,12 @@
 #pragma once
 
+#include "texture.hpp"
+#include "util/color.hpp"
+
 #include <memory>
-#include <util/color.hpp>
 
 class BSDF;
 class HitRecord;
-template <typename T>
-class Texture;
 
 class IMaterial {
  public:
@@ -16,28 +16,35 @@ class IMaterial {
 };
 
 class DiffuseMaterial : public IMaterial {
-  Color color;
+  Texture<Color> color;
 
  public:
   DiffuseMaterial(Color c);
+  DiffuseMaterial(Texture<Color> c);
+
   BSDF GetBSDF(const HitRecord& rec) const override;
 };
 
 class ConductorMaterial : public IMaterial {
-  Color color_;
-  double uRoughness_, vRoughness_;
+  Texture<Color> color_;
+  Texture<double> uRoughness_, vRoughness_;
 
  public:
   ConductorMaterial(Color color, double uRough, double vRough);
+  ConductorMaterial(Texture<Color> c, Texture<double> ur, Texture<double> vr);
+
   BSDF GetBSDF(const HitRecord& rec) const override;
 };
 
 class DielectricMaterial : public IMaterial {
-  double eta_;
-  double uRoughness_, vRoughness_;
+  Texture<double> eta_, uRoughness_, vRoughness_;
 
  public:
   DielectricMaterial(double eta, double uRough, double vRough);
+  DielectricMaterial(Texture<double> eta,
+                     Texture<double> uRough,
+                     Texture<double> vRough);
+
   BSDF GetBSDF(const HitRecord& rec) const override;
 };
 

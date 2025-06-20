@@ -24,6 +24,11 @@ inline constexpr auto Rad2Degree(std::floating_point auto rad) {
   return rad / 180.0 * pi;
 }
 
+template <class... T>
+struct always_false : std::false_type {};
+template <typename T>
+constexpr bool always_false_v = always_false<T>::value;
+
 template <typename... Ts>
 struct overload : Ts... {
   overload(Ts... ts) : Ts(std::move(ts))... {}

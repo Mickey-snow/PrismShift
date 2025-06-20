@@ -4,39 +4,62 @@
 #include "bxdfs/dielectric.hpp"
 #include "bxdfs/lambertian.hpp"
 #include "hit_record.hpp"
+#include "texture.hpp"
 
 #include "spdlog/spdlog.h"
 
 using namespace bxdfs;
 
 // ------------------------------------------------------------------------------
-DiffuseMaterial::DiffuseMaterial(Color c) : color(c) {}
+DiffuseMaterial::DiffuseMaterial(Color c) : DiffuseMaterial(make_texture(c)) {}
+DiffuseMaterial::DiffuseMaterial(std::shared_ptr<ITexture<Color>> c)
+    : color(std::move(c)) {}
 
 BSDF DiffuseMaterial::GetBSDF(const HitRecord& rec) const {
   return BSDF(
-      std::make_shared<Lambertian>(color),
+      std::make_shared<Lambertian>(color->Evaluate(rec.uv)),
       QuaternionTransform::RotateFrTo(Vector3(rec.normal), Vector3(0, 1, 0)));
 }
 
 // ------------------------------------------------------------------------------
 ConductorMaterial::ConductorMaterial(Color color, double uRough, double vRough)
-    : color_(color), uRoughness_(uRough), vRoughness_(vRough) {}
+    : ConductorMaterial(make_texture(color),
+                        make_texture(uRough),
+                        make_texture(vRough)) {}
+ConductorMaterial::ConductorMaterial(Texture<Color> c,
+                                     Texture<double> ur,
+                                     Texture<double> vr)
+    : color_(std::move(c)),
+      uRoughness_(std::move(ur)),
+      vRoughness_(std::move(vr)) {}
 
 BSDF ConductorMaterial::GetBSDF(const HitRecord& rec) const {
+  Color col = color_->Evaluate(rec.uv);
+  TrowbridgeReitzDistribution ggx(uRoughness_->Evaluate(rec.uv),
+                                  vRoughness_->Evaluate(rec.uv));
   return BSDF(
-      std::make_shared<Conductor>(
-          TrowbridgeReitzDistribution(uRoughness_, vRoughness_), color_),
+      std::make_shared<Conductor>(std::move(ggx), col),
       QuaternionTransform::RotateFrTo(Vector3(rec.normal), Vector3(0, 1, 0)));
 }
 
 // ------------------------------------------------------------------------------
 DielectricMaterial::DielectricMaterial(double eta, double uRough, double vRough)
-    : eta_(eta), uRoughness_(uRough), vRoughness_(vRough) {}
+    : DielectricMaterial(make_texture(eta),
+                         make_texture(uRough),
+                         make_texture(vRough)) {}
+DielectricMaterial::DielectricMaterial(Texture<double> eta,
+                                       Texture<double> uRough,
+                                       Texture<double> vRough)
+    : eta_(std::move(eta)),
+      uRoughness_(std::move(uRough)),
+      vRoughness_(std::move(vRough)) {}
 
 BSDF DielectricMaterial::GetBSDF(const HitRecord& rec) const {
+  double eta = eta_->Evaluate(rec.uv);
+  TrowbridgeReitzDistribution ggx(uRoughness_->Evaluate(rec.uv),
+                                  vRoughness_->Evaluate(rec.uv));
   return BSDF(
-      std::make_shared<Dielectric>(
-          eta_, TrowbridgeReitzDistribution(uRoughness_, vRoughness_)),
+      std::make_shared<Dielectric>(eta, std::move(ggx)),
       QuaternionTransform::RotateFrTo(Vector3(rec.normal), Vector3(0, 1, 0)));
 }
 
