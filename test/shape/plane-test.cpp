@@ -8,6 +8,8 @@
 
 #include <string>
 
+using namespace vec_helpers;
+
 template <typename T>
 class PlaneTest : public ::testing::Test {
  public:
@@ -23,34 +25,36 @@ class PlaneTest : public ::testing::Test {
   Vector3 e1 = a - o, e2 = b - o;
   std::unique_ptr<T> shape = std::make_unique<T>(o, a, b);
 
+  double u, v;
+
   Point3 rand_on_plane() {
     if constexpr (std::same_as<T, Triangle>) {
-      double s = random_double(0, 0.5), t = random_double(0, 0.5);
-      return o + e1 * s + e2 * t;
+      v = random_double(0, 0.5), u = random_double(0, 0.5);
+      return o + e1 * u + e2 * v;
     }
     if constexpr (std::same_as<T, Parallelogram>) {
-      double s = random_uniform_01(), t = random_uniform_01();
-      return o + e1 * s + e2 * t;
+      v = random_uniform_01(), u = random_uniform_01();
+      return o + e1 * u + e2 * v;
     }
     if constexpr (std::same_as<T, Plane>) {
-      double s = random_double(-10, 10), t = random_double(-10, 10);
-      return o + e1 * s + e2 * t;
+      v = random_double(-10, 10), u = random_double(-10, 10);
+      return o + e1 * u + e2 * v;
     }
   }
 
   std::optional<Point3> rand_off_plane() {
     if constexpr (std::same_as<T, Triangle>) {
       while (true) {
-        double s = random_double(-10, 10), t = random_double(-10, 10);
-        if (!(0 <= s && 0 <= t && s + t <= 1))
-          return o + e1 * s + e2 * t;
+        v = random_double(-10, 10), u = random_double(-10, 10);
+        if (!(0 <= v && 0 <= u && v + u <= 1))
+          return o + e1 * u + e2 * v;
       }
     }
     if constexpr (std::same_as<T, Parallelogram>) {
       while (true) {
-        double s = random_double(-10, 10), t = random_double(-10, 10);
-        if (!(0 <= s && s <= 1 && 0 <= t && t <= 1))
-          return o + e1 * s + e2 * t;
+        v = random_double(-10, 10), u = random_double(-10, 10);
+        if (!(0 <= v && v <= 1 && 0 <= u && u <= 1))
+          return o + e1 * u + e2 * v;
       }
     }
     if constexpr (std::same_as<T, Plane>) {
@@ -70,6 +74,8 @@ TYPED_TEST(PlaneTest, Bbox) {
 }
 
 TYPED_TEST(PlaneTest, RayHit) {
+  static const Interval<double> unit(0, 1);
+
   Point3 on_plane, ray_point;
   double time;
   Ray r;
@@ -81,10 +87,17 @@ TYPED_TEST(PlaneTest, RayHit) {
     time = r.direction.Length();
     r.direction /= time;
 
-    auto rec = this->shape->Hit(r, Interval<double>::Positive());
+    HitRecord rec = this->shape->Hit(r, Interval<double>::Positive());
     EXPECT_TRUE(rec.hits) << this->o << ' ' << this->a << ' ' << this->b << '\n'
                           << r;
     EXPECT_NEAR(rec.time, time, this->EPS);
+    EXPECT_EQ(rec.position, on_plane);
+    Normal n = rec.normal;
+    EXPECT_TRUE(IsPerpendicular(n, this->e1) && IsPerpendicular(n, this->e2));
+    double u = this->u, v = this->v;
+    EXPECT_TRUE(unit.Contains(rec.uv.x()) && unit.Contains(rec.uv.y()))
+        << rec.uv;
+    EXPECT_EQ(rec.uv, Point2(u - std::floor(u), v - std::floor(v)));
   }
 }
 

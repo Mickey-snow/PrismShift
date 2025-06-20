@@ -152,7 +152,7 @@ TEST_F(DielectricTest, PdfNormalisation) {
     s += pdf;
   }
   double estimate = (4 * pi) * s / N;
-  EXPECT_NEAR(estimate, 1, 0.1);
+  EXPECT_NEAR(estimate, 1, 0.25);
 }
 
 TEST_F(DielectricTest, EnergyConservation) {

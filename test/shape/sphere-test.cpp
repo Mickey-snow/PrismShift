@@ -40,8 +40,46 @@ TEST_F(SphereTest, Bbox) {
 }
 
 TEST_F(SphereTest, Area) {
-  EXPECT_EQ(unit_sphere.Area(), 4 * pi);
-  EXPECT_EQ(rand_sphere.Area(), 4 * pi * r * r);
+  EXPECT_NEAR(unit_sphere.Area(), 4 * pi, 1e-8);
+  EXPECT_NEAR(rand_sphere.Area(), 4 * pi * r * r, 1e-8);
+}
+
+static auto from_uv(Point2 uv) -> Vector3 {
+  double theta = uv.y() * pi, phi = (uv.x() - 0.5) * 2 * pi;
+  return Vector3(std::sin(theta) * std::cos(phi), std::cos(theta),
+                 std::sin(theta) * std::sin(phi));
+}
+TEST_F(SphereTest, Uv) {
+  // random
+  for (int i = 0; i < 10; ++i) {
+    Vector3 v = rand_sphere_uniform();
+
+    Point2 uv = unit_sphere.GetUv(Point3(v));
+    EXPECT_EQ(from_uv(uv), v);
+
+    uv = rand_sphere.GetUv(Point3(v * r));
+    EXPECT_EQ(from_uv(uv), v);
+  }
+}
+
+TEST_F(SphereTest, UvEdgeCase) {
+  static const Interval<double> unit(0, 1);
+
+  for (int i = -1; i <= 1; ++i)
+    for (int j = -1; j <= 1; ++j)
+      for (int k = -1; k <= 1; ++k) {
+        Vector3 v(i, j, k);
+        if (v.NearZero())
+          continue;
+        v = v.Normalized();
+
+        Point2 uv = unit_sphere.GetUv(Point3(v));
+        EXPECT_TRUE(unit.Contains(uv.x()) && unit.Contains(uv.y())) << uv;
+        EXPECT_EQ(from_uv(uv), v);
+
+        uv = rand_sphere.GetUv(Point3(v * r));
+        EXPECT_EQ(from_uv(uv), v);
+      }
 }
 
 TEST_F(SphereTest, RayHits) {
@@ -50,10 +88,10 @@ TEST_F(SphereTest, RayHits) {
   Ray r;
   double time;
 
-  for (auto* sphere : std::vector<Sphere*>{&unit_sphere, &rand_sphere}) {
+  for (auto* sphere : std::to_array<Sphere*>({&unit_sphere, &rand_sphere})) {
     for (int i = 0; i < N; ++i) {
       ray_point = rand_point(0, .1);  // inside
-      on_sphere = Point3(rand_sphere_uniform());
+      on_sphere = Point3(rand_sphere_uniform() * sphere->r());
       r = Ray(sphere->GetTransformation().Doit(ray_point),
               sphere->GetTransformation().Doit(on_sphere - ray_point));
       time = r.direction.Length();
@@ -64,7 +102,7 @@ TEST_F(SphereTest, RayHits) {
       EXPECT_NEAR(rec.time, time, EPS);
 
       // outside
-      on_sphere = Point3(rand_sphere_uniform());
+      on_sphere = Point3(rand_sphere_uniform() * sphere->r());
       ray_point = Point3(random_double(10, 20) * Vector3(on_sphere));
       r = Ray(sphere->GetTransformation().Doit(ray_point),
               sphere->GetTransformation().Doit(on_sphere - ray_point));
@@ -84,10 +122,10 @@ TEST_F(SphereTest, HitOutsideTimeInterval) {
   Ray r;
   double time;
 
-  for (auto* sphere : std::vector<Sphere*>{&unit_sphere, &rand_sphere}) {
+  for (auto* sphere : std::to_array<Sphere*>({&unit_sphere, &rand_sphere})) {
     for (int i = 0; i < N; ++i) {
       ray_point = rand_point(0, .1);  // inside
-      on_sphere = Point3(rand_sphere_uniform());
+      on_sphere = Point3(rand_sphere_uniform() * sphere->r());
       r = Ray(sphere->GetTransformation().Doit(ray_point),
               sphere->GetTransformation().Doit(on_sphere - ray_point));
       time = r.direction.Length();
@@ -97,7 +135,7 @@ TEST_F(SphereTest, HitOutsideTimeInterval) {
       EXPECT_FALSE(rec.hits) << ray_point << ' ' << on_sphere;
 
       // outside
-      on_sphere = Point3(rand_sphere_uniform());
+      on_sphere = Point3(rand_sphere_uniform() * sphere->r());
       ray_point = Point3(random_double(10, 20) * Vector3(on_sphere));
       r = Ray(sphere->GetTransformation().Doit(ray_point),
               sphere->GetTransformation().Doit(on_sphere - ray_point));
@@ -111,9 +149,9 @@ TEST_F(SphereTest, HitOutsideTimeInterval) {
 }
 
 TEST_F(SphereTest, Nohit) {
-  for (auto* sphere : std::vector<Sphere*>{&unit_sphere, &rand_sphere}) {
+  for (auto* sphere : std::to_array<Sphere*>({&unit_sphere, &rand_sphere})) {
     for (int i = 0; i < N; ++i) {
-      Point3 p = Point3(1.001 * Vector3::Random_Unit());
+      Point3 p = Point3(1.001 * Vector3::Random_Unit() * sphere->r());
       Vector3 vp = Vector3::Cross((Vector3)p, Vector3::Random_Unit());
       p = sphere->GetTransformation().Doit(p);
       vp = sphere->GetTransformation().Doit(vp);

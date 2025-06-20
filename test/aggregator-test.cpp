@@ -15,7 +15,8 @@ class FakeShape : public IShape {
 
   HitRecord Hit(const Ray& r, const Interval<double>& interval) const override {
     if (time_ > 0.0 && bbox_.isHitIn(r, interval))
-      return HitRecord::RTN(r, time_, Normal{0, 1, 0});
+      return HitRecord::Create(time_, r.At(time_), Point2(0, 0),
+                               Normal{0, 1, 0});
     else
       return HitRecord();
   }

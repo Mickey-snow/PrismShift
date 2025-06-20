@@ -4,11 +4,12 @@
 
 #include <cmath>
 
+using namespace vec_helpers;
+
 Parallelogram::Parallelogram(Point3 o, Point3 a, Point3 b)
     : trans_(MatrixTransformation::ChangeCoordinate(o, a, b)) {
   Vector3 e1 = a - o, e2 = b - o;
-  area_ =
-      Vector3::SameDirection(e1, e2) ? 0.0 : Vector3::Cross(e1, e2).Length();
+  area_ = IsParallel(e1, e2) ? 0.0 : Vector3::Cross(e1, e2).Length();
 }
 
 AABB Parallelogram::GetBbox() const {
@@ -35,7 +36,9 @@ HitRecord Parallelogram::Hit(const Ray& ray,
     return HitRecord();
 
   static const Normal normal{0, 1, 0};
-  return HitRecord::RTN(ray, time, trans_.Doit(normal));
+  return HitRecord::Create(time, ray.At(time),
+                           Point2(hit_point.x(), hit_point.z()),
+                           trans_.Doit(normal));
 }
 
 ShapeSample Parallelogram::Sample() const {

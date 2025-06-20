@@ -7,22 +7,24 @@ class Primitive;
 struct IMaterial;
 
 struct HitRecord {
-  HitRecord() = default;
-
   // note: everythin in local coordinate system
   bool hits = false;
   Primitive const* primitive = nullptr;
   double time;
   Point3 position;
-  Normal normal;
+  Point2 uv;
+  Normal normal;  // outward normal
 
-  static HitRecord RTN(Ray ray, double time, Normal normal) {
+  static constexpr HitRecord Create(double time,
+                                    Point3 pos,
+                                    Point2 uv,
+                                    Normal n) {
     HitRecord rec;
     rec.hits = true;
-    rec.primitive = nullptr;
     rec.time = time;
-    rec.position = ray.At(time);
-    rec.normal = std::move(normal);
+    rec.position = pos;
+    rec.uv = uv;
+    rec.normal = n;
     return rec;
   }
 };

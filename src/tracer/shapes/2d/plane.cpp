@@ -22,6 +22,12 @@ HitRecord Plane::Hit(const Ray& ray,
   if (!time_interval.Contains(time))
     return HitRecord();
 
+  Point3 hit_point = r.At(time);
+  double u = hit_point.x();
+  double v = hit_point.z();
+
   static const Normal normal{0, 1, 0};
-  return HitRecord::RTN(ray, time, trans_.Doit(normal));
+  return HitRecord::Create(time, ray.At(time),
+                           Point2(u - std::floor(u), v - std::floor(v)),
+                           trans_.Doit(normal));
 }

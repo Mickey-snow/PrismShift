@@ -60,21 +60,6 @@ class Vector : public basic_vector<double, N> {
   }
   Vector Cross(const vector_like auto& rhs) const { return Cross(*this, rhs); }
 
-  static bool Perpendicular(const Vector<N>& a, const Vector<N>& b) {
-    return fabs(Vector<N>::Dot(a, b)) < EPS;
-  }
-  static bool SameDirection(const Vector<N>& a, const Vector<N>& b) {
-    if (a.NearZero() || b.NearZero())
-      return true;
-
-    for (std::size_t i = 0; i < dimension; ++i)
-      if (b[i] != 0) {
-        double t = a[i] / b[i];
-        return b * t == a;
-      }
-    return true;
-  }
-
   inline constexpr Vector operator+(const Vector& rhs) const {
     return Vector(super::operator+(rhs));
   }
@@ -187,6 +172,22 @@ class Normal : public basic_vector<double, 3> {
 };
 
 namespace vec_helpers {
+
+template <vector_like U, vector_like V>
+  requires(U::dimension == V::dimension)
+bool IsParallel(U const& a, V const& b) {
+  for (std::size_t i = 0; i < a.dimension; ++i)
+    if (b[i] != 0) {
+      double t = a[i] / b[i];
+      return b * t == a;
+    }
+  return true;
+}
+template <vector_like U, vector_like V>
+  requires(U::dimension == V::dimension)
+inline bool IsPerpendicular(U const& a, V const& b) {
+  return std::abs(a.Dot(b)) < U::EPS;
+}
 inline double CosTheta(const Vector3& w) { return w.y(); }
 inline double AbsCosTheta(const Vector3& w) { return std::abs(w.y()); }
 inline double Cos2Theta(const Vector3& w) { return w.y() * w.y(); }

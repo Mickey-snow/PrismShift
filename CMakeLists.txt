@@ -18,6 +18,8 @@ if(ENABLE_SANITIZER)
   set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${SANITIZER_FLAGS}")
 endif()
 
+message(STATUS "Cxx flags: ${CMAKE_CXX_FLAGS}")
+
 include_directories(${CMAKE_SOURCE_DIR}/src/tracer)
 include_directories(${CMAKE_SOURCE_DIR}/external)
 include_directories(${CMAKE_SOURCE_DIR}/external/boost_math/include)
