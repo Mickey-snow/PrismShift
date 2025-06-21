@@ -16,22 +16,22 @@ class IMaterial {
 };
 
 class DiffuseMaterial : public IMaterial {
-  Texture<Color> color;
+  Texture<Color> albedo_;
 
  public:
-  DiffuseMaterial(Color c);
-  DiffuseMaterial(Texture<Color> c);
+  DiffuseMaterial(Color albedo);
+  DiffuseMaterial(Texture<Color> albedo);
 
   BSDF GetBSDF(const HitRecord& rec) const override;
 };
 
 class ConductorMaterial : public IMaterial {
-  Texture<Color> color_;
+  Texture<Color> albedo_;
   Texture<double> uRoughness_, vRoughness_;
 
  public:
-  ConductorMaterial(Color color, double uRough, double vRough);
-  ConductorMaterial(Texture<Color> c, Texture<double> ur, Texture<double> vr);
+  ConductorMaterial(Color albedo, double uRough, double vRough);
+  ConductorMaterial(Texture<Color> albedo, Texture<double> ur, Texture<double> vr);
 
   BSDF GetBSDF(const HitRecord& rec) const override;
 };

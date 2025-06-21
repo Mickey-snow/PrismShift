@@ -13,11 +13,11 @@ using namespace bxdfs;
 // ------------------------------------------------------------------------------
 DiffuseMaterial::DiffuseMaterial(Color c) : DiffuseMaterial(make_texture(c)) {}
 DiffuseMaterial::DiffuseMaterial(std::shared_ptr<ITexture<Color>> c)
-    : color(std::move(c)) {}
+    : albedo_(std::move(c)) {}
 
 BSDF DiffuseMaterial::GetBSDF(const HitRecord& rec) const {
   return BSDF(
-      std::make_shared<Lambertian>(color->Evaluate(rec.uv)),
+      std::make_shared<Lambertian>(albedo_->Evaluate(rec.uv)),
       QuaternionTransform::RotateFrTo(Vector3(rec.normal), Vector3(0, 1, 0)));
 }
 
@@ -29,12 +29,12 @@ ConductorMaterial::ConductorMaterial(Color color, double uRough, double vRough)
 ConductorMaterial::ConductorMaterial(Texture<Color> c,
                                      Texture<double> ur,
                                      Texture<double> vr)
-    : color_(std::move(c)),
+    : albedo_(std::move(c)),
       uRoughness_(std::move(ur)),
       vRoughness_(std::move(vr)) {}
 
 BSDF ConductorMaterial::GetBSDF(const HitRecord& rec) const {
-  Color col = color_->Evaluate(rec.uv);
+  Color col = albedo_->Evaluate(rec.uv);
   TrowbridgeReitzDistribution ggx(uRoughness_->Evaluate(rec.uv),
                                   vRoughness_->Evaluate(rec.uv));
   return BSDF(

@@ -56,6 +56,7 @@ inline Point3 parse_point3(const json& arr,
 
 }  // namespace
 
+// ------------------------------------------------------------------------------
 Camera SceneFactory::parse_camera(const json& r) {
   constexpr std::string_view ctx = "camera";
   expect_array_size(r, 9, ctx);
@@ -109,43 +110,39 @@ void SceneFactory::parse_materials(const json& array) {
           ctx, "`type` must be string at material #" + std::to_string(idx));
 
     const std::string type_s = type.get<std::string>();
-    const json& v = it.at("data");
-    expect_array_size(v, 1, ctx);
 
     std::shared_ptr<IMaterial> mat;
 
     if (type_s == "conductor") {
-      expect_array_size(v, 4, "conductor data");
-      Color col{expect_number<double>(v[0], "conductor.color[0]"),
-                expect_number<double>(v[1], "conductor.color[1]"),
-                expect_number<double>(v[2], "conductor.color[2]")};
-      double uR = expect_number<double>(v[3], "conductor.uRough");
-      double vR = (v.size() >= 5)
-                      ? expect_number<double>(v[4], "conductor.vRough")
-                      : uR;
-      mat = std::make_shared<ConductorMaterial>(col, uR, vR);
+      Texture<Color> col = resolve_color_texture(it.at("albedo"));
+      const json& v = it.at("rough");
+      expect_array_size(v, 1, "conductor.rough");
+      Texture<double> uR = resolve_float_texture(v.at(0));
+      Texture<double> vR = uR;
+      if (v.size() >= 2)
+        vR = resolve_float_texture(v.at(1));
+      mat = std::make_shared<ConductorMaterial>(std::move(col), std::move(uR),
+                                                std::move(vR));
 
     } else if (type_s == "diffuse") {
-      expect_array_size(v, 3, "diffuse data");
-      Color col{expect_number<double>(v[0], "diffuse.color[0]"),
-                expect_number<double>(v[1], "diffuse.color[1]"),
-                expect_number<double>(v[2], "diffuse.color[2]")};
-      mat = std::make_shared<DiffuseMaterial>(col);
+      Texture<Color> albedo = resolve_color_texture(it.at("albedo"));
+      mat = std::make_shared<DiffuseMaterial>(std::move(albedo));
 
     } else if (type_s == "dielectric") {
-      expect_array_size(v, 2, "dielectric data");
-      double eta = expect_number<double>(v[0], "dielectric.eta");
-      double uR = expect_number<double>(v[1], "dielectric.uRough");
-      double vR = (v.size() >= 3)
-                      ? expect_number<double>(v[2], "dielectric.vRough")
-                      : uR;
-      mat = std::make_shared<DielectricMaterial>(eta, uR, vR);
+      Texture<double> eta = resolve_float_texture(it.at("eta"));
+      const json& v = it.at("rough");
+      expect_array_size(v, 1, "dielectric.rough");
+      Texture<double> uR = resolve_float_texture(v.at(0));
+      Texture<double> vR = uR;
+      mat = std::make_shared<DielectricMaterial>(std::move(eta), std::move(uR),
+                                                 std::move(vR));
 
     } else if (type_s == "mix") {
-      expect_array_size(v, 2, "mixed material data");
+      const json& v = it.at("data");
+      expect_array_size(v, 2, "mix.data");
       std::shared_ptr<IMaterial> mat1 = resolve_mat(v[0]),
                                  mat2 = resolve_mat(v[1]);
-      double fac = expect_number<double>(v[2], "mix.fac");
+      double fac = expect_number<double>(it.at("fac"), "mix.fac");
       mat = std::make_shared<MixedMaterial>(mat1, mat2, fac);
     } else {
       throw SCENE_ERROR(ctx, "unknown material type '" + type_s +
@@ -273,6 +270,59 @@ Scene SceneFactory::parse_objects(const json& array) {
   }
 
   return Scene(std::move(objs_));
+}
+
+// ------------------------------------------------------------------------------
+std::shared_ptr<ITexture<double>> SceneFactory::resolve_float_texture(
+    const json& r) {
+  if (r.is_array())  // one number, float const
+    return std::make_shared<FloatConst>(r.at(0));
+
+  size_t idx;
+  if (r.is_string()) {
+    if (texture_map_.contains(r))
+      idx = texture_map_.at(r);
+    throw SCENE_ERROR("float-texture", "texture not found: " + std::string(r));
+  } else if (r.is_number())
+    idx = r;
+
+  if (textures_.size() <= idx)
+    throw SCENE_ERROR("float-texture", "out of bounds: " + std::to_string(idx));
+
+  try {
+    return std::any_cast<Texture<double>>(textures_[idx]);
+  } catch (std::bad_any_cast& e) {
+    throw SCENE_ERROR("float-texture", "texture type is not float");
+  }
+}
+
+std::shared_ptr<ITexture<Color>> SceneFactory::resolve_color_texture(
+    const json& r) {
+  if (r.is_array())  // one number, float const
+    return std::make_shared<SolidColor>(r.at(0), r.at(1), r.at(2));
+
+  size_t idx;
+  if (r.is_string()) {
+    // for debug use
+    static const Texture<Color> debug_texture =
+        std::make_shared<DebugTexture>();
+    if (r == "__debug")
+      return debug_texture;
+
+    if (texture_map_.contains(r))
+      idx = texture_map_.at(r);
+    throw SCENE_ERROR("color-texture", "texture not found: " + std::string(r));
+  } else if (r.is_number())
+    idx = r;
+
+  if (textures_.size() <= idx)
+    throw SCENE_ERROR("color-texture", "out of bounds: " + std::to_string(idx));
+
+  try {
+    return std::any_cast<Texture<Color>>(textures_[idx]);
+  } catch (std::bad_any_cast& e) {
+    throw SCENE_ERROR("color-texture", "texture type is not color");
+  }
 }
 
 std::shared_ptr<IMaterial> SceneFactory::resolve_mat(const json& m) {

@@ -4,6 +4,7 @@
 #include "primitive.hpp"
 #include "scene.hpp"
 
+#include <any>
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -11,6 +12,9 @@
 
 #include <spdlog/spdlog.h>
 #include <nlohmann/json.hpp>
+
+template <typename T>
+class ITexture;
 
 /**
  * SceneFactory
@@ -44,11 +48,17 @@ class SceneFactory {
   Scene parse_objects(const json& array);
   void parse_materials(const json& array);
   void parse_lights(const json& array);
+
   std::shared_ptr<IMaterial> resolve_mat(const json& m);
   std::shared_ptr<ILight> resolve_light(const json& l);
+  std::shared_ptr<ITexture<double>> resolve_float_texture(const json& r);
+  std::shared_ptr<ITexture<Color>> resolve_color_texture(const json& r);
 
  private:
   json root_;  // raw JSON tree
+
+  std::vector<std::any> textures_;
+  std::unordered_map<std::string, size_t> texture_map_;
 
   std::vector<std::shared_ptr<IMaterial>> materials_;
   std::unordered_map<std::string, std::shared_ptr<IMaterial>> material_map_;
