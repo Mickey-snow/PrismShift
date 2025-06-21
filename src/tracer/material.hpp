@@ -31,7 +31,9 @@ class ConductorMaterial : public IMaterial {
 
  public:
   ConductorMaterial(Color albedo, double uRough, double vRough);
-  ConductorMaterial(Texture<Color> albedo, Texture<double> ur, Texture<double> vr);
+  ConductorMaterial(Texture<Color> albedo,
+                    Texture<double> ur,
+                    Texture<double> vr);
 
   BSDF GetBSDF(const HitRecord& rec) const override;
 };

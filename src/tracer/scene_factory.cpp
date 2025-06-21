@@ -72,6 +72,8 @@ Camera SceneFactory::parse_camera(const json& r) {
 
 // ------------------------------------------------------------------------------
 SceneFactory::SceneFactory(json root) : root_(std::move(root)) {
+  if (root_.contains("textures"))
+    parse_textures(root_.at("textures"));
   if (root_.contains("materials"))
     parse_materials(root_.at("materials"));
   if (root_.contains("lights"))
@@ -96,21 +98,54 @@ SceneFactory SceneFactory::FromFile(const std::string& path) {
 }
 
 // ------------------------------------------------------------------------------
+void SceneFactory::parse_textures(const json& array) {
+  constexpr std::string_view ctx = "textures";
+  textures_.reserve(array.size());
+
+  for (std::size_t idx = 0; idx < array.size(); ++idx) {
+    const json& it = array[idx];
+    const json& type = it.at("type");
+    if (!type.is_string())
+      throw SCENE_ERROR(
+          ctx, "`type` must be string at texture #" + std::to_string(idx));
+
+    const std::string type_s = type.get<std::string>();
+    std::any texture;
+
+    if (type_s == "color") {
+      const json& v = it.at("albedo");
+      expect_array_size(v, 3, "texture.color.albedo");
+      texture = static_cast<Texture<Color>>(
+          make_texture(Color(v.at(0), v.at(1), v.at(2))));
+
+    } else if (type_s == "float") {
+      texture =
+          static_cast<Texture<double>>(make_texture(it.at("v").get<double>()));
+
+    } else if (type_s == "image") {
+      std::filesystem::path path = it.at("path").get<std::string>();
+      texture = static_cast<Texture<Color>>(make_texture(std::move(path)));
+    }
+
+    /* optional name -> map */
+    if (it.contains("name") && it["name"].is_string())
+      texture_map_[it["name"].get<std::string>()] = idx;
+    textures_.emplace_back(std::move(texture));
+  }
+}
+
 void SceneFactory::parse_materials(const json& array) {
   constexpr std::string_view ctx = "materials";
-  expect_array_size(array, 1, ctx);
   materials_.reserve(array.size());
 
   for (std::size_t idx = 0; idx < array.size(); ++idx) {
     const json& it = array[idx];
-    const auto& type = it.at("type");
-
+    const json& type = it.at("type");
     if (!type.is_string())
       throw SCENE_ERROR(
           ctx, "`type` must be string at material #" + std::to_string(idx));
 
     const std::string type_s = type.get<std::string>();
-
     std::shared_ptr<IMaterial> mat;
 
     if (type_s == "conductor") {
@@ -152,7 +187,6 @@ void SceneFactory::parse_materials(const json& array) {
     /* optional name -> map */
     if (it.contains("name") && it["name"].is_string())
       material_map_[it["name"].get<std::string>()] = mat;
-
     materials_.emplace_back(std::move(mat));
   }
 }
@@ -160,16 +194,15 @@ void SceneFactory::parse_materials(const json& array) {
 // ------------------------------------------------------------------------------
 void SceneFactory::parse_lights(const json& array) {
   constexpr std::string_view ctx = "lights";
-  expect_array_size(array, 1, ctx);
   lights_.reserve(array.size());
 
   for (std::size_t idx = 0; idx < array.size(); ++idx) {
     const json& it = array[idx];
     const auto& type = it.at("type");
-
     if (!type.is_string())
       throw SCENE_ERROR(
           ctx, "`type` must be string at light #" + std::to_string(idx));
+
     if (type != "diffuse_light")
       throw SCENE_ERROR(
           ctx, "unsupported light type '" + type.get<std::string>() + "'");
@@ -184,7 +217,6 @@ void SceneFactory::parse_lights(const json& array) {
 
     if (it.contains("name") && it["name"].is_string())
       light_map_[it["name"].get<std::string>()] = light;
-
     lights_.emplace_back(std::move(light));
   }
 }
@@ -282,9 +314,13 @@ std::shared_ptr<ITexture<double>> SceneFactory::resolve_float_texture(
   if (r.is_string()) {
     if (texture_map_.contains(r))
       idx = texture_map_.at(r);
-    throw SCENE_ERROR("float-texture", "texture not found: " + std::string(r));
+    else
+      throw SCENE_ERROR("float-texture",
+                        "texture not found: " + std::string(r));
   } else if (r.is_number())
     idx = r;
+  else
+    throw SCENE_ERROR("float-texture", "expected string or float");
 
   if (textures_.size() <= idx)
     throw SCENE_ERROR("float-texture", "out of bounds: " + std::to_string(idx));
@@ -311,9 +347,13 @@ std::shared_ptr<ITexture<Color>> SceneFactory::resolve_color_texture(
 
     if (texture_map_.contains(r))
       idx = texture_map_.at(r);
-    throw SCENE_ERROR("color-texture", "texture not found: " + std::string(r));
+    else
+      throw SCENE_ERROR("color-texture",
+                        "texture not found: " + std::string(r));
   } else if (r.is_number())
     idx = r;
+  else
+    throw SCENE_ERROR("color-texture", "expected string or float");
 
   if (textures_.size() <= idx)
     throw SCENE_ERROR("color-texture", "out of bounds: " + std::to_string(idx));

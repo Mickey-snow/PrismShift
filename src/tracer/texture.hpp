@@ -2,6 +2,7 @@
 
 #include "util/util.hpp"
 
+#include <filesystem>
 #include <memory>
 
 template <typename T>
@@ -32,6 +33,21 @@ class FloatConst : public ITexture<double> {
   double Evaluate(Point2) const override { return val_; }
 };
 
+class ImageTexture : public ITexture<Color> {
+  std::vector<float> data_;
+  int w_ = 0, h_ = 0, ch_ = 0;
+
+ public:
+  explicit ImageTexture(std::vector<float> data, int w, int h, int c);
+  static std::shared_ptr<ImageTexture> Create(std::filesystem::path path);
+
+  // Bilinear sample in [0,1]^2  UV space.
+  Color Evaluate(Point2 uv) const override;
+
+ private:
+  Color Texel(int x, int y) const;
+};
+
 class DebugTexture : public ITexture<Color> {
  public:
   DebugTexture() = default;
@@ -51,6 +67,9 @@ inline auto make_texture(T param) {
 
   else if constexpr (arithmetic<T>)
     return std::make_shared<FloatConst>(param);
+
+  else if constexpr (std::same_as<T, std::filesystem::path>)
+    return ImageTexture::Create(std::move(param));
 
   else
     static_assert(always_false_v<T>);

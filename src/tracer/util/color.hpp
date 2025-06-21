@@ -55,6 +55,11 @@ class Color : public basic_vector<double, 3> {
   inline constexpr Color& operator/=(arithmetic auto rhs) {
     return *this = *this / rhs;
   }
+
+  static constexpr Color Lerp(const Color& c1, const Color& c2, double t) {
+    return Color(std::lerp(c1.x(), c2.x(), t), std::lerp(c1.y(), c2.y(), t),
+                 std::lerp(c1.z(), c2.z(), t));
+  }
 };
 
 Color Format_Color(const Color& pixel_color, const double& scale = 255.0);
