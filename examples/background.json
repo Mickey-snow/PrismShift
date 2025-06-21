@@ -1,0 +1,5 @@
+{
+    "camera":[1,0,0, 0,0,0, 720, 1.7777777777777777, 45.0],
+    "objects": [{"type":"sphere", "data":[0,-1000,0, 0.00001]}],
+    "background": "/path/to/texture.exr"
+}

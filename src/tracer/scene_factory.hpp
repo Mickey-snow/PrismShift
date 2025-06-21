@@ -45,8 +45,8 @@ class SceneFactory {
       objs_.emplace_back(o);
   }
   static Camera parse_camera(const json& r);
-  Scene parse_objects(const json& array);
 
+  void parse_objects(const json& array);
   void parse_textures(const json& array);
   void parse_materials(const json& array);
   void parse_lights(const json& array);

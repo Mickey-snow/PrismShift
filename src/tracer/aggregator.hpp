@@ -9,6 +9,7 @@
 #include <variant>
 #include <vector>
 
+// FIXME: Fail to construct when primitive array is empty
 class BVT {
  public:
   struct Node {

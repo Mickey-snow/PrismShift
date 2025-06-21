@@ -1,6 +1,7 @@
 #include "scene_factory.hpp"
 
 #include "light.hpp"
+#include "mapping.hpp"
 #include "material.hpp"
 #include "shapes/shape.hpp"
 #include "texture.hpp"
@@ -222,10 +223,8 @@ void SceneFactory::parse_lights(const json& array) {
 }
 
 // ------------------------------------------------------------------------------
-Scene SceneFactory::parse_objects(const json& array) {
+void SceneFactory::parse_objects(const json& array) {
   constexpr std::string_view ctx = "objects";
-  expect_array_size(array, 1, ctx);
-
   objs_.clear();
   objs_.reserve(array.size());
 
@@ -300,8 +299,6 @@ Scene SceneFactory::parse_objects(const json& array) {
                                  std::to_string(idx));
     }
   }
-
-  return Scene(std::move(objs_));
 }
 
 // ------------------------------------------------------------------------------
@@ -402,19 +399,23 @@ Camera SceneFactory::CreateCamera() const {
 }
 
 Scene SceneFactory::CreateScene() {
-  if (!root_.contains("objects"))
-    throw SCENE_ERROR("factory",
-                      "scene JSON missing top-level 'objects' field");
+  if (root_.contains("objects"))
+    parse_objects(root_.at("objects"));
 
-  Scene scene = parse_objects(root_.at("objects"));
-  scene.SetBackground([](Ray) { return Color(0); });
+  Scene scene(std::move(objs_));
 
-  if (root_.contains("background") && root_["background"] == "sky") {
-    scene.SetBackground([](Ray r) -> Color {
-      auto dir = r.direction.normalised();
-      double a = 0.5 * (1.0 + dir.y());
-      return (1.0 - a) * Color(1.0, 1.0, 1.0) + a * Color(0.5, 0.7, 1.0);
-    });
-  }
+  if (root_.contains("background")) {
+    std::filesystem::path path = root_["background"].get<std::string>();
+    std::shared_ptr<ImageTexture> texture = make_texture(std::move(path));
+    SphericalMap mapping(identity_transform);
+    scene.SetBackground(
+        [tex = std::move(texture), map = std::move(mapping)](Ray r) -> Color {
+          Point3 p(r.direction);
+          Point2 st = map.Map(p);
+          return tex->Evaluate(st);
+        });
+  } else
+    scene.SetBackground([](Ray) { return Color(0); });
+
   return scene;
 }
