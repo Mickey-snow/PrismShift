@@ -28,6 +28,8 @@
 
 - Git
 
+- OpenEXR
+
 ### ビルド & 実行
 
 ```bash

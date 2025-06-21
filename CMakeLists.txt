@@ -26,6 +26,14 @@ include_directories(${CMAKE_SOURCE_DIR}/external/boost_math/include)
 include_directories(${CMAKE_SOURCE_DIR}/external/json/include)
 include_directories(${CMAKE_SOURCE_DIR}/external/argparse/include)
 include_directories(${CMAKE_SOURCE_DIR}/external/spdlog/include)
+include_directories(${CMAKE_SOURCE_DIR}/external/stb)
+
+find_package(OpenEXR REQUIRED)
+
+find_library(LIBDEFLATE_LIB deflate)
+if (NOT LIBDEFLATE_LIB)
+  message(FATAL_ERROR "Could not find libdeflate")
+endif()
 
 add_subdirectory(external)
 add_subdirectory(src)
