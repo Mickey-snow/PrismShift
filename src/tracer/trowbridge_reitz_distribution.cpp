@@ -5,22 +5,22 @@
 
 using namespace vec_helpers;
 
-TrowbridgeReitzDistribution::TrowbridgeReitzDistribution(double ax, double az)
+TrowbridgeReitzDistribution::TrowbridgeReitzDistribution(Float ax, Float az)
     : alpha_x(ax), alpha_z(az) {
   if (!EffectivelySmooth()) {
-    alpha_x = std::max<double>(alpha_x, 1e-4);
-    alpha_z = std::max<double>(alpha_z, 1e-4);
+    alpha_x = std::max<Float>(alpha_x, 1e-4);
+    alpha_z = std::max<Float>(alpha_z, 1e-4);
   }
 }
 
-double TrowbridgeReitzDistribution::D(Vector3 wm) const {
-  double tan2Theta = Tan2Theta(wm);
+Float TrowbridgeReitzDistribution::D(Vector3 wm) const {
+  Float tan2Theta = Tan2Theta(wm);
   if (std::isinf(tan2Theta))
     return 0;
-  double cos4Theta = Sqr(Cos2Theta(wm));
+  Float cos4Theta = Sqr(Cos2Theta(wm));
   if (cos4Theta < 1e-16)
     return 0;
-  double e =
+  Float e =
       tan2Theta * (Sqr(CosPhi(wm) / alpha_z) + Sqr(SinPhi(wm) / alpha_x));
   return 1.0 / (pi * alpha_z * alpha_x * cos4Theta * Sqr(1 + e));
 }
@@ -29,28 +29,28 @@ bool TrowbridgeReitzDistribution::EffectivelySmooth() const {
   return alpha_z < 1e-3 && alpha_x < 1e-3;
 }
 
-double TrowbridgeReitzDistribution::G1(Vector3 w) const {
+Float TrowbridgeReitzDistribution::G1(Vector3 w) const {
   return 1.0 / (1.0 + Lambda(w));
 }
 
-double TrowbridgeReitzDistribution::Lambda(Vector3 w) const {
-  double tan2Theta = Tan2Theta(w);
+Float TrowbridgeReitzDistribution::Lambda(Vector3 w) const {
+  Float tan2Theta = Tan2Theta(w);
   if (std::isinf(tan2Theta))
     return 0;
-  double alpha2 = Sqr(CosPhi(w) * alpha_z) + Sqr(SinPhi(w) * alpha_x);
+  Float alpha2 = Sqr(CosPhi(w) * alpha_z) + Sqr(SinPhi(w) * alpha_x);
   return (std::sqrt(1 + alpha2 * tan2Theta) - 1) / 2;
 }
 
-double TrowbridgeReitzDistribution::G(Vector3 wi, Vector3 wo) const {
+Float TrowbridgeReitzDistribution::G(Vector3 wi, Vector3 wo) const {
   wi = -wi;
   return 1.0 / (1.0 + Lambda(wi) + Lambda(wo));
 }
 
-double TrowbridgeReitzDistribution::D(Vector3 w, Vector3 wm) const {
+Float TrowbridgeReitzDistribution::D(Vector3 w, Vector3 wm) const {
   return G1(w) / AbsCosTheta(w) * D(wm) * std::abs(w.Dot(wm));
 }
 
-double TrowbridgeReitzDistribution::PDF(Vector3 w, Vector3 wm) const {
+Float TrowbridgeReitzDistribution::PDF(Vector3 w, Vector3 wm) const {
   return D(w, wm);
 }
 
@@ -69,11 +69,11 @@ Vector3 TrowbridgeReitzDistribution::Sample_wm(Vector3 w) const {
 
   // Sample disk
   Point2 p = SampleUniformDiskPolar();
-  double h = std::sqrt(1 - Sqr(p.x()));
+  Float h = std::sqrt(1 - Sqr(p.x()));
   p.y() = std::lerp(h, p.y(), (1 + wh.y()) / 2);
 
   // Project back to hemisphere
-  double py = std::sqrt(std::max(0.0, 1 - Vector2(p).Length_squared()));
+  Float py = std::sqrt(std::max(0.0, 1 - Vector2(p).Length_squared()));
   Vector3 nh = p.x() * T1 + p.y() * T2 + py * wh;
 
   // Ellipsoid to hemisphere
@@ -81,13 +81,13 @@ Vector3 TrowbridgeReitzDistribution::Sample_wm(Vector3 w) const {
   return ans.Normalized();
 }
 
-double TrowbridgeReitzDistribution::RoughnessToAlpha(double roughness) {
+Float TrowbridgeReitzDistribution::RoughnessToAlpha(Float roughness) {
   return std::sqrt(roughness);
 }
 
 void TrowbridgeReitzDistribution::Regularize() {
   if (alpha_x < 0.3)
-    alpha_x = std::clamp<double>(2 * alpha_x, 0.1, 0.3);
+    alpha_x = std::clamp<Float>(2 * alpha_x, 0.1, 0.3);
   if (alpha_z < 0.3)
-    alpha_z = std::clamp<double>(2 * alpha_z, 0.1, 0.3);
+    alpha_z = std::clamp<Float>(2 * alpha_z, 0.1, 0.3);
 }

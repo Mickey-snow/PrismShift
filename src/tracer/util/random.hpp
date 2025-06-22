@@ -1,7 +1,9 @@
 #pragma once
 
-double random_uniform_01();
+#include "util/prshdefs.hpp"
 
-double random_double(double min, double max);
+Float random_uniform_01();
+
+Float random_double(Float min, Float max);
 
 int random_int(int min, int max);

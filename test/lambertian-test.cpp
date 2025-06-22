@@ -52,7 +52,7 @@ TEST(LambertianTest, SampleF_IsCosineWeighted) {
   static const Normal n(0, 1, 0);
   Lambertian lambert(Color(1));
 
-  std::vector<double> cos_thetas(N, 0);
+  std::vector<Float> cos_thetas(N, 0);
   for (size_t i = 0; i < N; ++i) {
     const auto wi = rand_wi();
     auto sample = lambert.Sample_f(wi);
@@ -66,23 +66,23 @@ TEST(LambertianTest, SampleF_IsCosineWeighted) {
 
   // Compute the KS statistic D_n = max|F_emp(z) - F_theo(z)|,
   // where F_theo(z) = z^2 for z in [0,1].
-  double D = 0;
+  Float D = 0;
   for (size_t i = 0; i < N; ++i) {
-    double z = cos_thetas[i];
-    double F_emp1 = (i + 1.0) / N;               // empirical CDF just above z
-    double F_emp0 = static_cast<double>(i) / N;  // empirical CDF just below z
-    double F_theo = z * z;                       // theoretical CDF
+    Float z = cos_thetas[i];
+    Float F_emp1 = (i + 1.0) / N;               // empirical CDF just above z
+    Float F_emp0 = static_cast<Float>(i) / N;  // empirical CDF just below z
+    Float F_theo = z * z;                       // theoretical CDF
 
     D = std::max(D, std::abs(F_emp1 - F_theo));
     D = std::max(D, std::abs(F_emp0 - F_theo));
   }
 
   // Convert to the limiting statistic sqrt(n) * D_n
-  double stat = std::sqrt(N) * D;
+  Float stat = std::sqrt(N) * D;
   boost::math::kolmogorov_smirnov_distribution<> kolDist(N);
-  double K_cdf = cdf(kolDist, stat);
+  Float K_cdf = cdf(kolDist, stat);
 
-  double p_value = 1.0 - K_cdf;  // p-value = 1 - K(stat)
+  Float p_value = 1.0 - K_cdf;  // p-value = 1 - K(stat)
   EXPECT_LT(p_value, 0.01) << "p_value = " << p_value;
 }
 
@@ -93,7 +93,7 @@ TEST(LambertianTest, SampleConvergence) {
   static constexpr auto N = 64;
   Lambertian lambert(Color(1));
 
-  double Iu = 0, Icos = 0;
+  Float Iu = 0, Icos = 0;
   for (size_t i = 0; i < N; ++i) {
     auto wi = rand_wi();
     auto sample = lambert.Sample_f(wi);
@@ -105,6 +105,6 @@ TEST(LambertianTest, SampleConvergence) {
 
   Iu /= N;
   Icos /= N;
-  double err_iu = std::fabs(Iu - pi), err_icos = std::fabs(Icos - pi);
+  Float err_iu = std::fabs(Iu - pi), err_icos = std::fabs(Icos - pi);
   EXPECT_LT(err_icos, err_iu) << "errors are: " << err_icos << " vs " << err_iu;
 }

@@ -10,7 +10,7 @@
 TEST(geometryPrimitiveTest, BasicVector2) {
   Vector2 orig;
   Vector2 v1{5, -1}, v2{0.3, -1.2}, v3{10, 10};
-  const double scalar = 1.5, zero = 0;
+  const Float scalar = 1.5, zero = 0;
 
   EXPECT_DOUBLE_EQ(v1.v[0], 5.0);
   EXPECT_DOUBLE_EQ(v1.v[1], -1.0);
@@ -50,7 +50,7 @@ TEST(geometryPrimitiveTest, BasicVector3) {
   v1 = Vector3{42, -12, 4};
   v2 = Vector3{0.4, 321, 8.9};
   Vector3 i{1, 0, 0}, j{0, 1, 0}, k{0, 0, 1}, orig;
-  const double scalar = 2.5;
+  const Float scalar = 2.5;
 
   EXPECT_DOUBLE_EQ(v2[0], 0.4);
   EXPECT_DOUBLE_EQ(v2[1], 321.0);
@@ -67,7 +67,7 @@ TEST(geometryPrimitiveTest, BasicVector3) {
 }
 
 TEST(geometryPrimitiveTest, Normal) {
-  const double scale = 1.0 / pow(2.0, 1.0 / 3);
+  const Float scale = 1.0 / pow(2.0, 1.0 / 3);
   EXPECT_EQ((Normal{1, 1, 0}), (Normal{scale, scale, 0}));
 }
 

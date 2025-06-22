@@ -52,20 +52,20 @@ inline Vector3 Reflect(const Vector3& wi, const Vector3& n) {
 
 inline bool Refract(Vector3 v,
                     const Vector3& n,
-                    double eta_ratio,
+                    Float eta_ratio,
                     Vector3* out) {
   if (!out)
     return false;
 
   v = -v;
-  const double cosThetaI = v.Dot(n);
-  const double sin2ThetaI = std::max(0.0, 1.0 - cosThetaI * cosThetaI);
-  const double sin2ThetaT = eta_ratio * eta_ratio * sin2ThetaI;
+  const Float cosThetaI = v.Dot(n);
+  const Float sin2ThetaI = std::max(0.0, 1.0 - cosThetaI * cosThetaI);
+  const Float sin2ThetaT = eta_ratio * eta_ratio * sin2ThetaI;
 
   if (sin2ThetaT >= 1.0)
     return false;
 
-  const double cosThetaT = std::sqrt(std::max(0.0, 1.0 - sin2ThetaT));
+  const Float cosThetaT = std::sqrt(std::max(0.0, 1.0 - sin2ThetaT));
 
   *out = eta_ratio * (-v) + (eta_ratio * cosThetaI - cosThetaT) * n;
   out->y() *= out->y() * v.y() < 0 ? 1 : -1;

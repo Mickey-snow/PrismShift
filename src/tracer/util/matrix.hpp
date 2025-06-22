@@ -11,7 +11,7 @@
 #include <stdexcept>
 #include <utility>
 
-template <std::size_t R, std::size_t C, typename value_type = double>
+template <std::size_t R, std::size_t C, typename value_type = Float>
 class Matrix {
   static_assert(R > 0 && C > 0, "Matrix must have non‑zero dimensions");
 
@@ -304,5 +304,5 @@ class Matrix {
   }
 };
 
-/* convenient alias for 4×4 double matrix (graphics etc.) */
-using Matrix4 = Matrix<4, 4, double>;
+/* convenient alias for 4×4 Float matrix (graphics etc.) */
+using Matrix4 = Matrix<4, 4, Float>;

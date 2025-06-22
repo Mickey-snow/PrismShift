@@ -132,7 +132,7 @@ TYPED_TEST(ScalingTest, Normals) {
 template <class rotate_t>
 class RotateTest : public TransformTest {
  public:
-  decltype(auto) axisTr(basic_vector<double, 3> n, double angle) {
+  decltype(auto) axisTr(basic_vector<Float, 3> n, Float angle) {
     return std::make_shared<rotate_t>(std::move(rotate_t::Rotate(n, angle)));
   }
 
@@ -151,7 +151,7 @@ TYPED_TEST_SUITE(RotateTest, rotate_impl);
 TYPED_TEST(RotateTest, simpleAxis) {
   Vector3 v{1, 0, 0};
   Normal n{0, 1, 0};
-  double angle = pi / 2;
+  Float angle = pi / 2;
   auto tr = this->axisTr(n, angle);
   EXPECT_EQ(tr->Doit(v), Vector3(0, 0, 1));
 
@@ -165,7 +165,7 @@ TYPED_TEST(RotateTest, simpleAxis) {
 TYPED_TEST(RotateTest, diagonalAxis) {
   Vector3 v{0, 1, 0};
   Normal n{1, 1, 1};
-  double angle = 120.0 / 180 * pi;
+  Float angle = 120.0 / 180 * pi;
   auto tr = this->axisTr(n, angle);
   EXPECT_EQ(tr->Doit(v), Vector3(1, 0, 0));
 }
@@ -173,7 +173,7 @@ TYPED_TEST(RotateTest, diagonalAxis) {
 TYPED_TEST(RotateTest, smallAngleAxis) {
   Vector3 v{1, 1, 1};
   Normal n{1, 0, 0};
-  double angle = 10.0 / 180 * pi;
+  Float angle = 10.0 / 180 * pi;
   auto tr = this->axisTr(n, angle);
   EXPECT_EQ(tr->Doit(v), Vector3(1, 1.15845593, 0.81115958));
 }
@@ -185,7 +185,7 @@ TYPED_TEST(RotateTest, zeroVector) {
                   random_uniform_01()};
   };
   auto n = randNormal(), np = randNormal();
-  double angle = pi * 2 * random_uniform_01();
+  Float angle = pi * 2 * random_uniform_01();
   auto tr = this->axisTr(n, angle);
   EXPECT_EQ(tr->Doit(v), v);
 
@@ -196,7 +196,7 @@ TYPED_TEST(RotateTest, zeroVector) {
 TYPED_TEST(RotateTest, rotate180DegAxis) {
   Vector3 v1{random_uniform_01(), 0, 0}, v2{0, 0, 0};
   Normal n{0, 1, 0};
-  double angle = pi;
+  Float angle = pi;
   auto tr = this->axisTr(n, angle);
   EXPECT_EQ(tr->Doit(v1), -v1);
   EXPECT_EQ(tr->Doit(v2), v2);
@@ -298,7 +298,7 @@ TEST(MatTransformationTest, rotateXyzAxis) {
   EXPECT_NEAR(vp.z(), -8.3826, 0.05);
 }
 
-inline static Vector3 randvec(double k = 1000) {
+inline static Vector3 randvec(Float k = 1000) {
   return Vector3{random_double(-k, k), random_double(-k, k),
                  random_double(-k, k)};
 }
@@ -330,7 +330,7 @@ TEST(MatTransformationTest, Affine) {
   Vector3 u = randvec(k), v = randvec(k);
   auto trans = MatrixTransformation::ChangeCoordinate(o1, o1 + u, o1 + v);
 
-  double a = random_double(-k, k), b = random_double(-k, k);
+  Float a = random_double(-k, k), b = random_double(-k, k);
   Point3 p1 = o1 + a * u + b * v;
 
   Point3 p = trans.Undo(p1);

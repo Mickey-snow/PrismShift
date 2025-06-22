@@ -8,8 +8,8 @@ class Camera {
   Camera(Point3 center = {},
          Point3 lookAt = {},
          int imageHeight = 1080,
-         double aspectRatio = 16.0 / 9.0,
-         double vFovDeg = 30.0) noexcept
+         Float aspectRatio = 16.0 / 9.0,
+         Float vFovDeg = 30.0) noexcept
       : camera_center_{std::move(center)},
         looking_at_{std::move(lookAt)},
         up_direction_{0, 1, 0},
@@ -27,11 +27,11 @@ class Camera {
   void setLookAt(Point3 la) noexcept { looking_at_ = std::move(la); }
   [[nodiscard]] Point3 lookAt() const noexcept { return looking_at_; }
 
-  void setAspectRatio(double ar) noexcept {
+  void setAspectRatio(Float ar) noexcept {
     aspect_ratio_ = ar;
     clampDimensions();
   }
-  [[nodiscard]] double aspectRatio() const noexcept { return aspect_ratio_; }
+  [[nodiscard]] Float aspectRatio() const noexcept { return aspect_ratio_; }
 
   void setImageHeight(int h) noexcept {
     image_height_ = h;
@@ -46,8 +46,8 @@ class Camera {
   [[nodiscard]] int imageWidth() const noexcept { return image_width_; }
 
   struct View_Info {
-    double focal_length;
-    double viewport_height, viewport_width;
+    Float focal_length;
+    Float viewport_height, viewport_width;
     Vector3 viewport_u, viewport_v;
     Vector3 pixel_delta_u, pixel_delta_v;
     Point3 viewport_upper_left;
@@ -64,7 +64,7 @@ class Camera {
   Point3 camera_center_;
   Point3 looking_at_;
   Vector3 up_direction_;
-  double aspect_ratio_;
+  Float aspect_ratio_;
   int image_height_, image_width_;
-  double view_angle_vertical_;
+  Float view_angle_vertical_;
 };

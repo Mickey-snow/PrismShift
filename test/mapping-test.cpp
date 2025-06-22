@@ -13,7 +13,7 @@ class SphericalMapTest
 
   inline static constexpr int N = 16;
   static auto from_st(Point2 st) -> Vector3 {
-    double theta = st.y() * pi, phi = (st.x() - 0.5) * 2 * pi;
+    Float theta = st.y() * pi, phi = (st.x() - 0.5) * 2 * pi;
     return Vector3(std::sin(theta) * std::cos(phi), std::cos(theta),
                    std::sin(theta) * std::sin(phi));
   }

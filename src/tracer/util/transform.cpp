@@ -65,7 +65,7 @@ Normal VectorScale::Undo(Normal n) const {
 
 // --------------------------------------------------------------------------------
 Point3 MatrixTransformation::Doit(Point3 p) const {
-  basic_vector<double, 4> w(p.x(), p.y(), p.z(), 1);
+  basic_vector<Float, 4> w(p.x(), p.y(), p.z(), 1);
   w = m * w;
   static constexpr auto EPS = 1e-9;
   auto ans = Vector3(w.x(), w.y(), w.z());
@@ -75,7 +75,7 @@ Point3 MatrixTransformation::Doit(Point3 p) const {
 }
 
 Vector3 MatrixTransformation::Doit(Vector3 p) const {
-  basic_vector<double, 4> w(p.x(), p.y(), p.z(), 0);
+  basic_vector<Float, 4> w(p.x(), p.y(), p.z(), 0);
   w = m * w;
   return Vector3(w.x(), w.y(), w.z());
 }
@@ -95,7 +95,7 @@ Vector3 MatrixTransformation::Doit(Vector3 p) const {
  * @return A new Normal object: the transformed normal.
  */
 Normal MatrixTransformation::Doit(Normal p) const {
-  basic_vector<double, 4> w(p.x(), p.y(), p.z(), 0);
+  basic_vector<Float, 4> w(p.x(), p.y(), p.z(), 0);
   w = minv.T() * w;
   return Normal(w.x(), w.y(), w.z());
 }
@@ -111,20 +111,20 @@ MatrixTransformation MatrixTransformation::Translate(Vector3 p) {
       Matrix4{1, 0, 0, p.x(), 0, 1, 0, p.y(), 0, 0, 1, p.z(), 0, 0, 0, 1},
       Matrix4{1, 0, 0, -p.x(), 0, 1, 0, -p.y(), 0, 0, 1, -p.z(), 0, 0, 0, 1});
 }
-MatrixTransformation MatrixTransformation::Translate(double dx,
-                                                     double dy,
-                                                     double dz) {
+MatrixTransformation MatrixTransformation::Translate(Float dx,
+                                                     Float dy,
+                                                     Float dz) {
   return Translate(Vector3{dx, dy, dz});
 }
 
-MatrixTransformation MatrixTransformation::Rotate(basic_vector<double, 3> axis,
-                                                  double costheta,
-                                                  double sintheta) {
+MatrixTransformation MatrixTransformation::Rotate(basic_vector<Float, 3> axis,
+                                                  Float costheta,
+                                                  Float sintheta) {
   axis = axis.normalised();
 
-  auto R = [](const basic_vector<double, 3>& axis, double costheta,
-              double sintheta) {
-    const double nx = axis.x(), ny = axis.y(), nz = axis.z();
+  auto R = [](const basic_vector<Float, 3>& axis, Float costheta,
+              Float sintheta) {
+    const Float nx = axis.x(), ny = axis.y(), nz = axis.z();
     return Matrix4{nx * nx * (1 - costheta) + costheta,
                    nx * ny * (1 - costheta) + nz * sintheta,
                    nx * nz * (1 - costheta) - ny * sintheta,
@@ -149,31 +149,31 @@ MatrixTransformation MatrixTransformation::Rotate(basic_vector<double, 3> axis,
   return MatrixTransformation(RotateMat, RotateMatInv);
 }
 MatrixTransformation MatrixTransformation::Rotate(
-    const basic_vector<double, 3>& axis,
-    double theta) {
-  double costheta = cos(theta);
-  double sintheta = sin(theta);
+    const basic_vector<Float, 3>& axis,
+    Float theta) {
+  Float costheta = cos(theta);
+  Float sintheta = sin(theta);
   return Rotate(axis, costheta, sintheta);
 }
-MatrixTransformation MatrixTransformation::RotateX(double theta) {
+MatrixTransformation MatrixTransformation::RotateX(Float theta) {
   return Rotate(Vector3{1, 0, 0}, theta);
 }
-MatrixTransformation MatrixTransformation::RotateX(double costheta,
-                                                   double sintheta) {
+MatrixTransformation MatrixTransformation::RotateX(Float costheta,
+                                                   Float sintheta) {
   return Rotate(Vector3{1, 0, 0}, costheta, sintheta);
 }
-MatrixTransformation MatrixTransformation::RotateY(double theta) {
+MatrixTransformation MatrixTransformation::RotateY(Float theta) {
   return Rotate(Vector3{0, 1, 0}, theta);
 }
-MatrixTransformation MatrixTransformation::RotateY(double costheta,
-                                                   double sintheta) {
+MatrixTransformation MatrixTransformation::RotateY(Float costheta,
+                                                   Float sintheta) {
   return Rotate(Vector3{0, 1, 0}, costheta, sintheta);
 }
-MatrixTransformation MatrixTransformation::RotateZ(double theta) {
+MatrixTransformation MatrixTransformation::RotateZ(Float theta) {
   return Rotate(Vector3{0, 0, 1}, theta);
 }
-MatrixTransformation MatrixTransformation::RotateZ(double costheta,
-                                                   double sintheta) {
+MatrixTransformation MatrixTransformation::RotateZ(Float costheta,
+                                                   Float sintheta) {
   return Rotate(Vector3{0, 0, 1}, costheta, sintheta);
 }
 
@@ -234,11 +234,11 @@ MatrixTransformation MatrixTransformation::AlignXYZ(
   return MatrixTransformation::AlignXYZ(basis.x(), basis.y(), basis.z());
 }
 
-MatrixTransformation MatrixTransformation::Scale(double x, double y, double z) {
+MatrixTransformation MatrixTransformation::Scale(Float x, Float y, Float z) {
   return MatrixTransformation::Scale(Vector3{x, y, z});
 }
 MatrixTransformation MatrixTransformation::Scale(Vector3 n) {
-  auto ScaleMat = [](double kx, double ky, double kz) {
+  auto ScaleMat = [](Float kx, Float ky, Float kz) {
     return Matrix4{kx, 0, 0, 0, 0, ky, 0, 0, 0, 0, kz, 0, 0, 0, 0, 1};
   };
 
@@ -247,9 +247,9 @@ MatrixTransformation MatrixTransformation::Scale(Vector3 n) {
 
   return MatrixTransformation(mat, matinv);
 }
-MatrixTransformation MatrixTransformation::Scale(Vector3 n, double k) {
-  auto ScaleMat = [](const Vector3& n, double k) {
-    const double nx = n.x(), ny = n.y(), nz = n.z();
+MatrixTransformation MatrixTransformation::Scale(Vector3 n, Float k) {
+  auto ScaleMat = [](const Vector3& n, Float k) {
+    const Float nx = n.x(), ny = n.y(), nz = n.z();
     --k;
     return Matrix4{1 + k * nx * nx,
                    k * nx * ny,
@@ -318,37 +318,37 @@ Quaternion Quaternion::operator*(const Quaternion& rhs) const {
                     v.Cross(rhs.v) + s * rhs.v + rhs.s * v);
 }
 
-Quaternion Quaternion::operator*(double r) const {
+Quaternion Quaternion::operator*(Float r) const {
   return Quaternion(r * s, r * v);
 }
 
-Quaternion Quaternion::operator/(double r) const {
+Quaternion Quaternion::operator/(Float r) const {
   return Quaternion(s / r, v / r);
 }
 
 Quaternion Quaternion::conj(void) const { return Quaternion(s, -v); }
 
-double Quaternion::sqrnorm(void) const { return this->Dot(*this); }
-double Quaternion::norm(void) const { return sqrt(this->Dot(*this)); }
+Float Quaternion::sqrnorm(void) const { return this->Dot(*this); }
+Float Quaternion::norm(void) const { return sqrt(this->Dot(*this)); }
 
-double Quaternion::Dot(const Quaternion& rhs) const {
+Float Quaternion::Dot(const Quaternion& rhs) const {
   return s * rhs.s + v.Dot(rhs.v);
 }
 
 Quaternion Quaternion::inv(void) const { return conj() / sqrnorm(); }
 
 // --------------------------------------------------------------------------------
-basic_vector<double, 3> QuaternionTransform::Doit_impl(
-    const basic_vector<double, 3>& it) const {
+basic_vector<Float, 3> QuaternionTransform::Doit_impl(
+    const basic_vector<Float, 3>& it) const {
   auto p = Quaternion(0, it.x(), it.y(), it.z());
   p = q * p * qinv;
-  return (basic_vector<double, 3>)p.v;
+  return (basic_vector<Float, 3>)p.v;
 }
-basic_vector<double, 3> QuaternionTransform::Undo_impl(
-    const basic_vector<double, 3>& it) const {
+basic_vector<Float, 3> QuaternionTransform::Undo_impl(
+    const basic_vector<Float, 3>& it) const {
   auto p = Quaternion(0, it.x(), it.y(), it.z());
   p = qinv * p * q;
-  return (basic_vector<double, 3>)p.v;
+  return (basic_vector<Float, 3>)p.v;
 }
 Point3 QuaternionTransform::Doit(Point3 pt) const {
   return (Point3)Doit_impl(pt);
@@ -371,8 +371,8 @@ Normal QuaternionTransform::Undo(Normal n) const {
 
 // requires normalized n
 QuaternionTransform QuaternionTransform::Rotate(
-    const basic_vector<double, 3>& n,
-    double theta) {
+    const basic_vector<Float, 3>& n,
+    Float theta) {
   assert(n.normalised() == n);
   theta *= -0.5;
   auto q = Quaternion(cos(theta), sin(theta) * n);
@@ -398,7 +398,7 @@ QuaternionTransform QuaternionTransform::RotateFrTo(Vector3 fr, Vector3 to) {
     return Rotate(axis.Normalized(), M_PI);
   }
 
-  double theta = acos(fr.Dot(to));
+  Float theta = acos(fr.Dot(to));
   auto axis = fr.Cross(to).Normalized();
   return QuaternionTransform::Rotate(axis, -theta);
 }
@@ -414,11 +414,11 @@ QuaternionTransform QuaternionTransform::RotateFrTo(Vector3 fr, Vector3 to) {
 QuaternionTransform QuaternionTransform::AlignXYZ(Vector3 i,
                                                   Vector3 j,
                                                   Vector3 k) {
-  double w = sqrt(1 + i.x() + j.y() + k.z()) / 2;
-  double wquarter = 1.0 / (4 * w);
-  double x = (j.z() - k.y()) * wquarter;
-  double y = (k.x() - i.z()) * wquarter;
-  double z = (i.y() - j.x()) * wquarter;
+  Float w = sqrt(1 + i.x() + j.y() + k.z()) / 2;
+  Float wquarter = 1.0 / (4 * w);
+  Float x = (j.z() - k.y()) * wquarter;
+  Float y = (k.x() - i.z()) * wquarter;
+  Float z = (i.y() - j.x()) * wquarter;
 
   auto q = Quaternion(w, x, y, z);
   q /= q.norm();

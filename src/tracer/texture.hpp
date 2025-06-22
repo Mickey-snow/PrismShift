@@ -18,19 +18,19 @@ class SolidColor : public ITexture<Color> {
   Color col_;
 
  public:
-  SolidColor(double r, double g, double b) : SolidColor(Color(r, g, b)) {}
+  SolidColor(Float r, Float g, Float b) : SolidColor(Color(r, g, b)) {}
   SolidColor(Color col = {}) : col_(col) {}
 
   Color Evaluate(Point2) const override { return col_; }
 };
 
-class FloatConst : public ITexture<double> {
-  double val_;
+class FloatConst : public ITexture<Float> {
+  Float val_;
 
  public:
-  constexpr FloatConst(double v) : val_(v) {}
+  constexpr FloatConst(Float v) : val_(v) {}
 
-  double Evaluate(Point2) const override { return val_; }
+  Float Evaluate(Point2) const override { return val_; }
 };
 
 class ImageTexture : public ITexture<Color> {

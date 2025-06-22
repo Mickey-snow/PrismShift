@@ -22,7 +22,7 @@ class BVT {
          size_t end,
          int axis = 0);
 
-    HitRecord Hit(const Ray&, const Interval<double>&) const;
+    HitRecord Hit(const Ray&, const Interval<Float>&) const;
     AABB GetBbox(void) const noexcept { return bbox; }
 
     using var_t =
@@ -35,7 +35,7 @@ class BVT {
   BVT(const std::vector<std::shared_ptr<Primitive>>& li);
 
   AABB GetBbox(void) const { return bbox; }
-  HitRecord Hit(const Ray&, const Interval<double>&) const;
+  HitRecord Hit(const Ray&, const Interval<Float>&) const;
 
  private:
   AABB bbox;

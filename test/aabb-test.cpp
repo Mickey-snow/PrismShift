@@ -14,15 +14,15 @@
 class aabbTest : public ::testing::Test {
  protected:
   void SetUp() {
-    Interval<double> np1(-1, 1);
+    Interval<Float> np1(-1, 1);
     unit = AABB(np1, np1, np1);
 
-    universe = AABB(Interval<double>::Universe(), Interval<double>::Universe(),
-                    Interval<double>::Universe());
+    universe = AABB(Interval<Float>::Universe(), Interval<Float>::Universe(),
+                    Interval<Float>::Universe());
 
     b1 = AABB(Point3(-0.5, -1, -1), Point3(0.5, 1, 1));
-    b2 = AABB(Interval<double>::Universe(), Interval<double>::Empty,
-              Interval<double>::Universe());
+    b2 = AABB(Interval<Float>::Universe(), Interval<Float>::Empty,
+              Interval<Float>::Universe());
   }
 
   AABB empty, universe;
@@ -31,7 +31,7 @@ class aabbTest : public ::testing::Test {
 
   testing::AssertionResult CheckIntersect(const AABB& box,
                                           const Ray& r,
-                                          const Interval<double>& interval) {
+                                          const Interval<Float>& interval) {
     if (box.isHitIn(r, interval))
       return testing::AssertionSuccess()
              << "Ray r=" << r << " hits bbox b=" << box << " in time interval "
@@ -47,13 +47,13 @@ TEST_F(aabbTest, rayIntersectHit) {
   Ray r;
   for (const auto& box : {unit, universe}) {
     r = Ray(Point3(0, -3, 0), Point3(1, 0, 0) - Point3(0, -3, 0));
-    EXPECT_TRUE(CheckIntersect(box, r, Interval<double>::Positive()));
+    EXPECT_TRUE(CheckIntersect(box, r, Interval<Float>::Positive()));
 
     r = Ray(Point3(0, -2, 0), Point3(1.999, 0, 0) - Point3(0, -2, 0));
-    EXPECT_TRUE(CheckIntersect(box, r, Interval<double>::Positive()));
+    EXPECT_TRUE(CheckIntersect(box, r, Interval<Float>::Positive()));
 
     r = Ray(Point3(3, -4, 8), Vector3(-3, 4, -8));
-    EXPECT_TRUE(CheckIntersect(box, r, Interval<double>::Positive()));
+    EXPECT_TRUE(CheckIntersect(box, r, Interval<Float>::Positive()));
   }
 }
 
@@ -61,7 +61,7 @@ TEST_F(aabbTest, rayIntersectNoHit) {
   Ray r;
   for (const auto& box : {b1, b2}) {
     r = Ray(Point3(0, -2, 0), Point3(2, 0, 0) - Point3(0, -2, 0));
-    EXPECT_FALSE(box.isHitIn(r, Interval<double>::Positive()))
+    EXPECT_FALSE(box.isHitIn(r, Interval<Float>::Positive()))
         << r.Origin() << ' ' << r.Direction();
 
     r = Ray(Point3(2, 2, 2), Vector3(1, 1, 1));
@@ -78,14 +78,14 @@ TEST_F(aabbTest, parallelRayHit) {
   const AABB& box = unit;
 
   Ray r(Point3(-3, 0, 0), Vector3(-1, 0, 0));
-  EXPECT_TRUE(box.isHitIn(r, Interval<double>{-1e10, 1e10}))
+  EXPECT_TRUE(box.isHitIn(r, Interval<Float>{-1e10, 1e10}))
       << r.Origin() << ' ' << r.Direction();
 
   r = Ray(Point3(0, -3, 0), Vector3(0, 1, 0));
-  EXPECT_TRUE(box.isHitIn(r, Interval<double>::Positive()))
+  EXPECT_TRUE(box.isHitIn(r, Interval<Float>::Positive()))
       << r.Origin() << ' ' << r.Direction();
   r = Ray(Point3(0.5, 0.5, 3), Vector3(0, 0, -0.5));
-  EXPECT_TRUE(box.isHitIn(r, Interval<double>::Positive()))
+  EXPECT_TRUE(box.isHitIn(r, Interval<Float>::Positive()))
       << r.Origin() << ' ' << r.Direction();
 }
 
@@ -93,15 +93,15 @@ TEST_F(aabbTest, parallelRayNoHit) {
   const AABB& box = unit;
 
   Ray r(Point3(-3, 0, 1.001), Vector3(-1, 0, 0));
-  EXPECT_FALSE(box.isHitIn(r, Interval<double>::Positive()))
+  EXPECT_FALSE(box.isHitIn(r, Interval<Float>::Positive()))
       << r.Origin() << ' ' << r.Direction();
 
   r = Ray(Point3(2, -3, 1), Vector3(0, 1, 0));
-  EXPECT_FALSE(box.isHitIn(r, Interval<double>::Positive()))
+  EXPECT_FALSE(box.isHitIn(r, Interval<Float>::Positive()))
       << r.Origin() << ' ' << r.Direction();
 
   r = Ray(Point3(1.5, 0.5, 3), Vector3(0, 0, -0.5));
-  EXPECT_FALSE(box.isHitIn(r, Interval<double>::Positive()))
+  EXPECT_FALSE(box.isHitIn(r, Interval<Float>::Positive()))
       << r.Origin() << ' ' << r.Direction();
 }
 
@@ -200,7 +200,7 @@ TEST_P(aabbTransformTest, approxInsideCube) {
   std::vector<Point3> v;
   const int points_per_face = 100;
   for (int axis = 0; axis < 3; ++axis)
-    for (double i : {-1.0, 1.0})
+    for (Float i : {-1.0, 1.0})
       std::generate_n(std::back_inserter(v), points_per_face, [&axis, &i]() {
         Point3 p = (Point3)Vector3::Random(-1, 1);
         p[axis] = i;
@@ -212,7 +212,7 @@ TEST_P(aabbTransformTest, approxInsideCube) {
 TEST_P(aabbTransformTest, approxOutsideCube) {
   const int points_per_face = 100;
   for (int axis = 0; axis < 3; ++axis)
-    for (double i : {-1.01, 1.01})
+    for (Float i : {-1.01, 1.01})
       for (int cnt = 0; cnt < points_per_face; ++cnt) {
         Point3 p = (Point3)Vector3::Random(-1, 1);
         p[axis] = i;

@@ -2,7 +2,7 @@
 
 #include "util/vecmath.hpp"
 
-class Color : public basic_vector<double, 3> {
+class Color : public basic_vector<Float, 3> {
  private:
   using super = basic_vector;
 
@@ -11,7 +11,7 @@ class Color : public basic_vector<double, 3> {
   using value_type = typename super::value_type;
   static constexpr auto dimension = super::dimension;
 
-  explicit constexpr Color(double c) : super(c, c, c) {}
+  explicit constexpr Color(Float c) : super(c, c, c) {}
   explicit constexpr Color(vector_like auto c) : super(std::move(c)) {}
 
   inline constexpr value_type r() const { return v[0]; }
@@ -56,10 +56,10 @@ class Color : public basic_vector<double, 3> {
     return *this = *this / rhs;
   }
 
-  static constexpr Color Lerp(const Color& c1, const Color& c2, double t) {
+  static constexpr Color Lerp(const Color& c1, const Color& c2, Float t) {
     return Color(std::lerp(c1.x(), c2.x(), t), std::lerp(c1.y(), c2.y(), t),
                  std::lerp(c1.z(), c2.z(), t));
   }
 };
 
-Color Format_Color(const Color& pixel_color, const double& scale = 255.0);
+Color Format_Color(const Color& pixel_color, const Float& scale = 255.0);

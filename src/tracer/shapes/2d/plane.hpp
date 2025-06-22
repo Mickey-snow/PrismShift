@@ -8,7 +8,7 @@ class Plane : public IShape {
 
   AABB GetBbox(void) const override;
   HitRecord Hit(const Ray& ray,
-                const Interval<double>& interval) const override;
+                const Interval<Float>& interval) const override;
 
  private:
   MatrixTransformation trans_;

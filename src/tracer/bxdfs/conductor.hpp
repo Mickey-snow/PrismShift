@@ -12,11 +12,11 @@ class Conductor : public BxDF {
 
   Color f(const Vector3& wi, const Vector3& wo) const override;
   std::optional<bxdfSample> Sample_f(const Vector3& wi) const override;
-  double pdf(const Vector3& wi, const Vector3& wo) const override;
+  Float pdf(const Vector3& wi, const Vector3& wo) const override;
 
  private:
   TrowbridgeReitzDistribution mfdist_;
-  double fuzz_;
+  Float fuzz_;
   Color col_;
 };
 

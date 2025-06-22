@@ -7,7 +7,7 @@
 
 template <>
 Vector<3> Vector<3>::Random_Unit(void) {
-  double x, y, z, pi = std::numbers::pi;
+  Float x, y, z, pi = std::numbers::pi;
   auto r1 = random_uniform_01(), r2 = random_uniform_01();
   x = cos(2 * pi * r1) * 2 * std::sqrt(r2 * (1 - r2));
   y = sin(2 * pi * r1) * 2 * std::sqrt(r2 * (1 - r2));
@@ -15,7 +15,7 @@ Vector<3> Vector<3>::Random_Unit(void) {
   return Vector<3>{x, y, z};
 }
 template <>
-Vector<3> Vector<3>::Random(const double& min, const double& max) {
+Vector<3> Vector<3>::Random(const Float& min, const Float& max) {
   return Vector<3>{random_double(min, max), random_double(min, max),
                    random_double(min, max)};
 }

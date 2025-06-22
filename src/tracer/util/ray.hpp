@@ -22,7 +22,7 @@ struct Ray {
     return *this;
   }
 
-  Point3 At(const double&) const;
+  Point3 At(const Float&) const;
 
   Ray Transform(const ITransformation&) const;
   Ray UndoTransform(const ITransformation&) const;

@@ -14,10 +14,10 @@ class AABB {
   // All rays miss this cube thus miss the object
  public:
   explicit constexpr AABB()
-      : x_interval(Interval<double>::Empty),
-        y_interval(Interval<double>::Empty),
-        z_interval(Interval<double>::Empty) {}
-  constexpr AABB(Interval<double> x, Interval<double> y, Interval<double> z)
+      : x_interval(Interval<Float>::Empty),
+        y_interval(Interval<Float>::Empty),
+        z_interval(Interval<Float>::Empty) {}
+  constexpr AABB(Interval<Float> x, Interval<Float> y, Interval<Float> z)
       : x_interval(std::move(x)),
         y_interval(std::move(y)),
         z_interval(std::move(z)) {}
@@ -32,10 +32,10 @@ class AABB {
            z_interval == rhs.Axis(2);
   }
 
-  const Interval<double>& Axis(const int& n) const;
+  const Interval<Float>& Axis(const int& n) const;
 
   bool isEmpty() const;
-  bool isHitIn(const Ray&, Interval<double>) const;
+  bool isHitIn(const Ray&, Interval<Float>) const;
   bool Contains(const Point3&) const;
   bool Contains(const AABB&) const;
 
@@ -63,7 +63,7 @@ class AABB {
   }
 
  private:
-  Interval<double> x_interval, y_interval, z_interval;
+  Interval<Float> x_interval, y_interval, z_interval;
 };
 
 static_assert(Transformable<AABB>);

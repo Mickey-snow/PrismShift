@@ -50,9 +50,9 @@ inline Point3 parse_point3(const json& arr,
                            std::size_t offset,
                            std::string_view ctx) {
   expect_array_size(arr, offset + 3, ctx);
-  return {expect_number<double>(arr[offset + 0], ctx),
-          expect_number<double>(arr[offset + 1], ctx),
-          expect_number<double>(arr[offset + 2], ctx)};
+  return {expect_number<Float>(arr[offset + 0], ctx),
+          expect_number<Float>(arr[offset + 1], ctx),
+          expect_number<Float>(arr[offset + 2], ctx)};
 }
 
 }  // namespace
@@ -65,8 +65,8 @@ Camera SceneFactory::parse_camera(const json& r) {
   Point3 center = parse_point3(r, 0, ctx);
   Point3 look_at = parse_point3(r, 3, ctx);
   int image_h = expect_number<int>(r[6], "camera.image_h");
-  double aspect = expect_number<double>(r[7], "camera.aspect");
-  double vFovDeg = expect_number<double>(r[8], "camera.vFovDeg");
+  Float aspect = expect_number<Float>(r[7], "camera.aspect");
+  Float vFovDeg = expect_number<Float>(r[8], "camera.vFovDeg");
 
   return Camera(center, look_at, image_h, aspect, vFovDeg);
 }
@@ -121,7 +121,7 @@ void SceneFactory::parse_textures(const json& array) {
 
     } else if (type_s == "float") {
       texture =
-          static_cast<Texture<double>>(make_texture(it.at("v").get<double>()));
+          static_cast<Texture<Float>>(make_texture(it.at("v").get<Float>()));
 
     } else if (type_s == "image") {
       std::filesystem::path path = it.at("path").get<std::string>();
@@ -153,8 +153,8 @@ void SceneFactory::parse_materials(const json& array) {
       Texture<Color> col = resolve_color_texture(it.at("albedo"));
       const json& v = it.at("rough");
       expect_array_size(v, 1, "conductor.rough");
-      Texture<double> uR = resolve_float_texture(v.at(0));
-      Texture<double> vR = uR;
+      Texture<Float> uR = resolve_float_texture(v.at(0));
+      Texture<Float> vR = uR;
       if (v.size() >= 2)
         vR = resolve_float_texture(v.at(1));
       mat = std::make_shared<ConductorMaterial>(std::move(col), std::move(uR),
@@ -165,11 +165,11 @@ void SceneFactory::parse_materials(const json& array) {
       mat = std::make_shared<DiffuseMaterial>(std::move(albedo));
 
     } else if (type_s == "dielectric") {
-      Texture<double> eta = resolve_float_texture(it.at("eta"));
+      Texture<Float> eta = resolve_float_texture(it.at("eta"));
       const json& v = it.at("rough");
       expect_array_size(v, 1, "dielectric.rough");
-      Texture<double> uR = resolve_float_texture(v.at(0));
-      Texture<double> vR = uR;
+      Texture<Float> uR = resolve_float_texture(v.at(0));
+      Texture<Float> vR = uR;
       mat = std::make_shared<DielectricMaterial>(std::move(eta), std::move(uR),
                                                  std::move(vR));
 
@@ -178,7 +178,7 @@ void SceneFactory::parse_materials(const json& array) {
       expect_array_size(v, 2, "mix.data");
       std::shared_ptr<IMaterial> mat1 = resolve_mat(v[0]),
                                  mat2 = resolve_mat(v[1]);
-      double fac = expect_number<double>(it.at("fac"), "mix.fac");
+      Float fac = expect_number<Float>(it.at("fac"), "mix.fac");
       mat = std::make_shared<MixedMaterial>(mat1, mat2, fac);
     } else {
       throw SCENE_ERROR(ctx, "unknown material type '" + type_s +
@@ -212,9 +212,9 @@ void SceneFactory::parse_lights(const json& array) {
     expect_array_size(v, 3, "light data");
 
     auto light = std::make_shared<Light>(
-        Color(expect_number<double>(v[0], "light.color[0]"),
-              expect_number<double>(v[1], "light.color[1]"),
-              expect_number<double>(v[2], "light.color[2]")));
+        Color(expect_number<Float>(v[0], "light.color[0]"),
+              expect_number<Float>(v[1], "light.color[1]"),
+              expect_number<Float>(v[2], "light.color[2]")));
 
     if (it.contains("name") && it["name"].is_string())
       light_map_[it["name"].get<std::string>()] = light;
@@ -253,7 +253,7 @@ void SceneFactory::parse_objects(const json& array) {
       expect_array_size(v, 4, "sphere data");
       add_object(
           MakePrimitive<Sphere>(mat, light, parse_point3(v, 0, "sphere.center"),
-                                expect_number<double>(v[3], "sphere.radius")));
+                                expect_number<Float>(v[3], "sphere.radius")));
 
     } else if (type_s == "plane") {
       expect_array_size(v, 9, "plane data");
@@ -302,7 +302,7 @@ void SceneFactory::parse_objects(const json& array) {
 }
 
 // ------------------------------------------------------------------------------
-std::shared_ptr<ITexture<double>> SceneFactory::resolve_float_texture(
+std::shared_ptr<ITexture<Float>> SceneFactory::resolve_float_texture(
     const json& r) {
   if (r.is_array())  // one number, float const
     return std::make_shared<FloatConst>(r.at(0));
@@ -323,7 +323,7 @@ std::shared_ptr<ITexture<double>> SceneFactory::resolve_float_texture(
     throw SCENE_ERROR("float-texture", "out of bounds: " + std::to_string(idx));
 
   try {
-    return std::any_cast<Texture<double>>(textures_[idx]);
+    return std::any_cast<Texture<Float>>(textures_[idx]);
   } catch (std::bad_any_cast& e) {
     throw SCENE_ERROR("float-texture", "texture type is not float");
   }

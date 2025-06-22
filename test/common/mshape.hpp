@@ -11,7 +11,7 @@ class mShape : public IShape {
 
   MOCK_METHOD(HitRecord,
               Hit,
-              (const Ray& r, const Interval<double>& period),
+              (const Ray& r, const Interval<Float>& period),
               (const, override));
   MOCK_METHOD(AABB, GetBbox, (), (const, override));
 };

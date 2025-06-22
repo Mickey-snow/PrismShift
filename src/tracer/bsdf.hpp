@@ -37,7 +37,7 @@ class BxDF;
 struct bxdfSample {
   Color f;
   Vector3 wo;
-  double pdf;
+  Float pdf;
   BxDFBits flag;
 };
 
@@ -56,7 +56,7 @@ class BxDF {
 
   // returns the value of the probability density function for the given pair of
   // directions
-  virtual double pdf(const Vector3& wi, const Vector3& wo) const = 0;
+  virtual Float pdf(const Vector3& wi, const Vector3& wo) const = 0;
 
   bool MatchesFlag(BxDFBits flag) const {
     return (this->flag & flag) != BxDFBits::None;
@@ -82,7 +82,7 @@ class BSDF {
 
   Color f(Vector3 wi, Vector3 wo, BxDFBits flag = BxDFBits::All) const;
   std::optional<bxdfSample> Sample_f(Vector3 wi) const;
-  double pdf(Vector3 wi, Vector3 wo, BxDFBits flag = BxDFBits::All) const;
+  Float pdf(Vector3 wi, Vector3 wo, BxDFBits flag = BxDFBits::All) const;
   bool MatchesFlag(BxDFBits flag) const;
 
  private:

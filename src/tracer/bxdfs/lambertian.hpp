@@ -79,7 +79,7 @@ class Lambertian : public BxDF {
    * @param wo  Outgoing direction (unit vector).
    * @return PDF value.
    */
-  double pdf(const Vector3& wi, const Vector3& wo) const override;
+  Float pdf(const Vector3& wi, const Vector3& wo) const override;
 
  private:
   Color col;  ///< Surface albedo color \f$\rho\f$.

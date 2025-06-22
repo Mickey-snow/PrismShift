@@ -71,15 +71,15 @@ std::shared_ptr<ImageTexture> ImageTexture::Create(std::filesystem::path path) {
 }
 
 Color ImageTexture::Evaluate(Point2 uv) const {
-  double x = uv.x() * (w_ - 1);
-  double y = uv.y() * (h_ - 1);
+  Float x = uv.x() * (w_ - 1);
+  Float y = uv.y() * (h_ - 1);
 
   int x0 = int(x);
   int y0 = int(y);
   int x1 = std::min(x0 + 1, w_ - 1);
   int y1 = std::min(y0 + 1, h_ - 1);
-  double tx = x - x0;
-  double ty = y - y0;
+  Float tx = x - x0;
+  Float ty = y - y0;
 
   Color c00 = Texel(x0, y0);
   Color c10 = Texel(x1, y0);

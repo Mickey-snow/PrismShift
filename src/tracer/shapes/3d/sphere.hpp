@@ -5,14 +5,14 @@
 
 class Sphere : public IShape {
  public:
-  Sphere(Point3 o, double r);
+  Sphere(Point3 o, Float r);
 
   Point2 GetUv(Point3 p) const;
 
   AABB GetBbox(void) const override;
-  HitRecord Hit(const Ray& r, const Interval<double>& time) const override;
+  HitRecord Hit(const Ray& r, const Interval<Float>& time) const override;
   ShapeSample Sample() const override;
-  double Area() const override;
+  Float Area() const override;
 
   // for testing
   inline auto GetTransformation() const { return trans_; }
@@ -20,6 +20,6 @@ class Sphere : public IShape {
 
  private:
   VectorTranslate trans_;
-  double r_;
+  Float r_;
   AABB bbox_;
 };

@@ -9,15 +9,15 @@ namespace bxdfs {
 class Dielectric : public BxDF {
  public:
   explicit Dielectric(
-      double eta,
+      Float eta,
       TrowbridgeReitzDistribution mfdist = TrowbridgeReitzDistribution(0, 0));
 
   Color f(const Vector3& wi, const Vector3& wo) const override;
   std::optional<bxdfSample> Sample_f(const Vector3& wi) const override;
-  double pdf(const Vector3& wi, const Vector3& wo) const override;
+  Float pdf(const Vector3& wi, const Vector3& wo) const override;
 
  private:
-  double eta;
+  Float eta;
   TrowbridgeReitzDistribution mfdist_;
 };
 

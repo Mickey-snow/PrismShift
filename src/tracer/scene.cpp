@@ -7,7 +7,7 @@
 Scene::Scene(std::vector<std::shared_ptr<Primitive>> objs)
     : objs_(std::move(objs)), aggregator_(std::make_unique<BVT>(objs_)) {}
 
-HitRecord Scene::Hit(Ray r, Interval<double> time) const {
+HitRecord Scene::Hit(Ray r, Interval<Float> time) const {
   return aggregator_->Hit(r, time);
 }
 

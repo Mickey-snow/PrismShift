@@ -17,15 +17,15 @@ AABB Triangle::GetBbox() const {
   return box.Transform(trans_);
 }
 
-inline static auto OnObject(double a, double b) {
+inline static auto OnObject(Float a, Float b) {
   return (a + b) <= 1 && 0 <= a && 0 <= b;
 }
 
 HitRecord Triangle::Hit(const Ray& ray,
-                        const Interval<double>& time_interval) const {
+                        const Interval<Float>& time_interval) const {
   Ray r = ray.UndoTransform(trans_);
 
-  double time = -r.Origin().y() / r.Direction().y();
+  Float time = -r.Origin().y() / r.Direction().y();
   if (std::isnan(time))
     return HitRecord();
   if (!time_interval.Surrounds(time))
@@ -44,7 +44,7 @@ HitRecord Triangle::Hit(const Ray& ray,
 ShapeSample Triangle::Sample() const {
   ShapeSample sample;
   sample.pdf = 1.0 / area_;
-  double a = random_uniform_01(), b = random_uniform_01();
+  Float a = random_uniform_01(), b = random_uniform_01();
   if (!OnObject(a, b)) {
     a = 1 - a;
     b = 1 - b;
@@ -54,4 +54,4 @@ ShapeSample Triangle::Sample() const {
   return sample;
 }
 
-double Triangle::Area() const { return area_; }
+Float Triangle::Area() const { return area_; }

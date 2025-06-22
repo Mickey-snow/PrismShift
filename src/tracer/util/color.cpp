@@ -5,11 +5,11 @@
 
 #include <cmath>
 
-inline static double Linear2Gamma(double linear_component) {
+inline static Float Linear2Gamma(Float linear_component) {
   return std::pow(linear_component, 1.0 / 2.2);
 }
 
-Color Format_Color(const Color& pixel_color, const double& scale) {
+Color Format_Color(const Color& pixel_color, const Float& scale) {
   auto r = pixel_color.x();
   auto g = pixel_color.y();
   auto b = pixel_color.z();

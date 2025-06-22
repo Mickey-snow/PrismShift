@@ -19,7 +19,7 @@ class Scene {
   Scene(Scene&&) noexcept = default;
   Scene& operator=(Scene&&) noexcept = default;
 
-  HitRecord Hit(Ray ray, Interval<double> interval) const;
+  HitRecord Hit(Ray ray, Interval<Float> interval) const;
   AABB GetBbox(void) const;
   void SetBackground(std::function<Color(Ray)> fn);
   Color Background(Ray ray) const;

@@ -89,7 +89,7 @@ TEST_F(DielectricTest, RoughfAndpdf) {
 }
 
 TEST_F(DielectricTest, ReflectAndRefract) {
-  const double eta = 1.6;
+  const Float eta = 1.6;
   Dielectric glass(eta);
 
   int reflects = 0, refracts = 0;
@@ -107,7 +107,7 @@ TEST_F(DielectricTest, ReflectAndRefract) {
           << wi << ' ' << wo;  // theta_r = theta_i
     } else {                   // refract
       ++refracts;
-      const double e = wi.y() < 0 ? eta : 1.0 / eta;
+      const Float e = wi.y() < 0 ? eta : 1.0 / eta;
       EXPECT_NEAR(std::sqrt(1.0 - wi.y() * wi.y()),
                   e * std::sqrt(1.0 - wo.y() * wo.y()), kEps)
           << wi << ' ' << wo;
@@ -122,14 +122,14 @@ TEST_F(DielectricTest, PdfBsdfConsistency) {
   // check that
   // \int f(wi,wo)|cos(wo)| / pdf = 1
 
-  double mean = 0;
+  Float mean = 0;
   int N = 10000, valid = 0;
   for (int i = 0; i < N; ++i) {
     Vector3 wi = rand_sphere_uniform();
     if (auto s = rough.Sample_f(wi)) {
       ++valid;
 
-      double ratio = s->f[0] * AbsCosTheta(s->wo) / s->pdf;  // use red channel
+      Float ratio = s->f[0] * AbsCosTheta(s->wo) / s->pdf;  // use red channel
       mean += std::fabs(ratio - 1);
     }
   }
@@ -143,29 +143,29 @@ TEST_F(DielectricTest, PdfNormalisation) {
   // \int pdf(wi,wo) dwi = 1
 
   static constexpr int N = 10000;
-  double s = 0;
+  Float s = 0;
   Vector3 wi = Vector3(0, -1, 0) + 0.1 * rand_sphere_uniform();
   wi = wi.Normalized();
   for (int i = 0; i < N; ++i) {
     Vector3 wo = rand_sphere_uniform();
-    double pdf = rough.pdf(wi, wo);
+    Float pdf = rough.pdf(wi, wo);
     s += pdf;
   }
-  double estimate = (4 * pi) * s / N;
+  Float estimate = (4 * pi) * s / N;
   EXPECT_NEAR(estimate, 1, 0.25);
 }
 
 TEST_F(DielectricTest, EnergyConservation) {
   static constexpr int K = 32, M = 10000;
 
-  double reflected = 0, transmitted = 0;
+  Float reflected = 0, transmitted = 0;
   for (int k = 0; k < K; ++k) {  // incident directions
     Vector3 wi = Vector3(0, -1, 0) + 0.1 * rand_sphere_uniform();
     wi = wi.Normalized();
 
     for (int j = 0; j < M; ++j) {  // integrate over wo
       if (auto samp = rough.Sample_f(wi)) {
-        double cos_o = AbsCosTheta(samp->wo);
+        Float cos_o = AbsCosTheta(samp->wo);
         if (SameHemisphere(wi, samp->wo))
           reflected += samp->f[0] * cos_o / samp->pdf;
         else

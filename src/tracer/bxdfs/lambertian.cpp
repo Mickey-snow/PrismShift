@@ -19,7 +19,7 @@ std::optional<bxdfSample> Lambertian::Sample_f(const Vector3& wi) const {
                     BxDFBits::Diffuse | BxDFBits::Reflection);
 }
 
-double Lambertian::pdf(const Vector3& wi, const Vector3& wo) const {
+Float Lambertian::pdf(const Vector3& wi, const Vector3& wo) const {
   if (!SameHemisphere(wi, wo))
     return 0;
   return std::fabs(wo.y()) * invpi;

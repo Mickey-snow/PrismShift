@@ -16,13 +16,13 @@
 #include <vector>
 #include "spdlog/spdlog.h"
 
-static inline double absCosTheta(Vector3 wi, Normal n) {
+static inline Float absCosTheta(Vector3 wi, Normal n) {
   return std::abs(wi.Dot(n));
 }
 
-static constexpr double PowerHeuristic(double pdf_a, double pdf_b) {
-  double a2 = pdf_a * pdf_a;
-  double b2 = pdf_b * pdf_b;
+static constexpr Float PowerHeuristic(Float pdf_a, Float pdf_b) {
+  Float a2 = pdf_a * pdf_a;
+  Float b2 = pdf_b * pdf_b;
   return (a2 == 0.0 && b2 == 0.0) ? 0.0 : a2 / (a2 + b2);
 }
 
@@ -41,7 +41,7 @@ Color Integrator::Li(Ray r, int depth) {
   if (depth >= max_depth_)
     return Color(0);
 
-  HitRecord rec = scene_.Hit(r, Interval<double>::Positive());
+  HitRecord rec = scene_.Hit(r, Interval<Float>::Positive());
   if (!rec.hits)
     return scene_.Background(r);
 
@@ -62,7 +62,7 @@ Color Integrator::Li(Ray r, int depth) {
 
   // Direct lighting via light sampling
   auto sample_light = [&]() -> Color {
-    static constexpr double EPS = 1e-6;
+    static constexpr Float EPS = 1e-6;
 
     // randomly pick one light
     size_t idx = std::min<size_t>(random_uniform_01() * lights_.size(),
@@ -74,23 +74,23 @@ Color Integrator::Li(Ray r, int depth) {
     if (samp.pdf <= EPS)
       return Color(0);
     Vector3 wo = samp.pos - rec.position;
-    double dist_sq = wo.Length_squared();
+    Float dist_sq = wo.Length_squared();
     wo = wo.Normalized();
-    const double shading_cos = absCosTheta(wo, rec.normal);
-    const double light_cos = absCosTheta(-wo, samp.normal);
-    const double pdf_light =
+    const Float shading_cos = absCosTheta(wo, rec.normal);
+    const Float light_cos = absCosTheta(-wo, samp.normal);
+    const Float pdf_light =
         (1.0 / lights_.size()) * (samp.pdf * dist_sq / light_cos);
     if (shading_cos < EPS || light_cos < EPS)
       return Color(0);
 
     Ray shadow(rec.position, wo);
-    HitRecord sh = scene_.Hit(shadow, Interval<double>::Positive());
+    HitRecord sh = scene_.Hit(shadow, Interval<Float>::Positive());
     if (!sh.hits || sh.primitive != light_prim.get())
       return Color(0);
 
     Color Li_light = light_prim->Le(shadow);
-    const double pdf_bsdf = bsdf.pdf(r.Direction(), wo);
-    const double w = PowerHeuristic(pdf_light, pdf_bsdf);
+    const Float pdf_bsdf = bsdf.pdf(r.Direction(), wo);
+    const Float w = PowerHeuristic(pdf_light, pdf_bsdf);
     Color L =
         bsdf.f(r.Direction(), wo) * Li_light * shading_cos * w / pdf_light;
     return L;
@@ -102,13 +102,13 @@ Color Integrator::Li(Ray r, int depth) {
     L += sample_light();
 
   if (auto samp = bsdf.Sample_f(r.Direction())) {
-    const double pdf_bsdf = samp->pdf;
-    const double cos0 = absCosTheta(samp->wo, rec.normal);
+    const Float pdf_bsdf = samp->pdf;
+    const Float cos0 = absCosTheta(samp->wo, rec.normal);
 
     if (pdf_bsdf > 0.0 && cos0 > 0.0) {
-      double w = 1.0;
+      Float w = 1.0;
       if (use_mis) {
-        double pdf_light = 0;
+        Float pdf_light = 0;
         for (const auto& it : lights_)
           pdf_light += it->GetShape()->Pdf(rec.position, samp->wo);
         w = PowerHeuristic(pdf_bsdf, pdf_light);
@@ -116,7 +116,7 @@ Color Integrator::Li(Ray r, int depth) {
 
       Color throughput = samp->f * cos0 * w / pdf_bsdf;
       if (depth > 5) {
-        double survive =
+        Float survive =
             std::max({throughput.r(), throughput.g(), throughput.b()});
         survive = std::min(survive, 0.95);
         if (random_uniform_01() > survive)

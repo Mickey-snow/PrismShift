@@ -11,9 +11,9 @@
 
 class FakeShape : public IShape {
  public:
-  FakeShape(AABB box, double time) : bbox_(std::move(box)), time_(time) {}
+  FakeShape(AABB box, Float time) : bbox_(std::move(box)), time_(time) {}
 
-  HitRecord Hit(const Ray& r, const Interval<double>& interval) const override {
+  HitRecord Hit(const Ray& r, const Interval<Float>& interval) const override {
     if (time_ > 0.0 && bbox_.isHitIn(r, interval))
       return HitRecord::Create(time_, r.At(time_), Point2(0, 0),
                                Normal{0, 1, 0});
@@ -25,7 +25,7 @@ class FakeShape : public IShape {
 
  private:
   AABB bbox_;
-  double time_;
+  Float time_;
 };
 
 class AggregatorTest : public ::testing::Test {
@@ -88,7 +88,7 @@ TEST_F(AggregatorTest, hit) {
 
   for (int i = 0; i < testcases; ++i) {
     auto r = rand_ray();
-    auto t = Interval<double>::Positive();
+    auto t = Interval<Float>::Positive();
 
     auto rec = aggregator->Hit(r, t);
     auto it = std::find_if(hittables.cbegin(), hittables.cend(),
@@ -113,7 +113,7 @@ TEST_F(AggregatorTest, SingleObject) {
   aggregator = std::make_unique<BVT>(primitives);
 
   Ray r(Point3(0.5, 0.5, -1), Vector3(0, 0, 1));
-  auto rec = aggregator->Hit(r, Interval<double>::Positive());
+  auto rec = aggregator->Hit(r, Interval<Float>::Positive());
 
   ASSERT_TRUE(rec.hits);
   EXPECT_EQ(rec.primitive, obj.get());
