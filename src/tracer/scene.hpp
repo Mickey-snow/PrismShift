@@ -6,6 +6,7 @@
 
 #include <functional>
 #include <memory>
+#include <span>
 #include <vector>
 
 class BVT;
@@ -24,7 +25,11 @@ class Scene {
   void SetBackground(std::function<Color(Ray)> fn);
   Color Background(Ray ray) const;
 
-  std::vector<std::shared_ptr<Primitive>> objs_;
+  inline std::span<const std::shared_ptr<Primitive>> GetPrimitives() const {
+    return aggregator_->GetPrimitives();
+  }
+
+ private:
   std::unique_ptr<BVT> aggregator_;
   std::function<Color(Ray)> background_fn_;
 };

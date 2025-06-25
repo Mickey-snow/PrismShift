@@ -1,43 +1,39 @@
 #pragma once
 
-#include <primitive.hpp>
-#include <shape.hpp>
-#include <util/util.hpp>
+#include "primitive.hpp"
+#include "shape.hpp"
+#include "util/util.hpp"
 
+#include <algorithm>
+#include <cstdint>
 #include <memory>
-#include <string>
-#include <variant>
+#include <span>
+#include <stdexcept>
 #include <vector>
 
-// FIXME: Fail to construct when primitive array is empty
 class BVT {
  public:
-  struct Node {
-    Node(const std::vector<std::shared_ptr<Primitive>>& src) {
-      std::vector<std::shared_ptr<Primitive>> src_obj_copy(src);
-      *this = Node(src_obj_copy, 0, src_obj_copy.size(), 0);
-    }
-    Node(std::vector<std::shared_ptr<Primitive>>& src_obj,
-         size_t start,
-         size_t end,
-         int axis = 0);
+  explicit BVT(std::vector<std::shared_ptr<Primitive>> primitives);
 
-    HitRecord Hit(const Ray&, const Interval<Float>&) const;
-    AABB GetBbox(void) const noexcept { return bbox; }
+  HitRecord Hit(const Ray& r, const Interval<Float>& time) const;
+  const AABB& GetBbox() const noexcept { return nodes_.front().bbox; }
 
-    using var_t =
-        std::variant<std::shared_ptr<Node>, std::shared_ptr<Primitive>>;
-    var_t lch, rch;
-    AABB bbox;
-  };
-
- public:
-  BVT(const std::vector<std::shared_ptr<Primitive>>& li);
-
-  AABB GetBbox(void) const { return bbox; }
-  HitRecord Hit(const Ray&, const Interval<Float>&) const;
+  inline std::span<const std::shared_ptr<Primitive>> GetPrimitives() const {
+    return primitives_;
+  }
 
  private:
-  AABB bbox;
-  std::unique_ptr<Node> root;
+  struct Node {
+    AABB bbox;           // bounds of this node
+    uint32_t firstPrim;  // offset in primitives_ (valid when primCount>0)
+    uint32_t primCount;  // 0 -> interior, >0 -> leaf
+  };
+
+  // recursive build / traversal helpers
+  void Build(uint32_t nodeIdx, uint32_t start, uint32_t end, int axis);
+
+  HitRecord Traverse(uint32_t nodeIdx, const Ray& r, Interval<Float> t) const;
+
+  std::vector<Node> nodes_;  // implicit binary tree
+  std::vector<std::shared_ptr<Primitive>> primitives_;
 };

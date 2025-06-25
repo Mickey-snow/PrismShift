@@ -31,7 +31,7 @@ Integrator::Integrator(Scene& scene, int max_depth, bool mis_enabled)
       max_depth_(max_depth),
       mis_enabled_(mis_enabled),
       ray_cnt_(0) {
-  for (auto& obj : scene_.objs_) {
+  for (const auto& obj : scene_.GetPrimitives()) {
     if (obj->GetLight())
       lights_.push_back(obj);
   }

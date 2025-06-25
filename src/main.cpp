@@ -35,7 +35,7 @@ int main(int argc, char** argv) {
 
   spdlog::info("scene setup complete.");
 
-  const size_t primitive_count = scene.objs_.size();
+  const size_t primitive_count = scene.GetPrimitives().size();
   spdlog::info("Primitive count: {}", primitive_count);
 
   // render

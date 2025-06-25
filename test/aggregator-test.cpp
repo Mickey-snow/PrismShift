@@ -57,7 +57,7 @@ class AggregatorTest : public ::testing::Test {
     primitives.insert(primitives.end(), hittables.begin(), hittables.end());
     primitives.insert(primitives.end(), unhittables.begin(), unhittables.end());
 
-    aggregator = std::make_unique<BVT>(primitives);
+    aggregator = std::make_unique<BVT>(std::move(primitives));
   }
 
   std::unique_ptr<BVT> aggregator;
@@ -118,4 +118,15 @@ TEST_F(AggregatorTest, SingleObject) {
   ASSERT_TRUE(rec.hits);
   EXPECT_EQ(rec.primitive, obj.get());
   EXPECT_TRUE(aggregator->GetBbox().Contains(obj->GetBbox()));
+}
+
+TEST_F(AggregatorTest, Empty) {
+  std::vector<std::shared_ptr<Primitive>> prim;
+  std::unique_ptr<BVT> empty_agg;
+  EXPECT_NO_THROW(empty_agg = std::make_unique<BVT>(prim));
+  EXPECT_NE(empty_agg, nullptr);
+  HitRecord rec;
+  EXPECT_NO_THROW(rec = empty_agg->Hit(Ray(Point3(0, 0, 0), Vector3(0, 1, 0)),
+                                        Interval<Float>::Universe()));
+  EXPECT_FALSE(rec.hits);
 }

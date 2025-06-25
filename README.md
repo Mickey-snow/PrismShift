@@ -1,6 +1,6 @@
-#PrismShift
+# PrismShift
 
-[![CI](https://github.com/Mickey-snow/PrismShift/actions/workflows/ci.yml/badge.svg)](https://github.com/Mickey-snow/PrismShift/actions/workflows/ci.yml)
+[![CI-Unittest](https://github.com/Mickey-snow/PrismShift/actions/workflows/ci.yml/badge.svg)](https://github.com/Mickey-snow/PrismShift/actions/workflows/ci.yml)
 
 **PrismShift** は C++23 で実装されたCPUベースのレイトレーサです
 
