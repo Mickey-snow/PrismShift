@@ -14,7 +14,7 @@
 | **幾何** | Sphere / Triangle / Quad |
 | **サンプリング** | Multiple Importance Sampling(MIS), Cosine-weighted Hemisphere |
 | **加速構造** | BVH |
-| **並列化** |  |
+| **並列化** | SIMD |
 
 ---
 
@@ -22,9 +22,9 @@
 
 ### 必要環境
 
-- C++23 をサポートするコンパイラ (Clang 17 / GCC 13 / MSVC 19.38 以上)
+- C++23 をサポートするコンパイラ (Clang 17 / GCC 13 / MSVC 19.38 以上)
 
-- CMake ≥ 3.23
+- CMake ≥ 3.23
 
 - Git
 

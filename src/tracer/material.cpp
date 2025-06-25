@@ -22,13 +22,13 @@ BSDF DiffuseMaterial::GetBSDF(const HitRecord& rec) const {
 }
 
 // ------------------------------------------------------------------------------
-ConductorMaterial::ConductorMaterial(Color color, double uRough, double vRough)
+ConductorMaterial::ConductorMaterial(Color color, Float uRough, Float vRough)
     : ConductorMaterial(make_texture(color),
                         make_texture(uRough),
                         make_texture(vRough)) {}
 ConductorMaterial::ConductorMaterial(Texture<Color> c,
-                                     Texture<double> ur,
-                                     Texture<double> vr)
+                                     Texture<Float> ur,
+                                     Texture<Float> vr)
     : albedo_(std::move(c)),
       uRoughness_(std::move(ur)),
       vRoughness_(std::move(vr)) {}
@@ -43,19 +43,19 @@ BSDF ConductorMaterial::GetBSDF(const HitRecord& rec) const {
 }
 
 // ------------------------------------------------------------------------------
-DielectricMaterial::DielectricMaterial(double eta, double uRough, double vRough)
+DielectricMaterial::DielectricMaterial(Float eta, Float uRough, Float vRough)
     : DielectricMaterial(make_texture(eta),
                          make_texture(uRough),
                          make_texture(vRough)) {}
-DielectricMaterial::DielectricMaterial(Texture<double> eta,
-                                       Texture<double> uRough,
-                                       Texture<double> vRough)
+DielectricMaterial::DielectricMaterial(Texture<Float> eta,
+                                       Texture<Float> uRough,
+                                       Texture<Float> vRough)
     : eta_(std::move(eta)),
       uRoughness_(std::move(uRough)),
       vRoughness_(std::move(vRough)) {}
 
 BSDF DielectricMaterial::GetBSDF(const HitRecord& rec) const {
-  double eta = eta_->Evaluate(rec.uv);
+  Float eta = eta_->Evaluate(rec.uv);
   TrowbridgeReitzDistribution ggx(uRoughness_->Evaluate(rec.uv),
                                   vRoughness_->Evaluate(rec.uv));
   return BSDF(
@@ -66,7 +66,7 @@ BSDF DielectricMaterial::GetBSDF(const HitRecord& rec) const {
 // ------------------------------------------------------------------------------
 MixedMaterial::MixedMaterial(std::shared_ptr<IMaterial> first,
                              std::shared_ptr<IMaterial> second,
-                             double fac)
+                             Float fac)
     : first_(std::move(first)), second_(std::move(second)), fac_(fac) {}
 
 std::shared_ptr<IMaterial> MixedMaterial::Select() const {

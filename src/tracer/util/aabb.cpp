@@ -9,13 +9,13 @@
 #include <stdexcept>
 #include <vector>
 
-#include "util/vector.hpp"
 #include "ray.hpp"
 #include "util/transform.hpp"
+#include "util/vector.hpp"
 
 AABB::AABB(std::initializer_list<Point3> li) {
   if (li.size() == 0) {
-    x_interval = y_interval = z_interval = Interval<double>::Empty;
+    x_interval = y_interval = z_interval = Interval<Float>::Empty;
     return;
   }
 
@@ -30,22 +30,22 @@ AABB::AABB(std::initializer_list<Point3> li) {
   auto max_z = std::ranges::max(li | std::views::transform(get_z_comp));
   auto min_z = std::ranges::min(li | std::views::transform(get_z_comp));
 
-  x_interval = Interval<double>(min_x, max_x);
-  y_interval = Interval<double>(min_y, max_y);
-  z_interval = Interval<double>(min_z, max_z);
+  x_interval = Interval<Float>(min_x, max_x);
+  y_interval = Interval<Float>(min_y, max_y);
+  z_interval = Interval<Float>(min_z, max_z);
 }
 
 AABB::AABB(std::initializer_list<AABB> li) {
   if (li.size() == 0) {
-    x_interval = y_interval = z_interval = Interval<double>::Empty;
+    x_interval = y_interval = z_interval = Interval<Float>::Empty;
     return;
   }
 
   auto get_axis = [](const AABB& box, const int axis) {
     return box.Axis(axis);
   };
-  auto get_min = [](const Interval<double>& it) { return it.begin; };
-  auto get_max = [](const Interval<double>& it) { return it.end; };
+  auto get_min = [](const Interval<Float>& it) { return it.begin; };
+  auto get_max = [](const Interval<Float>& it) { return it.end; };
 
   using namespace std::placeholders;
   auto get_x_axis = std::bind(get_axis, _1, 0);
@@ -64,21 +64,21 @@ AABB::AABB(std::initializer_list<AABB> li) {
   auto min_z = std::ranges::min(li | std::views::transform(get_z_axis) |
                                 std::views::transform(get_min));
 
-  x_interval = Interval<double>(min_x, max_x);
-  y_interval = Interval<double>(min_y, max_y);
-  z_interval = Interval<double>(min_z, max_z);
+  x_interval = Interval<Float>(min_x, max_x);
+  y_interval = Interval<Float>(min_y, max_y);
+  z_interval = Interval<Float>(min_z, max_z);
 }
 AABB::AABB(const Point3& a, const Point3& b) {
-  x_interval = Interval(fmin(a.x(), b.x()), fmax(a.x(), b.x()));
-  y_interval = Interval(fmin(a.y(), b.y()), fmax(a.y(), b.y()));
-  z_interval = Interval(fmin(a.z(), b.z()), fmax(a.z(), b.z()));
+  x_interval = Interval<Float>(fmin(a.x(), b.x()), fmax(a.x(), b.x()));
+  y_interval = Interval<Float>(fmin(a.y(), b.y()), fmax(a.y(), b.y()));
+  z_interval = Interval<Float>(fmin(a.z(), b.z()), fmax(a.z(), b.z()));
 }
 AABB::AABB(const AABB& a, const AABB& b)
     : x_interval(Interval(a.x_interval, b.x_interval)),
       y_interval(Interval(a.y_interval, b.y_interval)),
       z_interval(Interval(a.z_interval, b.z_interval)) {}
 
-const Interval<double>& AABB::Axis(const int& n) const {
+const Interval<Float>& AABB::Axis(const int& n) const {
   if (n == 0)
     return x_interval;
   if (n == 1)
@@ -91,7 +91,7 @@ const Interval<double>& AABB::Axis(const int& n) const {
                   n));
 }
 
-bool AABB::isHitIn(const Ray& r, Interval<double> ray_t) const {
+bool AABB::isHitIn(const Ray& r, Interval<Float> ray_t) const {
   for (int a = 0; a < 3; ++a) {
     auto invD = 1.0 / r.Direction()[a];
     auto orig = r.Origin()[a];
@@ -115,7 +115,7 @@ bool AABB::isHitIn(const Ray& r, Interval<double> ray_t) const {
   return true;
 }
 bool AABB::Contains(const Point3& p) const {
-  const double x = p.x(), y = p.y(), z = p.z();
+  const Float x = p.x(), y = p.y(), z = p.z();
   return x_interval.Contains(x) && y_interval.Contains(y) &&
          z_interval.Contains(z);
 }
@@ -131,12 +131,12 @@ bool AABB::isEmpty(void) const {
 }
 
 AABB AABB::Pad() const {
-  static double EPS = 1e-3;
-  Interval<double> xx =
+  static Float EPS = 1e-3;
+  Interval<Float> xx =
       (x_interval.Size() < EPS) ? x_interval.Expand(EPS) : x_interval;
-  Interval<double> yy =
+  Interval<Float> yy =
       (y_interval.Size() < EPS) ? y_interval.Expand(EPS) : y_interval;
-  Interval<double> zz =
+  Interval<Float> zz =
       (z_interval.Size() < EPS) ? z_interval.Expand(EPS) : z_interval;
   return AABB(xx, yy, zz);
 }

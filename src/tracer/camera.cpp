@@ -11,7 +11,7 @@ Camera::View_Info Camera::initializeView() const {
   auto h = tan(theta / 2);
   view.viewport_height = 2 * h * view.focal_length;
   view.viewport_width = view.viewport_height *
-                        (static_cast<double>(image_width_) / image_height_);
+                        (static_cast<Float>(image_width_) / image_height_);
 
   // The camera coordinate frame basis vectors
   Vector3 w = (looking_at_ - camera_center_).Normalized();    // front

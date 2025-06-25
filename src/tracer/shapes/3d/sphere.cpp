@@ -8,7 +8,7 @@
 #include <util/util.hpp>
 #include "spdlog/spdlog.h"
 
-Sphere::Sphere(Point3 o, double r)
+Sphere::Sphere(Point3 o, Float r)
     : trans_(o - Point3(0, 0, 0)),
       r_(r),
       bbox_(o + Vector3(r, r, r), o - Vector3(r, r, r)) {}
@@ -22,35 +22,35 @@ Point2 Sphere::GetUv(Point3 p) const {
                  p.y(), p.z(), p.Length());
 #endif
 
-  double phi = std::atan2(p.z(), p.x());
-  double cos0 = std::clamp<double>(p.y() / r_, -1, 1);
-  double theta = std::acos(cos0);
+  Float phi = std::atan2(p.z(), p.x());
+  Float cos0 = std::clamp<Float>(p.y() / r_, -1, 1);
+  Float theta = std::acos(cos0);
   return Point2(phi / (2 * pi) + 0.5, theta / pi);
 }
 
 HitRecord Sphere::Hit(const Ray& ray,
-                      const Interval<double>& time_interval) const {
+                      const Interval<Float>& time_interval) const {
   Ray r = ray.UndoTransform(trans_);
 
   Vector3 oc = (Vector3)r.Origin();
-  double a = r.Direction().Length_squared();
-  double b = Vector3::Dot(oc, r.Direction()) * 2;
-  double c = oc.Length_squared() - r_ * r_;
+  Float a = r.Direction().Length_squared();
+  Float b = Vector3::Dot(oc, r.Direction()) * 2;
+  Float c = oc.Length_squared() - r_ * r_;
 
-  double discriminant = b * b - 4 * a * c;
+  Float discriminant = b * b - 4 * a * c;
   if (discriminant < 0)
     return HitRecord();
-  double sqrtd = std::sqrt(discriminant);
+  Float sqrtd = std::sqrt(discriminant);
 
   // Find the nearest root that lies in the acceptable range.
-  double root = (-b - sqrtd) / (2 * a);
+  Float root = (-b - sqrtd) / (2 * a);
   if (!time_interval.Surrounds(root)) {
     root = (-b + sqrtd) / (2 * a);
     if (!time_interval.Surrounds(root))
       return HitRecord();
   }
 
-  double time = root;
+  Float time = root;
   Point3 position = r.At(time);
   Point2 uv = GetUv(position);
   Normal normal = Normal(position);
@@ -70,4 +70,4 @@ ShapeSample Sphere::Sample() const {
   return sample;
 }
 
-double Sphere::Area() const { return 4 * pi * Sqr(r_); }
+Float Sphere::Area() const { return 4 * pi * Sqr(r_); }

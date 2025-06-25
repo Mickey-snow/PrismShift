@@ -53,5 +53,5 @@ int main(int argc, char** argv) {
   spdlog::info("Primitive count: {}", primitive_count);
   spdlog::info("Ray count: {}", rays);
   spdlog::info("kRays/s: {}",
-               static_cast<double>(rays) / 1'000 / duration.count());
+               static_cast<Float>(rays) / 1'000 / duration.count());
 }

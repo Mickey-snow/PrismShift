@@ -28,17 +28,19 @@ Color Conductor::f(const Vector3& wi, const Vector3& wo) const {
 
   // Half vector for microfacet model
   Vector3 wm = wo - wi;
-  double cos0_i = AbsCosTheta(wi), cos0_o = AbsCosTheta(wo);
+  Float cos0_i = AbsCosTheta(wi), cos0_o = AbsCosTheta(wo);
   if (cos0_i == 0 || cos0_o == 0 || wm.NearZero())
     return Color(0);
 
   wm = wm.Normalized();
+
   // f = D(h) * G / (4 |n·wi| |n·wo|) * color
-  double throughput = mfdist_.D(wm) * mfdist_.G(wi, wo) / (4 * cos0_i * cos0_o);
+  Float throughput = mfdist_.D(wm) * mfdist_.G(wi, wo) / (4 * cos0_i * cos0_o);
+
   return throughput * col_;
 }
 
-double Conductor::pdf(const Vector3& wi, const Vector3& wo) const {
+Float Conductor::pdf(const Vector3& wi, const Vector3& wo) const {
   if (mfdist_.EffectivelySmooth() || !SameHemisphere(wi, wo))
     return 0;
 
@@ -67,12 +69,12 @@ std::optional<bxdfSample> Conductor::Sample_f(const Vector3& wi) const {
   if (!SameHemisphere(wi, wo))
     return std::nullopt;
 
-  double costheta_i = AbsCosTheta(wi), costheta_o = AbsCosTheta(wo);
+  Float costheta_i = AbsCosTheta(wi), costheta_o = AbsCosTheta(wo);
   if (costheta_i == 0 || costheta_o == 0)
     return std::nullopt;
 
   // See microfacet BRDF equation
-  double pdf = mfdist_.PDF(wi, wm) / (4.0 * std::fabs(wi.Dot(wm)));
+  Float pdf = mfdist_.PDF(wi, wm) / (4.0 * std::fabs(wi.Dot(wm)));
   Color f = mfdist_.D(wm) * col_ * mfdist_.G(wi, wo) /
             (4.0 * costheta_i * costheta_o);
   return bxdfSample(f, wo, pdf, BxDFBits::Glossy | BxDFBits::Reflection);

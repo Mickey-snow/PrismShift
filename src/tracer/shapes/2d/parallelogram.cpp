@@ -17,15 +17,15 @@ AABB Parallelogram::GetBbox() const {
   return box.Transform(trans_);
 }
 
-inline static auto OnObject(double a, double b) {
+inline static auto OnObject(Float a, Float b) {
   return 0 <= a && a <= 1 && 0 <= b && b <= 1;
 }
 
 HitRecord Parallelogram::Hit(const Ray& ray,
-                             const Interval<double>& time_interval) const {
+                             const Interval<Float>& time_interval) const {
   Ray r = ray.UndoTransform(trans_);
 
-  const double time = -r.Origin().y() / r.Direction().y();
+  const Float time = -r.Origin().y() / r.Direction().y();
   if (std::isnan(time))
     return HitRecord();
   if (!time_interval.Surrounds(time))
@@ -49,4 +49,4 @@ ShapeSample Parallelogram::Sample() const {
   return sample;
 }
 
-double Parallelogram::Area() const { return area_; }
+Float Parallelogram::Area() const { return area_; }

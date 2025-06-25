@@ -34,7 +34,7 @@ std::optional<bxdfSample> BSDF::Sample_f(Vector3 wi) const {
   return std::nullopt;
 }
 
-double BSDF::pdf(Vector3 wi, Vector3 wo, BxDFBits flag) const {
+Float BSDF::pdf(Vector3 wi, Vector3 wo, BxDFBits flag) const {
   wi = transform.Doit(wi).Normalized();
   wo = transform.Doit(wo).Normalized();
   if (bxdf_ != nullptr && bxdf_->MatchesFlag(flag))

@@ -1,9 +1,11 @@
 #pragma once
 
+#include "util/prshdefs.hpp"
+
 #include <limits>
 #include <numbers>
 
 // Constants
-constexpr double infinity = std::numeric_limits<double>::infinity();
-using std::numbers::pi;
-constexpr double invpi = 1.0 / pi;
+inline constexpr Float infinity = std::numeric_limits<Float>::infinity();
+inline constexpr Float pi = std::numbers::pi_v<Float>;
+inline constexpr Float invpi = static_cast<Float>(1.0) / pi;

@@ -23,7 +23,7 @@ class Primitive {
                      std::shared_ptr<IMaterial> mat,
                      std::shared_ptr<ILight> light);
 
-  HitRecord Hit(Ray r, Interval<double> t) const;
+  HitRecord Hit(Ray r, Interval<Float> t) const;
   AABB GetBbox(void) const;
   Color Le(Ray r) const;
 

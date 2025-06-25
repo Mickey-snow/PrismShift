@@ -2,7 +2,7 @@
 
 #include <util/interval.hpp>
 
-constexpr double EPS = 1e-8;
+constexpr Float EPS = 1e-8;
 
 TEST(Mergeinterval, merge) {
   Interval a(-1000, 1000), b(-5, -3);

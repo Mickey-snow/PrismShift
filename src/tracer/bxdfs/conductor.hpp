@@ -47,11 +47,11 @@ class Conductor : public BxDF {
   /**
    * PDF for sampling \c wo given \c wi.
    */
-  double pdf(const Vector3& wi, const Vector3& wo) const override;
+  Float pdf(const Vector3& wi, const Vector3& wo) const override;
 
  private:
   TrowbridgeReitzDistribution mfdist_;  ///< Microfacet normal distribution
-  double fuzz_;                         ///< Unused: compatibility only
+  Float fuzz_;                          ///< Unused: compatibility only
   Color col_;                           ///< Surface color \f$\rho\f$
 };
 

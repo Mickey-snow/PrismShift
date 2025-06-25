@@ -53,7 +53,7 @@ class SceneFactory {
 
   std::shared_ptr<IMaterial> resolve_mat(const json& m);
   std::shared_ptr<ILight> resolve_light(const json& l);
-  std::shared_ptr<ITexture<double>> resolve_float_texture(const json& r);
+  std::shared_ptr<ITexture<Float>> resolve_float_texture(const json& r);
   std::shared_ptr<ITexture<Color>> resolve_color_texture(const json& r);
 
  private:

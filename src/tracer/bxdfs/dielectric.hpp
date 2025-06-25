@@ -28,7 +28,7 @@ class Dielectric : public BxDF {
    * @param mfdist Microfacet distribution describing surface roughness.
    */
   explicit Dielectric(
-      double eta,
+      Float eta,
       TrowbridgeReitzDistribution mfdist = TrowbridgeReitzDistribution(0, 0));
 
   /// Evaluate the BSDF value.
@@ -38,10 +38,10 @@ class Dielectric : public BxDF {
   std::optional<bxdfSample> Sample_f(const Vector3& wi) const override;
 
   /// PDF of sampling \c wo given \c wi.
-  double pdf(const Vector3& wi, const Vector3& wo) const override;
+  Float pdf(const Vector3& wi, const Vector3& wo) const override;
 
  private:
-  double eta;                           ///< Index of refraction
+  Float eta;                            ///< Index of refraction
   TrowbridgeReitzDistribution mfdist_;  ///< Microfacet distribution
 };
 

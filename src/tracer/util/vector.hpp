@@ -19,9 +19,9 @@
 class ITransformation;
 
 template <std::size_t N>
-class Vector : public basic_vector<double, N> {
+class Vector : public basic_vector<Float, N> {
  private:
-  using super = basic_vector<double, N>;
+  using super = basic_vector<Float, N>;
   static constexpr auto EPS = super::EPS;
 
  public:
@@ -96,15 +96,15 @@ class Vector : public basic_vector<double, N> {
   }
 
   static Vector<N> Random_Unit(void);
-  static Vector<N> Random(const double& min, const double& max);
+  static Vector<N> Random(const Float& min, const Float& max);
 
   Vector<N> Transform(const ITransformation&) const;
 };
 
 template <std::size_t N>
-class Point : public basic_vector<double, N> {
+class Point : public basic_vector<Float, N> {
  private:
-  using super = basic_vector<double, N>;
+  using super = basic_vector<Float, N>;
 
  public:
   using super::super;
@@ -136,7 +136,7 @@ class Point : public basic_vector<double, N> {
   }
 };
 
-class Normal : public basic_vector<double, 3> {
+class Normal : public basic_vector<Float, 3> {
  private:
   using super = basic_vector;
 
@@ -181,7 +181,7 @@ template <vector_like U, vector_like V>
 bool IsParallel(U const& a, V const& b) {
   for (std::size_t i = 0; i < a.dimension; ++i)
     if (b[i] != 0) {
-      double t = a[i] / b[i];
+      Float t = a[i] / b[i];
       return b * t == a;
     }
   return true;
@@ -191,23 +191,23 @@ template <vector_like U, vector_like V>
 inline bool IsPerpendicular(U const& a, V const& b) {
   return std::abs(a.Dot(b)) < U::EPS;
 }
-inline double CosTheta(const Vector3& w) { return w.y(); }
-inline double AbsCosTheta(const Vector3& w) { return std::abs(w.y()); }
-inline double Cos2Theta(const Vector3& w) { return w.y() * w.y(); }
-inline double Sin2Theta(const Vector3& w) {
-  return std::max<double>(0, 1 - Cos2Theta(w));
+inline Float CosTheta(const Vector3& w) { return w.y(); }
+inline Float AbsCosTheta(const Vector3& w) { return std::abs(w.y()); }
+inline Float Cos2Theta(const Vector3& w) { return w.y() * w.y(); }
+inline Float Sin2Theta(const Vector3& w) {
+  return std::max<Float>(0, 1 - Cos2Theta(w));
 }
-inline double SinTheta(const Vector3& w) { return std::sqrt(Sin2Theta(w)); }
-inline double Tan2Theta(const Vector3& w) {
+inline Float SinTheta(const Vector3& w) { return std::sqrt(Sin2Theta(w)); }
+inline Float Tan2Theta(const Vector3& w) {
   return Sin2Theta(w) / Cos2Theta(w);
 }
-inline double CosPhi(const Vector3& w) {
-  double sintheta = SinTheta(w);
-  return sintheta == 0 ? 1.0 : std::clamp<double>(w.z() / sintheta, -1, 1);
+inline Float CosPhi(const Vector3& w) {
+  Float sintheta = SinTheta(w);
+  return sintheta == 0 ? 1.0 : std::clamp<Float>(w.z() / sintheta, -1, 1);
 }
-inline double SinPhi(const Vector3& w) {
-  double sintheta = SinTheta(w);
-  return sintheta == 0 ? 0.0 : std::clamp<double>(w.x() / sintheta, -1, 1);
+inline Float SinPhi(const Vector3& w) {
+  Float sintheta = SinTheta(w);
+  return sintheta == 0 ? 0.0 : std::clamp<Float>(w.x() / sintheta, -1, 1);
 }
 
 inline static bool SameHemisphere(const Vector3& w, const Vector3& wp) {

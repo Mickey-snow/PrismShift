@@ -6,7 +6,7 @@
 #include <cmath>
 #include <utility>
 
-static constexpr double EPS = 1e-5;
+static constexpr Float EPS = 1e-5;
 
 TEST(TrowbridgeReitz, D) {
   TrowbridgeReitzDistribution dist(0.5, 0.5);
@@ -71,7 +71,7 @@ TEST(TrowbridgeReitz, PDFEqualsD) {
   TrowbridgeReitzDistribution dist(0.5, 0.6);
   for (int i = 0; i < 10; ++i) {
     Vector3 w = rand_sphere_uniform(), wm = rand_sphere_uniform();
-    EXPECT_DOUBLE_EQ(dist.PDF(w, wm), dist.D(w, wm));
+    EXPECT_NEAR(dist.PDF(w, wm), dist.D(w, wm), EPS);
   }
 }
 
@@ -83,13 +83,13 @@ TEST(TrowbridgeReitz, EffectivelySmooth) {
 }
 
 TEST(TrowbridgeReitz, RoughnessToAlpha) {
-  double r = 0.36;
-  EXPECT_DOUBLE_EQ(TrowbridgeReitzDistribution::RoughnessToAlpha(r), 0.6);
+  Float r = 0.36;
+  EXPECT_NEAR(TrowbridgeReitzDistribution::RoughnessToAlpha(r), 0.6, EPS);
 }
 
 TEST(TrowbridgeReitzDistribution, VisibleNormalPDF) {
   constexpr int N = 200'000;  // Monte-Carlo budget
-  constexpr std::tuple<double, double> roughness[] = {
+  constexpr std::tuple<Float, Float> roughness[] = {
       {0.1, 0.1}, {0.25, 0.45}, {0.5, 1.0}, {1.0, 1.0}};
 
   for (auto [ax, az] : roughness) {
@@ -99,23 +99,23 @@ TEST(TrowbridgeReitzDistribution, VisibleNormalPDF) {
 
     TrowbridgeReitzDistribution dist(ax, az);
 
-    double sum = 0.0;
-    double sum2 = 0.0;
+    Float sum = 0.0;
+    Float sum2 = 0.0;
 
     for (int i = 0; i < N; ++i) {
       const Vector3 wm = dist.Sample_wm(up);
-      const double pdf = dist.PDF(up, wm);
+      const Float pdf = dist.PDF(up, wm);
 
       ASSERT_GT(pdf, 0.0) << "PDF should never be zero or negative.";
 
-      const double inv = 1.0 / pdf;
+      const Float inv = 1.0 / pdf;
       sum += inv;
       sum2 += inv * inv;
     }
 
-    const double mean = sum / N;
-    const double var = sum2 / N - mean * mean;
-    const double se = std::sqrt(var / N);  // standard error
+    const Float mean = sum / N;
+    const Float var = sum2 / N - mean * mean;
+    const Float se = std::sqrt(var / N);  // standard error
 
     EXPECT_NEAR(mean, 2 * pi, 6 * se)
         << "ax=" << ax << "  az=" << az << "  mean=" << mean

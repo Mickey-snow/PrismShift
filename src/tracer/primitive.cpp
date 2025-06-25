@@ -13,7 +13,7 @@ Primitive::Primitive(std::shared_ptr<IShape> shape,
                      std::shared_ptr<ILight> light)
     : shape_(shape), material_(mat), light_(light) {}
 
-HitRecord Primitive::Hit(Ray ray, Interval<double> t) const {
+HitRecord Primitive::Hit(Ray ray, Interval<Float> t) const {
   auto rec = shape_->Hit(ray, t);
   if (rec.hits) {
     rec.primitive = this;

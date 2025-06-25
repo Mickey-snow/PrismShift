@@ -12,11 +12,11 @@ class Parallelogram : public IShape {
   Parallelogram(Point3 o, Point3 a, Point3 b);
 
   AABB GetBbox() const override;
-  HitRecord Hit(const Ray&, const Interval<double>&) const override;
+  HitRecord Hit(const Ray&, const Interval<Float>&) const override;
   ShapeSample Sample() const override;
-  double Area() const override;
+  Float Area() const override;
 
  private:
   MatrixTransformation trans_;
-  double area_;
+  Float area_;
 };

@@ -14,7 +14,7 @@ BVT::BVT(const std::vector<std::shared_ptr<Primitive>>& li) {
   bbox = root->GetBbox();
 }
 
-HitRecord BVT::Hit(const Ray& r, const Interval<double>& time_interval) const {
+HitRecord BVT::Hit(const Ray& r, const Interval<Float>& time_interval) const {
   return root->Hit(r, time_interval);
 }
 
@@ -27,7 +27,7 @@ inline static AABB _GetBbox(const BVT::Node::var_t& var) {
 }
 inline static HitRecord _GetHitResult(const BVT::Node::var_t& var,
                                       Ray r,
-                                      Interval<double> t) {
+                                      Interval<Float> t) {
   return std::visit(
       overload(
           [&](std::shared_ptr<BVT::Node> node) { return node->Hit(r, t); },
@@ -81,8 +81,8 @@ BVT::Node::Node(std::vector<std::shared_ptr<Primitive>>& src_obj,
   bbox = AABB{_GetBbox(lch), _GetBbox(rch)};
 }
 
-HitRecord BVT::Node::Hit(const Ray& r, const Interval<double>& time) const {
-  double closest_hit_time = time.end;
+HitRecord BVT::Node::Hit(const Ray& r, const Interval<Float>& time) const {
+  Float closest_hit_time = time.end;
 
   if (!bbox.isHitIn(r, time))
     return HitRecord();

@@ -1,11 +1,13 @@
 #pragma once
 
+#include "util/prshdefs.hpp"
+
 #include <iostream>
 
 template <typename T>
 class Interval {
  private:
-  static constexpr double EPS = 1e-8;
+  static constexpr Float EPS = 1e-8;
 
  public:
   T begin, end;
@@ -23,7 +25,7 @@ class Interval {
            (end - EPS < rhs.end && rhs.end < end + EPS);
   }
 
-  constexpr Interval Expand(double x) const {
+  constexpr Interval Expand(Float x) const {
     return Interval(begin - x, end + x);
   }
 

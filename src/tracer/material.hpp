@@ -27,37 +27,37 @@ class DiffuseMaterial : public IMaterial {
 
 class ConductorMaterial : public IMaterial {
   Texture<Color> albedo_;
-  Texture<double> uRoughness_, vRoughness_;
+  Texture<Float> uRoughness_, vRoughness_;
 
  public:
-  ConductorMaterial(Color albedo, double uRough, double vRough);
+  ConductorMaterial(Color albedo, Float uRough, Float vRough);
   ConductorMaterial(Texture<Color> albedo,
-                    Texture<double> ur,
-                    Texture<double> vr);
+                    Texture<Float> ur,
+                    Texture<Float> vr);
 
   BSDF GetBSDF(const HitRecord& rec) const override;
 };
 
 class DielectricMaterial : public IMaterial {
-  Texture<double> eta_, uRoughness_, vRoughness_;
+  Texture<Float> eta_, uRoughness_, vRoughness_;
 
  public:
-  DielectricMaterial(double eta, double uRough, double vRough);
-  DielectricMaterial(Texture<double> eta,
-                     Texture<double> uRough,
-                     Texture<double> vRough);
+  DielectricMaterial(Float eta, Float uRough, Float vRough);
+  DielectricMaterial(Texture<Float> eta,
+                     Texture<Float> uRough,
+                     Texture<Float> vRough);
 
   BSDF GetBSDF(const HitRecord& rec) const override;
 };
 
 class MixedMaterial : public IMaterial {
   std::shared_ptr<IMaterial> first_, second_;
-  double fac_;  // at 0, use first_ entirely
+  Float fac_;  // at 0, use first_ entirely
 
  public:
   MixedMaterial(std::shared_ptr<IMaterial> first,
                 std::shared_ptr<IMaterial> second,
-                double fac);
+                Float fac);
 
   std::shared_ptr<IMaterial> Select() const;
 

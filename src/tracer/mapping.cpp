@@ -11,10 +11,10 @@ SphericalMap::SphericalMap(std::shared_ptr<ITransformation> trans)
 
 Point2 SphericalMap::Map(Point3 p) const {
   Point3 pt = trans_->Undo(p);
-  double r = pt.Length();
+  Float r = pt.Length();
   assert(r > 0);
-  double phi = std::atan2(pt.z(), pt.x());
-  double cos0 = std::clamp<double>(pt.y() / r, -1, 1);
-  double theta = std::acos(cos0);
+  Float phi = std::atan2(pt.z(), pt.x());
+  Float cos0 = std::clamp<Float>(pt.y() / r, -1, 1);
+  Float theta = std::acos(cos0);
   return Point2(phi / (2 * pi) + 0.5, theta / pi);
 }

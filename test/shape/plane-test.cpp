@@ -16,20 +16,20 @@ class PlaneTest : public ::testing::Test {
   inline static constexpr int N = 8;
   inline static constexpr auto EPS = 1e-6;
 
-  static inline Point3 rand_point(double min = -10, double max = 10) {
-    return Point3(random_double(min, max), random_double(min, max),
-                  random_double(min, max));
+  static inline Point3 rand_point(Float min = -10, Float max = 10) {
+    return Point3(random_float(min, max), random_float(min, max),
+                  random_float(min, max));
   }
 
   Point3 o = rand_point(), a = rand_point(), b = rand_point();
   Vector3 e1 = a - o, e2 = b - o;
   std::unique_ptr<T> shape = std::make_unique<T>(o, a, b);
 
-  double u, v;
+  Float u, v;
 
   Point3 rand_on_plane() {
     if constexpr (std::same_as<T, Triangle>) {
-      v = random_double(0, 0.5), u = random_double(0, 0.5);
+      v = random_float(0, 0.5), u = random_float(0, 0.5);
       return o + e1 * u + e2 * v;
     }
     if constexpr (std::same_as<T, Parallelogram>) {
@@ -37,7 +37,7 @@ class PlaneTest : public ::testing::Test {
       return o + e1 * u + e2 * v;
     }
     if constexpr (std::same_as<T, Plane>) {
-      v = random_double(-10, 10), u = random_double(-10, 10);
+      v = random_float(-10, 10), u = random_float(-10, 10);
       return o + e1 * u + e2 * v;
     }
   }
@@ -45,14 +45,14 @@ class PlaneTest : public ::testing::Test {
   std::optional<Point3> rand_off_plane() {
     if constexpr (std::same_as<T, Triangle>) {
       while (true) {
-        v = random_double(-10, 10), u = random_double(-10, 10);
+        v = random_float(-10, 10), u = random_float(-10, 10);
         if (!(0 <= v && 0 <= u && v + u <= 1))
           return o + e1 * u + e2 * v;
       }
     }
     if constexpr (std::same_as<T, Parallelogram>) {
       while (true) {
-        v = random_double(-10, 10), u = random_double(-10, 10);
+        v = random_float(-10, 10), u = random_float(-10, 10);
         if (!(0 <= v && v <= 1 && 0 <= u && u <= 1))
           return o + e1 * u + e2 * v;
       }
@@ -74,10 +74,10 @@ TYPED_TEST(PlaneTest, Bbox) {
 }
 
 TYPED_TEST(PlaneTest, RayHit) {
-  static const Interval<double> unit(0, 1);
+  static const Interval<Float> unit(0, 1);
 
   Point3 on_plane, ray_point;
-  double time;
+  Float time;
   Ray r;
 
   for (int i = 0; i < this->N; ++i) {
@@ -87,14 +87,14 @@ TYPED_TEST(PlaneTest, RayHit) {
     time = r.direction.Length();
     r.direction /= time;
 
-    HitRecord rec = this->shape->Hit(r, Interval<double>::Positive());
+    HitRecord rec = this->shape->Hit(r, Interval<Float>::Positive());
     EXPECT_TRUE(rec.hits) << this->o << ' ' << this->a << ' ' << this->b << '\n'
                           << r;
     EXPECT_NEAR(rec.time, time, this->EPS);
     EXPECT_EQ(rec.position, on_plane);
     Normal n = rec.normal;
     EXPECT_TRUE(IsPerpendicular(n, this->e1) && IsPerpendicular(n, this->e2));
-    double u = this->u, v = this->v;
+    Float u = this->u, v = this->v;
     EXPECT_TRUE(unit.Contains(rec.uv.x()) && unit.Contains(rec.uv.y()))
         << rec.uv;
     EXPECT_EQ(rec.uv, Point2(u - std::floor(u), v - std::floor(v)));
@@ -103,7 +103,7 @@ TYPED_TEST(PlaneTest, RayHit) {
 
 TYPED_TEST(PlaneTest, HitOutsideInterval) {
   Point3 on_plane, ray_point;
-  double time;
+  Float time;
   Ray r;
 
   for (int i = 0; i < this->N; ++i) {
@@ -113,7 +113,7 @@ TYPED_TEST(PlaneTest, HitOutsideInterval) {
     time = r.direction.Length();
     r.direction /= time;
 
-    auto rec = this->shape->Hit(r, Interval<double>(0, time - this->EPS));
+    auto rec = this->shape->Hit(r, Interval<Float>(0, time - this->EPS));
     ASSERT_FALSE(rec.hits);
   }
 }
@@ -127,7 +127,7 @@ TYPED_TEST(PlaneTest, NoHit) {
     Point3 ray_point = this->rand_point();
     Ray r(ray_point, (*off_plane - ray_point).Normalized());
 
-    auto rec = this->shape->Hit(r, Interval<double>::Positive());
+    auto rec = this->shape->Hit(r, Interval<Float>::Positive());
     EXPECT_FALSE(rec.hits);
   }
 }
@@ -138,7 +138,7 @@ TYPED_TEST(PlaneTest, parallelRayNoHit) {
         random_uniform_01() * this->e1 + random_uniform_01() * this->e2;
     Ray r(this->rand_point(), parallel.Normalized());
 
-    auto rec = this->shape->Hit(r, Interval<double>::Universe());
+    auto rec = this->shape->Hit(r, Interval<Float>::Universe());
     EXPECT_FALSE(rec.hits);
   }
 }

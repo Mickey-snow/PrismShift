@@ -13,18 +13,18 @@ class Primitive;
 struct ShapeSample {
   Point3 pos;
   Normal normal;
-  double pdf;
+  Float pdf;
 };
 
 class IShape {
  public:
   virtual ~IShape() = default;
 
-  virtual HitRecord Hit(const Ray&, const Interval<double>&) const = 0;
+  virtual HitRecord Hit(const Ray&, const Interval<Float>&) const = 0;
   virtual AABB GetBbox() const = 0;
 
-  virtual double Area() const;
+  virtual Float Area() const;
   virtual ShapeSample Sample() const;
 
-  double Pdf(Point3 ref, Vector3 wo) const;
+  Float Pdf(Point3 ref, Vector3 wo) const;
 };
