@@ -6,7 +6,7 @@ namespace bxdfs {
 using namespace vec_helpers;
 
 namespace {
-// helpers
+// Fresnel reflectance for dielectrics using unpolarized light
 static double FrDielectric(double cos0, double eta) {
   cos0 = std::clamp<double>(cos0, -1, 1);
   // Potentially flip interface orientation for Fresnel equations
@@ -15,7 +15,7 @@ static double FrDielectric(double cos0, double eta) {
     cos0 = -cos0;
   }
 
-  // Compute $\cos\,\theta_\roman{t}$ for Fresnel equations using Snell's law
+  // Compute \f$\cos\theta_t\f$ for Fresnel equations using Snell's law
   double sin2Theta_o = 1 - Sqr(cos0);
   double sin2Theta_t = sin2Theta_o / Sqr(eta);
   if (sin2Theta_t >= 1)
@@ -38,9 +38,11 @@ Dielectric::Dielectric(double index, TrowbridgeReitzDistribution mfdist)
 }
 
 Color Dielectric::f(const Vector3& wi, const Vector3& wo) const {
+  // Rough dielectric BRDF/BTDF evaluation
   if (mfdist_.EffectivelySmooth() || eta == 1)
     return Color(0);
 
+  // Cosine of incident and outgoing angles w.r.t. the surface normal
   double cos0_i = CosTheta(-wi), cos0_o = CosTheta(wo);
   bool is_reflect = cos0_i * cos0_o > 0;
 
@@ -48,6 +50,7 @@ Color Dielectric::f(const Vector3& wi, const Vector3& wo) const {
   if (!is_reflect)
     etap = cos0_i > 0 ? eta : (1.0 / eta);
 
+  // Microfacet half vector for the interaction
   Vector3 wm = wo * etap - wi;
   if (cos0_i == 0 || cos0_o == 0 || wm.NearZero())
     return Color(0);
@@ -57,8 +60,9 @@ Color Dielectric::f(const Vector3& wi, const Vector3& wo) const {
   if (wm.Dot(wo) * cos0_o < 0 || wm.Dot(-wi) * cos0_i < 0)
     return Color(0);
 
-  double F = FrDielectric(wm.Dot(-wi), eta);
+  double F = FrDielectric(wm.Dot(-wi), eta);  // Fresnel term
   if (is_reflect) {
+    // Reflection term of the microfacet model
     double c =
         mfdist_.D(wm) * mfdist_.G(wi, wo) * F / std::abs(4 * cos0_i * cos0_o);
     return Color(c);
@@ -73,6 +77,7 @@ Color Dielectric::f(const Vector3& wi, const Vector3& wo) const {
 }
 
 double Dielectric::pdf(const Vector3& wi, const Vector3& wo) const {
+  // PDF for the rough dielectric model
   if (mfdist_.EffectivelySmooth() || eta == 1)
     return 0;
 
@@ -83,6 +88,7 @@ double Dielectric::pdf(const Vector3& wi, const Vector3& wo) const {
   if (!is_reflect)
     etap = cos0_i > 0 ? eta : (1.0 / eta);
 
+  // Half vector computed from Snell's law
   Vector3 wm = wo * etap - wi;
   if (cos0_i == 0 || cos0_o == 0 || wm.NearZero())
     return 0;
@@ -107,6 +113,7 @@ double Dielectric::pdf(const Vector3& wi, const Vector3& wo) const {
 }
 
 std::optional<bxdfSample> Dielectric::Sample_f(const Vector3& wi) const {
+  // Determine if the ray is entering or exiting
   bool entering = wi.y() < 0;
   double etaI = entering ? 1.0 : eta;
   double etaT = entering ? eta : 1.0;
@@ -117,6 +124,7 @@ std::optional<bxdfSample> Dielectric::Sample_f(const Vector3& wi) const {
     double pt = 1 - pr;
 
     if (random_uniform_01() < pr) {
+      // Specular reflection
       Vector3 wo(wi.x(), -wi.y(), wi.z());
       Color fr(pr / AbsCosTheta(wo));
       return bxdfSample(fr, wo, pr, BxDFBits::Specular | BxDFBits::Reflection);
@@ -127,16 +135,19 @@ std::optional<bxdfSample> Dielectric::Sample_f(const Vector3& wi) const {
       if (!ok)
         return std::nullopt;
 
+      // Perfect transmission case
       Color ft(pt / AbsCosTheta(wo));
       return bxdfSample(ft, wo, pt,
                         BxDFBits::Specular | BxDFBits::Transmission);
     }
   } else {
+    // Sample a microfacet normal for rough surfaces
     Vector3 wm = mfdist_.Sample_wm(-wi);
     double pr = FrDielectric(wm.Dot(-wi), eta);
     double pt = 1.0 - pr;
 
     if (random_uniform_01() < pr) {
+      // Reflect about the sampled microfacet normal
       Vector3 wo = Reflect(wi, wm).Normalized();
       if (!SameHemisphere(wi, wo))
         return std::nullopt;
@@ -149,7 +160,7 @@ std::optional<bxdfSample> Dielectric::Sample_f(const Vector3& wi) const {
     } else {
       Vector3 wo;
       double etap = etaRel;
-      bool ok = Refract(wi, wm, etap, &wo);
+      bool ok = Refract(wi, wm, etap, &wo);  // Sample refraction direction
       if (!ok || SameHemisphere(wi, wo) || wo.y() == 0)
         return std::nullopt;
 
