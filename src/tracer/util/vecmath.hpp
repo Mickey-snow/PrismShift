@@ -10,6 +10,10 @@
 #include <type_traits>
 #include <utility>
 
+#ifdef ENABLE_SIMD
+#include "util/simd_vector.hpp"
+#endif
+
 template <typename T>
 concept arithmetic = std::is_arithmetic_v<T>;
 
@@ -58,10 +62,19 @@ class basic_vector {
 
  public:
   constexpr basic_vector operator+(const basic_vector& rhs) const {
-    basic_vector ret;
-    for (std::size_t i = 0; i < N; ++i)
-      ret.v[i] = v[i] + rhs.v[i];
-    return ret;
+#ifdef ENABLE_SIMD
+    if constexpr (std::is_same_v<T, double> && (N == 2 || N == 3 || N == 4)) {
+      basic_vector ret;
+      simd::add<N>(v.data(), rhs.v.data(), ret.v.data());
+      return ret;
+    } else
+#endif
+    {
+      basic_vector ret;
+      for (std::size_t i = 0; i < N; ++i)
+        ret.v[i] = v[i] + rhs.v[i];
+      return ret;
+    }
   }
   constexpr basic_vector operator-(const basic_vector& rhs) const {
     basic_vector ret;
@@ -70,10 +83,19 @@ class basic_vector {
     return ret;
   }
   constexpr basic_vector operator*(const basic_vector& rhs) const {
-    basic_vector ret;
-    for (std::size_t i = 0; i < N; ++i)
-      ret.v[i] = v[i] * rhs.v[i];
-    return ret;
+#ifdef ENABLE_SIMD
+    if constexpr (std::is_same_v<T, double> && (N == 2 || N == 3 || N == 4)) {
+      basic_vector ret;
+      simd::mul<N>(v.data(), rhs.v.data(), ret.v.data());
+      return ret;
+    } else
+#endif
+    {
+      basic_vector ret;
+      for (std::size_t i = 0; i < N; ++i)
+        ret.v[i] = v[i] * rhs.v[i];
+      return ret;
+    }
   }
   constexpr basic_vector operator/(const basic_vector& rhs) const {
     basic_vector ret;
@@ -105,10 +127,21 @@ class basic_vector {
   {
     using R = decltype(std::declval<typename V::value_type>() *
                        std::declval<typename U::value_type>());
-    R sum{};
-    for (std::size_t i = 0; i < V::dimension; ++i)
-      sum += lhs.v[i] * rhs.v[i];
-    return sum;
+#ifdef ENABLE_SIMD
+    if constexpr (std::is_same_v<typename V::value_type, double> &&
+                  std::is_same_v<typename U::value_type, double> &&
+                  (V::dimension == 2 || V::dimension == 3 ||
+                   V::dimension == 4)) {
+      return static_cast<R>(
+          simd::dot<V::dimension>(lhs.v.data(), rhs.v.data()));
+    } else
+#endif
+    {
+      R sum{};
+      for (std::size_t i = 0; i < V::dimension; ++i)
+        sum += lhs.v[i] * rhs.v[i];
+      return sum;
+    }
   }
   [[nodiscard]] constexpr auto Dot(const basic_vector& rhs) const {
     return Dot(*this, rhs);

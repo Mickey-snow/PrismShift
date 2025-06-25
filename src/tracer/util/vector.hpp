@@ -12,6 +12,9 @@
 
 #include "util/vecmath.hpp"
 #include "util/vector_fwd.hpp"
+#ifdef ENABLE_SIMD
+#include "util/simd_vector.hpp"
+#endif
 
 class ITransformation;
 

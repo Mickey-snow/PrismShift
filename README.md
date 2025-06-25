@@ -1,4 +1,4 @@
-# PrismShift
+#PrismShift
 
 [![CI](https://github.com/Mickey-snow/PrismShift/actions/workflows/ci.yml/badge.svg)](https://github.com/Mickey-snow/PrismShift/actions/workflows/ci.yml)
 
@@ -40,6 +40,14 @@ cd PrismShift
 cmake -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build -j
 # 3. レンダリング
 build/src/prsh [scene.json]
+```
+
+### SIMD 最適化ビルド
+
+SIMD を有効にすると、SSE/AVX 命令を用いた高速化が有効になります。
+
+```bash
+cmake -B build -DCMAKE_BUILD_TYPE=Release -DENABLE_SIMD=ON && cmake --build build -j
 ```
 
 ### サニタイザ付きビルド (デバッグ用)
