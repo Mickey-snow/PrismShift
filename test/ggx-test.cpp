@@ -71,7 +71,7 @@ TEST(TrowbridgeReitz, PDFEqualsD) {
   TrowbridgeReitzDistribution dist(0.5, 0.6);
   for (int i = 0; i < 10; ++i) {
     Vector3 w = rand_sphere_uniform(), wm = rand_sphere_uniform();
-    EXPECT_DOUBLE_EQ(dist.PDF(w, wm), dist.D(w, wm));
+    EXPECT_NEAR(dist.PDF(w, wm), dist.D(w, wm), EPS);
   }
 }
 
@@ -84,7 +84,7 @@ TEST(TrowbridgeReitz, EffectivelySmooth) {
 
 TEST(TrowbridgeReitz, RoughnessToAlpha) {
   Float r = 0.36;
-  EXPECT_DOUBLE_EQ(TrowbridgeReitzDistribution::RoughnessToAlpha(r), 0.6);
+  EXPECT_NEAR(TrowbridgeReitzDistribution::RoughnessToAlpha(r), 0.6, EPS);
 }
 
 TEST(TrowbridgeReitzDistribution, VisibleNormalPDF) {

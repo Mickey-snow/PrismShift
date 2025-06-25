@@ -12,7 +12,7 @@ Float random_uniform_01() {
   return distribution(gen);
 }
 
-Float random_double(Float min, Float max) {
+Float random_float(Float min, Float max) {
   std::uniform_real_distribution<Float> distribution(min, max);
   return distribution(gen);
 }

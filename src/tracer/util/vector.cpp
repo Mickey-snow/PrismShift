@@ -16,8 +16,8 @@ Vector<3> Vector<3>::Random_Unit(void) {
 }
 template <>
 Vector<3> Vector<3>::Random(const Float& min, const Float& max) {
-  return Vector<3>{random_double(min, max), random_double(min, max),
-                   random_double(min, max)};
+  return Vector<3>{random_float(min, max), random_float(min, max),
+                   random_float(min, max)};
 }
 
 template <>

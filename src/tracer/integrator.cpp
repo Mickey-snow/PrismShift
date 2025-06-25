@@ -118,7 +118,7 @@ Color Integrator::Li(Ray r, int depth) {
       if (depth > 5) {
         Float survive =
             std::max({throughput.r(), throughput.g(), throughput.b()});
-        survive = std::min(survive, 0.95);
+        survive = std::min<Float>(survive, 0.95);
         if (random_uniform_01() > survive)
           return L;
         else

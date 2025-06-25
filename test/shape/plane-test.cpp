@@ -17,8 +17,8 @@ class PlaneTest : public ::testing::Test {
   inline static constexpr auto EPS = 1e-6;
 
   static inline Point3 rand_point(Float min = -10, Float max = 10) {
-    return Point3(random_double(min, max), random_double(min, max),
-                  random_double(min, max));
+    return Point3(random_float(min, max), random_float(min, max),
+                  random_float(min, max));
   }
 
   Point3 o = rand_point(), a = rand_point(), b = rand_point();
@@ -29,7 +29,7 @@ class PlaneTest : public ::testing::Test {
 
   Point3 rand_on_plane() {
     if constexpr (std::same_as<T, Triangle>) {
-      v = random_double(0, 0.5), u = random_double(0, 0.5);
+      v = random_float(0, 0.5), u = random_float(0, 0.5);
       return o + e1 * u + e2 * v;
     }
     if constexpr (std::same_as<T, Parallelogram>) {
@@ -37,7 +37,7 @@ class PlaneTest : public ::testing::Test {
       return o + e1 * u + e2 * v;
     }
     if constexpr (std::same_as<T, Plane>) {
-      v = random_double(-10, 10), u = random_double(-10, 10);
+      v = random_float(-10, 10), u = random_float(-10, 10);
       return o + e1 * u + e2 * v;
     }
   }
@@ -45,14 +45,14 @@ class PlaneTest : public ::testing::Test {
   std::optional<Point3> rand_off_plane() {
     if constexpr (std::same_as<T, Triangle>) {
       while (true) {
-        v = random_double(-10, 10), u = random_double(-10, 10);
+        v = random_float(-10, 10), u = random_float(-10, 10);
         if (!(0 <= v && 0 <= u && v + u <= 1))
           return o + e1 * u + e2 * v;
       }
     }
     if constexpr (std::same_as<T, Parallelogram>) {
       while (true) {
-        v = random_double(-10, 10), u = random_double(-10, 10);
+        v = random_float(-10, 10), u = random_float(-10, 10);
         if (!(0 <= v && v <= 1 && 0 <= u && u <= 1))
           return o + e1 * u + e2 * v;
       }

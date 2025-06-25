@@ -6,6 +6,8 @@
 #include <format>
 #include <memory>
 
+static constexpr Float kEps = 1e-9;
+
 class TransformTest : public ::testing::Test {};
 
 template <class translate_t>
@@ -44,7 +46,7 @@ TYPED_TEST(TranslateTest, Points) {
     EXPECT_EQ(this->tr2->Doit(p), expected2);
     EXPECT_EQ(this->tr2->Undo(expected2), p);
 
-    Point3 expected3{p.x() - 1.5, p.y() + 2, p.z() - 89};
+    Point3 expected3{p.x() - 1.5f, p.y() + 2, p.z() - 89};
     EXPECT_EQ(this->tr3->Doit(p), expected3);
     EXPECT_EQ(this->tr3->Undo(expected3), p);
   }
@@ -120,12 +122,12 @@ TYPED_TEST(ScalingTest, Normals) {
 
   Normal np = this->tr1->Doit(n);
   Vector3 tp = this->tr1->Doit(t);
-  EXPECT_DOUBLE_EQ(np.Dot(tp), 0.0);
+  EXPECT_NEAR(np.Dot(tp), 0.0, kEps);
   EXPECT_EQ(this->tr1->Undo(np), n);
 
   np = this->tr2->Doit(n);
   tp = this->tr2->Doit(t);
-  EXPECT_DOUBLE_EQ(np.Dot(tp), 0.0);
+  EXPECT_NEAR(np.Dot(tp), 0.0, kEps);
   EXPECT_EQ(this->tr2->Undo(np), n);
 }
 
@@ -229,8 +231,8 @@ TYPED_TEST(RotateTest, randomFrto) {
   static constexpr auto testcases = 100;
   for (int i = 0; i < testcases; ++i) {
     auto randUnitVec = []() {
-      return Vector3(random_double(-1000, 1000), random_double(-1000, 1000),
-                     random_double(-1000, 1000))
+      return Vector3(random_float(-1000, 1000), random_float(-1000, 1000),
+                     random_float(-1000, 1000))
           .Normalized();
     };
     auto fr = randUnitVec(), to = randUnitVec();
@@ -268,8 +270,8 @@ TYPED_TEST(RotateTest, randomAlign) {
   static constexpr auto testcases = 100;
   for (int _ = 0; _ < testcases; ++_) {
     auto randVec = []() {
-      return Vector3(random_double(-1000, 1000), random_double(-1000, 1000),
-                     random_double(-1000, 1000));
+      return Vector3(random_float(-1000, 1000), random_float(-1000, 1000),
+                     random_float(-1000, 1000));
     };
     auto i = randVec().Normalized(), j = randVec();
     auto k = i.Cross(j).Normalized();
@@ -299,8 +301,7 @@ TEST(MatTransformationTest, rotateXyzAxis) {
 }
 
 inline static Vector3 randvec(Float k = 1000) {
-  return Vector3{random_double(-k, k), random_double(-k, k),
-                 random_double(-k, k)};
+  return Vector3{random_float(-k, k), random_float(-k, k), random_float(-k, k)};
 }
 
 TEST(MatTransformationTest, anyAxisAlign) {
@@ -330,7 +331,7 @@ TEST(MatTransformationTest, Affine) {
   Vector3 u = randvec(k), v = randvec(k);
   auto trans = MatrixTransformation::ChangeCoordinate(o1, o1 + u, o1 + v);
 
-  Float a = random_double(-k, k), b = random_double(-k, k);
+  Float a = random_float(-k, k), b = random_float(-k, k);
   Point3 p1 = o1 + a * u + b * v;
 
   Point3 p = trans.Undo(p1);

@@ -9,9 +9,9 @@
 #include <stdexcept>
 #include <vector>
 
-#include "util/vector.hpp"
 #include "ray.hpp"
 #include "util/transform.hpp"
+#include "util/vector.hpp"
 
 AABB::AABB(std::initializer_list<Point3> li) {
   if (li.size() == 0) {
@@ -69,9 +69,9 @@ AABB::AABB(std::initializer_list<AABB> li) {
   z_interval = Interval<Float>(min_z, max_z);
 }
 AABB::AABB(const Point3& a, const Point3& b) {
-  x_interval = Interval(fmin(a.x(), b.x()), fmax(a.x(), b.x()));
-  y_interval = Interval(fmin(a.y(), b.y()), fmax(a.y(), b.y()));
-  z_interval = Interval(fmin(a.z(), b.z()), fmax(a.z(), b.z()));
+  x_interval = Interval<Float>(fmin(a.x(), b.x()), fmax(a.x(), b.x()));
+  y_interval = Interval<Float>(fmin(a.y(), b.y()), fmax(a.y(), b.y()));
+  z_interval = Interval<Float>(fmin(a.z(), b.z()), fmax(a.z(), b.z()));
 }
 AABB::AABB(const AABB& a, const AABB& b)
     : x_interval(Interval(a.x_interval, b.x_interval)),

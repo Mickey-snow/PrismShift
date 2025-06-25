@@ -11,6 +11,8 @@
 #include <common/transformations.hpp>
 #include <util/util.hpp>
 
+inline static constexpr Float kEps = 1e-9;
+
 class aabbTest : public ::testing::Test {
  protected:
   void SetUp() {
@@ -65,11 +67,11 @@ TEST_F(aabbTest, rayIntersectNoHit) {
         << r.Origin() << ' ' << r.Direction();
 
     r = Ray(Point3(2, 2, 2), Vector3(1, 1, 1));
-    EXPECT_FALSE(box.isHitIn(r, Interval{0.001, infinity}))
+    EXPECT_FALSE(box.isHitIn(r, Interval<Float>{0.001, infinity}))
         << r.Origin() << ' ' << r.Direction();
 
     r = Ray(Point3(5, 5, 5), Vector3(-1, -1, -1));
-    EXPECT_FALSE(box.isHitIn(r, Interval{0.001, 3.25}))
+    EXPECT_FALSE(box.isHitIn(r, Interval<Float>{0.001f, 3.25f}))
         << r.Origin() << ' ' << r.Direction();
   }
 }
@@ -111,9 +113,9 @@ TEST(aabbComparer, canSortAABBs) {
   std::vector<AABB> arr{a, b, c};
 
   std::sort(arr.begin(), arr.end(), AABB::Componentbased_Comparer(0));
-  EXPECT_DOUBLE_EQ(arr[0].Axis(0).begin, -2);
-  EXPECT_DOUBLE_EQ(arr[1].Axis(0).begin, -1);
-  EXPECT_DOUBLE_EQ(arr[2].Axis(0).begin, 0);
+  EXPECT_NEAR(arr[0].Axis(0).begin, -2, kEps);
+  EXPECT_NEAR(arr[1].Axis(0).begin, -1, kEps);
+  EXPECT_NEAR(arr[2].Axis(0).begin, 0, kEps);
 }
 
 using ::testing::TestWithParam;
@@ -122,8 +124,9 @@ using ::testing::Values;
 class aabbTransformTest : public TestWithParam<MatrixTransformation> {
  protected:
   AABB square = AABB(Point3(0, 0, 0), Point3(1, 1, 0));
-  AABB cube =
-      AABB(Interval(-1.0, 1.0), Interval(-1.0, 1.0), Interval(-1.0, 1.0));
+  AABB cube = AABB(Interval<Float>(-1.0f, 1.0f),
+                   Interval<Float>(-1.0f, 1.0f),
+                   Interval<Float>(-1.0f, 1.0f));
 
   testing::AssertionResult is_transformed_inside(const std::vector<Point3>& v,
                                                  AABB box) {
@@ -236,7 +239,7 @@ TEST_P(aabbTransformTest, approxOutsideSquare) {
   const int points = 100;
   for (int cnt = 0; cnt < points; ++cnt) {
     Point3 p = (Point3)Vector3::Random(0, 1);
-    p.z() = random_double(-1, 1);
+    p.z() = random_float(-1, 1);
 
     EXPECT_FALSE(square.Contains(p));
   }

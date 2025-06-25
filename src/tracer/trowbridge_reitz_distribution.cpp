@@ -73,11 +73,11 @@ Vector3 TrowbridgeReitzDistribution::Sample_wm(Vector3 w) const {
   p.y() = std::lerp(h, p.y(), (1 + wh.y()) / 2);
 
   // Project back to hemisphere
-  Float py = std::sqrt(std::max(0.0, 1 - Vector2(p).Length_squared()));
+  Float py = std::sqrt(std::max<Float>(0.0, 1 - Vector2(p).Length_squared()));
   Vector3 nh = p.x() * T1 + p.y() * T2 + py * wh;
 
   // Ellipsoid to hemisphere
-  Vector3 ans(alpha_x * nh.x(), std::max(1e-6, nh.y()), alpha_z * nh.z());
+  Vector3 ans(alpha_x * nh.x(), std::max<Float>(1e-6, nh.y()), alpha_z * nh.z());
   return ans.Normalized();
 }
 

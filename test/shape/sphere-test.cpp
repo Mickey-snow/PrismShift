@@ -14,14 +14,14 @@ class SphereTest : public ::testing::Test {
   inline static constexpr auto EPS = 1e-6;
 
   static Point3 rand_point(Float min = -10, Float max = 10) {
-    return Point3(random_double(min, max), random_double(min, max),
-                  random_double(min, max));
+    return Point3(random_float(min, max), random_float(min, max),
+                  random_float(min, max));
   }
 
   SphereTest()
       : unit_sphere(Point3(0, 0, 0), 1),
         o(rand_point(7, 10)),
-        r(random_double(1, 3)),
+        r(random_float(1, 3)),
         rand_sphere(o, r) {}
 
   Sphere unit_sphere;
@@ -103,7 +103,7 @@ TEST_F(SphereTest, RayHits) {
 
       // outside
       on_sphere = Point3(rand_sphere_uniform() * sphere->r());
-      ray_point = Point3(random_double(10, 20) * Vector3(on_sphere));
+      ray_point = Point3(random_float(10, 20) * Vector3(on_sphere));
       r = Ray(sphere->GetTransformation().Doit(ray_point),
               sphere->GetTransformation().Doit(on_sphere - ray_point));
       time = r.direction.Length();
@@ -136,7 +136,7 @@ TEST_F(SphereTest, HitOutsideTimeInterval) {
 
       // outside
       on_sphere = Point3(rand_sphere_uniform() * sphere->r());
-      ray_point = Point3(random_double(10, 20) * Vector3(on_sphere));
+      ray_point = Point3(random_float(10, 20) * Vector3(on_sphere));
       r = Ray(sphere->GetTransformation().Doit(ray_point),
               sphere->GetTransformation().Doit(on_sphere - ray_point));
       time = r.direction.Length();

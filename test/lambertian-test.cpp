@@ -80,9 +80,9 @@ TEST(LambertianTest, SampleF_IsCosineWeighted) {
   // Convert to the limiting statistic sqrt(n) * D_n
   Float stat = std::sqrt(N) * D;
   boost::math::kolmogorov_smirnov_distribution<> kolDist(N);
-  Float K_cdf = cdf(kolDist, stat);
+  double K_cdf = cdf(kolDist, static_cast<double>(stat));
 
-  Float p_value = 1.0 - K_cdf;  // p-value = 1 - K(stat)
+  double p_value = 1.0 - K_cdf;  // p-value = 1 - K(stat)
   EXPECT_LT(p_value, 0.01) << "p_value = " << p_value;
 }
 

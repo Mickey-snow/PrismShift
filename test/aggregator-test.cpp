@@ -41,7 +41,7 @@ class AggregatorTest : public ::testing::Test {
     unhittables.reserve(unhittable_count);
     for (int i = 0; i < hittable_count; ++i) {
       auto shape =
-          std::make_shared<FakeShape>(rand_bbox(), random_double(1, 100));
+          std::make_shared<FakeShape>(rand_bbox(), random_float(1, 100));
       auto obj = std::make_shared<Primitive>(shape, /*material=*/nullptr,
                                              /*transform=*/nullptr);
       hittables.push_back(obj);
