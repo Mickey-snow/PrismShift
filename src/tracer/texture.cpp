@@ -6,13 +6,17 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
+#include <spdlog/spdlog.h>
+
 namespace {
 // image texture loaders
 static std::vector<float> load_ldr(const char* file, int& w, int& h, int& c) {
   stbi_set_flip_vertically_on_load(true);
   unsigned char* pix = stbi_load(file, &w, &h, &c, 0);
-  if (!pix)
+  if (!pix) {
+    spdlog::error("stbi failed: {}", stbi_failure_reason());
     return {};
+  }
   std::vector<float> buf;
   buf.resize(size_t(w) * h * c);
   for (size_t i = 0; i < buf.size(); ++i)
@@ -44,12 +48,17 @@ std::vector<float> load_exr(const char* file, int& w, int& h, int& c) {
     buf[i * 4 + 2] = p.b;
     buf[i * 4 + 3] = p.a;  // keep alpha (1.0 if none)
   }
+
   return buf;
 }
 }  // namespace
 
-ImageTexture::ImageTexture(std::vector<float> data, int w, int h, int c)
-    : data_(std::move(data)), w_(w), h_(h), ch_(c) {}
+ImageTexture::ImageTexture(Float scale,
+                           std::vector<float> data,
+                           int w,
+                           int h,
+                           int c)
+    : scale_(scale), data_(std::move(data)), w_(w), h_(h), ch_(c) {}
 
 std::shared_ptr<ImageTexture> ImageTexture::Create(std::filesystem::path path) {
   const std::string ext = path.extension();
@@ -67,7 +76,7 @@ std::shared_ptr<ImageTexture> ImageTexture::Create(std::filesystem::path path) {
   if (ch < 3)
     throw std::runtime_error("Texture must have at least 3 channels");
 
-  return std::make_shared<ImageTexture>(std::move(data), w, h, ch);
+  return std::make_shared<ImageTexture>(1.0, std::move(data), w, h, ch);
 }
 
 Color ImageTexture::Evaluate(Point2 uv) const {
@@ -88,7 +97,7 @@ Color ImageTexture::Evaluate(Point2 uv) const {
 
   Color c0 = Color::Lerp(c00, c10, tx);
   Color c1 = Color::Lerp(c01, c11, tx);
-  return Color::Lerp(c0, c1, ty);
+  return scale_ * Color::Lerp(c0, c1, ty);
 }
 
 Color ImageTexture::Texel(int x, int y) const {

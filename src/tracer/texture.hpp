@@ -34,15 +34,22 @@ class FloatConst : public ITexture<Float> {
 };
 
 class ImageTexture : public ITexture<Color> {
+  Float scale_;
   std::vector<float> data_;
   int w_ = 0, h_ = 0, ch_ = 0;
 
  public:
-  explicit ImageTexture(std::vector<float> data, int w, int h, int c);
+  explicit ImageTexture(Float scale,
+                        std::vector<float> data,
+                        int w,
+                        int h,
+                        int c);
   static std::shared_ptr<ImageTexture> Create(std::filesystem::path path);
 
   // Bilinear sample in [0,1]^2  UV space.
   Color Evaluate(Point2 uv) const override;
+
+  inline Float& Scale() { return scale_; }
 
  private:
   Color Texel(int x, int y) const;

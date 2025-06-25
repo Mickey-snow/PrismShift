@@ -6,7 +6,7 @@
 Float pdf_cosine_distributed_hemisphere(const Vector3& wo) {
   const Float len_sq = wo.Length_squared();
   if (len_sq == 0)
-    return invpi;  // treat as aligned with +Z
+    return invpi;  // treat as aligned with +y
   if (wo.y() <= 0)
     return 0;
   Float costheta = wo.y() / std::sqrt(len_sq);

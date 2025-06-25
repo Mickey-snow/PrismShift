@@ -125,7 +125,11 @@ void SceneFactory::parse_textures(const json& array) {
 
     } else if (type_s == "image") {
       std::filesystem::path path = it.at("path").get<std::string>();
-      texture = static_cast<Texture<Color>>(make_texture(std::move(path)));
+      std::shared_ptr<ImageTexture> image_texture =
+          make_texture(std::move(path));
+      if (it.contains("scale"))
+        image_texture->Scale() = it.at("scale").get<Float>();
+      texture = static_cast<Texture<Color>>(image_texture);
     }
 
     /* optional name -> map */
