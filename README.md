@@ -64,7 +64,7 @@ build/src/prsh [scene.json]
 
 ## ✨ ギャラリー
 
-![1](https://i.imgur.com/iI6EJY3.jpeg)
+![1](https://i.imgur.com/zD8Jrjw.jpeg)
 
 > 18サンプル／ピクセルでレンダリングしたコーネルボックスの比較。
 >
@@ -72,7 +72,7 @@ build/src/prsh [scene.json]
 >
 > 右側:単一のサンプリング手法のみを使用
 
-![2](https://i.imgur.com/qC1TFzb.jpeg)
+![2](https://i.imgur.com/m1XUepE.jpeg)
 
 > アセット提供：[ScottGraham](https://www.blendswap.com/blend/13953)。レンダリング画像は商用利用を行っていません。
 

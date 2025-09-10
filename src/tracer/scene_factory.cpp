@@ -335,7 +335,7 @@ std::shared_ptr<ITexture<Float>> SceneFactory::resolve_float_texture(
 
 std::shared_ptr<ITexture<Color>> SceneFactory::resolve_color_texture(
     const json& r) {
-  if (r.is_array())  // one number, float const
+  if (r.is_array())  // 3 numbers, color const
     return std::make_shared<SolidColor>(r.at(0), r.at(1), r.at(2));
 
   size_t idx;
